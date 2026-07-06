@@ -8,7 +8,7 @@ and Christian gifts). Separate from the `bethany-house` app that powers `hub.bet
 
 - **CodeIgniter 3** (PHP 8.1), MySQL (`mysqli`).
 - Served in production as a Docker image (`php:8.1-apache`) behind the VPS nginx, which
-  terminates TLS and proxies `https://bethanyhouse.co.ke` → the container on `127.0.0.1:8090`.
+  terminates TLS and proxies `https://bethanyhouse.co.ke` → the container on `127.0.0.1:8096`.
 
 ## Edit → GitHub → production
 
