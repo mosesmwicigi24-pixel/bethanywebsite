@@ -1,0 +1,135 @@
+@font-face {
+    font-family: 'Kommon Grotesk Normal';
+    src: url('../fonts/KommonGrotesk/KommonGrotesk-Normal.eot');
+    src: local('Kommon Grotesk Normal'), local('KommonGrotesk-Normal'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Normal.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Normal.woff2') format('woff2'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Normal.woff') format('woff'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Normal.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('../fonts/KommonGrotesk/KommonGrotesk-Light.eot');
+    src: local('Kommon Grotesk Light'), local('KommonGrotesk-Light'),
+        url('../fonts/KommonGrotesk/../fonts/KommonGrotesk/KommonGrotesk-Light.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Light.woff2') format('woff2'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Light.woff') format('woff'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('../fonts/KommonGrotesk/KommonGrotesk-Bold.eot');
+    src: local('Kommon Grotesk Bold'), local('KommonGrotesk-Bold'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Bold.eot?#iefix') format('embedded-opentype'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Bold.woff2') format('woff2'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Bold.woff') format('woff'),
+        url('../fonts/KommonGrotesk/KommonGrotesk-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: "DM Sans";
+    src: url("../fonts/DMSans-Bold.eot");
+    src: local("DM Sans Bold"), local("DMSans-Bold"), url("../fonts/DMSans-Boldd41d.html?#iefix") format("embedded-opentype"), url("../fonts/DMSans-Bold.html") format("woff2"), url("../fonts/DMSans-Bold-2.html") format("woff"),
+        url("../fonts/DMSans-Bold.ttf") format("truetype");
+    font-weight: bold;
+    font-style: normal;
+}
+@font-face {
+    font-family: "DM Sans";
+    src: url("../fonts/DMSans-Medium.eot");
+    src: local("DM Sans Medium"), local("DMSans-Medium"), url("../fonts/DMSans-Mediumd41d.eot?#iefix") format("embedded-opentype"), url("../fonts/DMSans-Medium.woff2") format("woff2"), url("../fonts/DMSans-Medium.woff") format("woff"),
+        url("../fonts/DMSans-Medium.ttf") format("truetype");
+    font-weight: 500;
+    font-style: normal;
+}
+* {
+    font-size: 12px;
+    font-family: 'Kommon Grotesk';
+}
+
+@page 
+    {
+        size: auto;   /* auto is the initial value */
+        margin: 0mm;  /* this affects the margin in the printer settings */
+    }
+
+td,
+th,
+tr,
+table {
+    /*border-top: 1px solid black;*/
+    border-collapse: collapse;
+    text-align: left;
+}
+
+tr {
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;  
+}
+
+td.pre,
+th.pre {
+    width: 40px;
+    max-width: 40px;
+}
+
+td.description,
+th.description {
+    width: 100px;
+    max-width: 100px;
+    word-break: break-all;
+}
+
+td.quantity,
+th.quantity {
+    width: 50px;
+    max-width: 50px;
+    word-break: break-all;
+}
+
+td.price,
+th.price {
+    width: 120px;
+    max-width: 120px;
+    word-break: break-all;
+}
+
+.centered {
+    text-align: center;
+    align-content: center;
+}
+
+.ticket {
+    width: 310px;
+    max-width: 310px;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/*.ticket {
+    width: 270px;
+    max-width: 270px;
+}*/
+
+img {
+    max-width: inherit;
+    width: inherit;
+}
+
+img.logo {
+    max-width: 150px;
+}
+
+@media print {
+    .hidden-print,
+    .hidden-print * {
+        display: none !important;
+    }
+}

@@ -1,0 +1,21 @@
+# Deployed on the VPS at /opt/bethanywebsite. The image is built + pushed by CI;
+# secrets and stateful data are mounted from the host so nothing sensitive lives
+# in the image and no data is migrated.
+services:
+  web:
+    image: ghcr.io/mosesmwicigi24-pixel/bethanywebsite:latest
+    container_name: bethanywebsite
+    restart: unless-stopped
+    ports:
+      # nginx (host) proxies https://bethanyhouse.co.ke -> here.
+      - "127.0.0.1:8090:80"
+    volumes:
+      # User-uploaded product media — the live directory, shared with the host.
+      - /var/www/bethanyhouse/uploads:/var/www/html/uploads
+      # Secrets / environment config — kept out of git, provided by the host.
+      - /opt/bethanywebsite/config/database.php:/var/www/html/application/config/database.php:ro
+      - /opt/bethanywebsite/config/config.php:/var/www/html/application/config/config.php:ro
+      # Host MySQL socket so database.php 'localhost' connects to the existing DB.
+      - /run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

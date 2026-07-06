@@ -1,0 +1,15 @@
+.git
+.github
+.gitignore
+*.md
+docker-compose.yml
+node_modules
+uploads
+home1
+*.zip
+composer.phar
+application/logs/*
+application/cache/*
+# Secrets are mounted at runtime, never baked into the image.
+application/config/database.php
+application/config/config.php

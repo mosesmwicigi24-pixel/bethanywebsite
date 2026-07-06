@@ -1,0 +1,312 @@
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-MediumIt.eot');
+    src: local('Kommon Grotesk Medium Italic'), local('KommonGrotesk-MediumIt'),
+        url('KommonGrotesk-MediumIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-MediumIt.woff2') format('woff2'),
+        url('KommonGrotesk-MediumIt.woff') format('woff'),
+        url('KommonGrotesk-MediumIt.ttf') format('truetype');
+    font-weight: 500;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk Normal';
+    src: url('KommonGrotesk-NormalIt.eot');
+    src: local('Kommon Grotesk Normal Italic'), local('KommonGrotesk-NormalIt'),
+        url('KommonGrotesk-NormalIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-NormalIt.woff2') format('woff2'),
+        url('KommonGrotesk-NormalIt.woff') format('woff'),
+        url('KommonGrotesk-NormalIt.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-SemiBoldIt.eot');
+    src: local('Kommon Grotesk SemiBold Italic'), local('KommonGrotesk-SemiBoldIt'),
+        url('KommonGrotesk-SemiBoldIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-SemiBoldIt.woff2') format('woff2'),
+        url('KommonGrotesk-SemiBoldIt.woff') format('woff'),
+        url('KommonGrotesk-SemiBoldIt.ttf') format('truetype');
+    font-weight: 600;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk Normal';
+    src: url('KommonGrotesk-Normal.eot');
+    src: local('Kommon Grotesk Normal'), local('KommonGrotesk-Normal'),
+        url('KommonGrotesk-Normal.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Normal.woff2') format('woff2'),
+        url('KommonGrotesk-Normal.woff') format('woff'),
+        url('KommonGrotesk-Normal.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Light.eot');
+    src: local('Kommon Grotesk Light'), local('KommonGrotesk-Light'),
+        url('KommonGrotesk-Light.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Light.woff2') format('woff2'),
+        url('KommonGrotesk-Light.woff') format('woff'),
+        url('KommonGrotesk-Light.ttf') format('truetype');
+    font-weight: 300;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-BlackIt.eot');
+    src: local('Kommon Grotesk Black Italic'), local('KommonGrotesk-BlackIt'),
+        url('KommonGrotesk-BlackIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-BlackIt.woff2') format('woff2'),
+        url('KommonGrotesk-BlackIt.woff') format('woff'),
+        url('KommonGrotesk-BlackIt.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-HeavyIt.eot');
+    src: local('Kommon Grotesk Heavy Italic'), local('KommonGrotesk-HeavyIt'),
+        url('KommonGrotesk-HeavyIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-HeavyIt.woff2') format('woff2'),
+        url('KommonGrotesk-HeavyIt.woff') format('woff'),
+        url('KommonGrotesk-HeavyIt.ttf') format('truetype');
+    font-weight: 900;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Black.eot');
+    src: local('Kommon Grotesk Black'), local('KommonGrotesk-Black'),
+        url('KommonGrotesk-Black.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Black.woff2') format('woff2'),
+        url('KommonGrotesk-Black.woff') format('woff'),
+        url('KommonGrotesk-Black.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-SemiBold.eot');
+    src: local('Kommon Grotesk SemiBold'), local('KommonGrotesk-SemiBold'),
+        url('KommonGrotesk-SemiBold.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-SemiBold.woff2') format('woff2'),
+        url('KommonGrotesk-SemiBold.woff') format('woff'),
+        url('KommonGrotesk-SemiBold.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-RegularIt.eot');
+    src: local('Kommon Grotesk Regular Italic'), local('KommonGrotesk-RegularIt'),
+        url('KommonGrotesk-RegularIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-RegularIt.woff2') format('woff2'),
+        url('KommonGrotesk-RegularIt.woff') format('woff'),
+        url('KommonGrotesk-RegularIt.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk Super';
+    src: url('KommonGrotesk-SuperIt.eot');
+    src: local('Kommon Grotesk Super Italic'), local('KommonGrotesk-SuperIt'),
+        url('KommonGrotesk-SuperIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-SuperIt.woff2') format('woff2'),
+        url('KommonGrotesk-SuperIt.woff') format('woff'),
+        url('KommonGrotesk-SuperIt.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-ExtraBoldIt.eot');
+    src: local('Kommon Grotesk ExtraBold Italic'), local('KommonGrotesk-ExtraBoldIt'),
+        url('KommonGrotesk-ExtraBoldIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-ExtraBoldIt.woff2') format('woff2'),
+        url('KommonGrotesk-ExtraBoldIt.woff') format('woff'),
+        url('KommonGrotesk-ExtraBoldIt.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-BoldIt.eot');
+    src: local('Kommon Grotesk Bold Italic'), local('KommonGrotesk-BoldIt'),
+        url('KommonGrotesk-BoldIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-BoldIt.woff2') format('woff2'),
+        url('KommonGrotesk-BoldIt.woff') format('woff'),
+        url('KommonGrotesk-BoldIt.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Thin.eot');
+    src: local('Kommon Grotesk Thin'), local('KommonGrotesk-Thin'),
+        url('KommonGrotesk-Thin.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Thin.woff2') format('woff2'),
+        url('KommonGrotesk-Thin.woff') format('woff'),
+        url('KommonGrotesk-Thin.ttf') format('truetype');
+    font-weight: 100;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-ExtraLightIt.eot');
+    src: local('Kommon Grotesk ExtraLight Italic'), local('KommonGrotesk-ExtraLightIt'),
+        url('KommonGrotesk-ExtraLightIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-ExtraLightIt.woff2') format('woff2'),
+        url('KommonGrotesk-ExtraLightIt.woff') format('woff'),
+        url('KommonGrotesk-ExtraLightIt.ttf') format('truetype');
+    font-weight: 200;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-ExtraLight.eot');
+    src: local('Kommon Grotesk ExtraLight'), local('KommonGrotesk-ExtraLight'),
+        url('KommonGrotesk-ExtraLight.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-ExtraLight.woff2') format('woff2'),
+        url('KommonGrotesk-ExtraLight.woff') format('woff'),
+        url('KommonGrotesk-ExtraLight.ttf') format('truetype');
+    font-weight: 200;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Regular.eot');
+    src: local('Kommon Grotesk Regular'), local('KommonGrotesk-Regular'),
+        url('KommonGrotesk-Regular.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Regular.woff2') format('woff2'),
+        url('KommonGrotesk-Regular.woff') format('woff'),
+        url('KommonGrotesk-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-UltraBoldIt.eot');
+    src: local('Kommon Grotesk UltraBold Italic'), local('KommonGrotesk-UltraBoldIt'),
+        url('KommonGrotesk-UltraBoldIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-UltraBoldIt.woff2') format('woff2'),
+        url('KommonGrotesk-UltraBoldIt.woff') format('woff'),
+        url('KommonGrotesk-UltraBoldIt.ttf') format('truetype');
+    font-weight: 800;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Medium.eot');
+    src: local('Kommon Grotesk Medium'), local('KommonGrotesk-Medium'),
+        url('KommonGrotesk-Medium.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Medium.woff2') format('woff2'),
+        url('KommonGrotesk-Medium.woff') format('woff'),
+        url('KommonGrotesk-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-ThinIt.eot');
+    src: local('Kommon Grotesk Thin Italic'), local('KommonGrotesk-ThinIt'),
+        url('KommonGrotesk-ThinIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-ThinIt.woff2') format('woff2'),
+        url('KommonGrotesk-ThinIt.woff') format('woff'),
+        url('KommonGrotesk-ThinIt.ttf') format('truetype');
+    font-weight: 100;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-UltraBold.eot');
+    src: local('Kommon Grotesk UltraBold'), local('KommonGrotesk-UltraBold'),
+        url('KommonGrotesk-UltraBold.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-UltraBold.woff2') format('woff2'),
+        url('KommonGrotesk-UltraBold.woff') format('woff'),
+        url('KommonGrotesk-UltraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-LightIt.eot');
+    src: local('Kommon Grotesk Light Italic'), local('KommonGrotesk-LightIt'),
+        url('KommonGrotesk-LightIt.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-LightIt.woff2') format('woff2'),
+        url('KommonGrotesk-LightIt.woff') format('woff'),
+        url('KommonGrotesk-LightIt.ttf') format('truetype');
+    font-weight: 300;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk Super';
+    src: url('KommonGrotesk-Super.eot');
+    src: local('Kommon Grotesk Super'), local('KommonGrotesk-Super'),
+        url('KommonGrotesk-Super.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Super.woff2') format('woff2'),
+        url('KommonGrotesk-Super.woff') format('woff'),
+        url('KommonGrotesk-Super.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Bold.eot');
+    src: local('Kommon Grotesk Bold'), local('KommonGrotesk-Bold'),
+        url('KommonGrotesk-Bold.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Bold.woff2') format('woff2'),
+        url('KommonGrotesk-Bold.woff') format('woff'),
+        url('KommonGrotesk-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-Heavy.eot');
+    src: local('Kommon Grotesk Heavy'), local('KommonGrotesk-Heavy'),
+        url('KommonGrotesk-Heavy.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-Heavy.woff2') format('woff2'),
+        url('KommonGrotesk-Heavy.woff') format('woff'),
+        url('KommonGrotesk-Heavy.ttf') format('truetype');
+    font-weight: 900;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Kommon Grotesk';
+    src: url('KommonGrotesk-ExtraBold.eot');
+    src: local('Kommon Grotesk ExtraBold'), local('KommonGrotesk-ExtraBold'),
+        url('KommonGrotesk-ExtraBold.eot?#iefix') format('embedded-opentype'),
+        url('KommonGrotesk-ExtraBold.woff2') format('woff2'),
+        url('KommonGrotesk-ExtraBold.woff') format('woff'),
+        url('KommonGrotesk-ExtraBold.ttf') format('truetype');
+    font-weight: 800;
+    font-style: normal;
+}
+

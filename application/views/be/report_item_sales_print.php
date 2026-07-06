@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html>
+    <title><?php echo $page_title;?>Bethany House</title>
+    <head>
+        <link rel="icon" href="<?php echo base_url();?>assets/be/images/favicon.png">
+        <?php
+            function auto_version($file){
+                if(!file_exists($file)) return $file;
+                $mtime = filemtime($file);
+                return preg_replace('{\\.([^./]+)$}', ".\$1?$mtime", $file);
+            }
+        ?>
+        
+        <link rel="stylesheet" type="text/css" href="<?php echo base_url() . auto_version('assets/pos/css/style.css'); ?>">
+
+        <style> 
+            html{
+                margin:30px 40px;
+            }
+            html, body {
+              background: #fff; 
+              font-size: 7px; 
+              color: #09274c;
+            }
+            html,body,.h1, .h2, .h3, .h4, .h5, .h6, h1, h2, h3, h4, h5, h6{
+              font-family:  'Assistant';
+              font-weight: normal;
+              letter-spacing: -0.01em;
+            }
+        </style>
+    </head>
+    <body onload="window.print();">
+        
+        <div class="row">
+            <div class="col-md-12">
+                <table class="table" style="margin-bottom: 0px;">
+                    <tr>
+                        <td width="50%" style="border: 0px">
+                            <?php foreach ($store_information as $row2): ?>
+                                <?php if($row2->store_logo != '' && file_exists("./uploads/store_logo/" . $row2->store_logo)): ?>
+                                    <img src="<?php echo base_url();?>uploads/store_logo/<?php echo $row2->store_logo; ?>"  width="120px">
+                                <?php else: ?>
+                                    <img src="<?php echo base_url();?>assets/fe/img/logo.png"  width="120px">
+                                <?php endif; ?>
+                            <?php endforeach; ?>
+                            <br><br>
+                            <?php foreach ($store_information as $row2): ?>
+                                <!-- <span>
+                                    <?php echo $row2->physical_address; ?><br />
+                                    <?php echo $row2->phone_number; ?><br />
+                                    <?php echo $row2->email_address; ?><br />
+                                </span> -->
+                            <?php endforeach; ?>
+                        </td>
+                        <td width="50%" class="text-right" style="border: 0px">
+                            <h3 class="text-uppercase text-normal mb-0">POS Item Sales Report<br><small class="text-primary"><?php //echo $row->pos_sale_number; ?></small></h3>
+                            
+                            <p style="font-size: 12px">
+                                <?php if ($date_from != '' && $date_to != ''): ?>
+                                    <b>Date:</b> <?php echo $date_from . ' to ' . $date_to; ?><br />
+                                <?php endif; ?>
+                                <?php if ($outlet_id != ''): ?>
+                                    <b>Outlet:</b> <?php echo $outlet_name; ?><br />  
+                                <?php endif; ?>  
+                                <?php if ($product_id != ''): ?>                            
+                                    <b>Product:</b> <?php echo $product_name; ?><br />
+                                <?php endif; ?>
+                                <?php if ($customer_id != ''): ?>
+                                    <b>Customer:</b> <?php echo $customer_name; ?><br />
+                                <?php endif; ?>
+                                <?php if ($system_user_id != ''): ?>
+                                    <b>User:</b> <?php echo $system_user_name; ?><br />
+                                <?php endif; ?>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+                
+            </div>
+        </div>
+
+        <table class="table table-condensed" data-auto-responsive="true">
+            <thead>
+                <tr>
+                    <th class="">Sale No</th>
+                    <th class="">Outlet</th>
+                    <th class="">Date</th>
+                    <th class="">Customer</th>
+                    <th class="">Product</th>
+                    <th class="">Unit</th>
+                    <th class="">Unit Price</th>
+                    <th class="">Quantity</th>
+                    <th class="">Tax</th>
+                    <th class="">Total</th>
+                    <th class="">User</th>
+                </tr>
+            </thead>
+            <?php 
+                $total_quantity = 0;
+                $total = 0;
+            ?>
+            <tbody>                       
+                <?php foreach ($item_sales as $row): ?>
+                    <?php
+                        $variation_description = '';
+                        if(!empty($row->attributes)){
+                            foreach ($row->attributes as $row3){
+                                $variation_description = $variation_description . $row3->product_attribute_name . ' : <b>' . $row3->product_attribute_value . '</b>, ';
+                            }
+                            $variation_description =  '<br>~ ' . substr($variation_description,0,-2) . '<br>';
+                        }
+                    ?>
+                    <tr>
+                        <td><b>#<?php echo $row->pos_sale_number; ?></b></td>
+                        <td><?php echo $row->outlet_name; ?></td>
+                        <td><span><?php echo date('d-m-Y', strtotime($row->sale_date)); ?></span></td>
+                        <td class="">
+                            <span><?php if ($row->customer_id == 0){ echo $row->customer_name; } else { echo $row->first_name . ' ' . $row->last_name; } ?></span>
+                        </td>
+                        <td><?php echo $row->product_name; ?><?php echo $variation_description; ?></td>
+                        <td><?php echo ($row->unit_name . ' (' . $row->unit_code . ')'); ?></td>
+                        <td><?php echo number_format(($row->unit_price),2); ?></td> 
+                        <td><?php echo number_format(($row->quantity),2); ?></td>
+                        <td><?php echo $row->tax_rate_code . ' [' . $row->tax_rate_value . '%]'; ?></td>
+                        <td><?php echo number_format(($row->sub_total),2); ?></td>
+                        <td><span><?php echo $row->system_user_first_name . ' ' . $row->system_user_last_name; ?> </span></td>
+                    </tr>
+                    <?php 
+                        $total_quantity = $total_quantity + $row->quantity;
+                        $total = $total + $row->sub_total;
+                    ?>
+                <?php endforeach; ?>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <th colspan="7" style="text-align:right">Totals:</th>
+                    <th><?php echo number_format($total_quantity,2); ?></th>
+                    <th></th>
+                    <th colspan="2"><?php echo number_format($total,2); ?></th>
+                </tr>
+            </tfoot>
+        </table>
+        
+        <div class="row">                
+            <div class="col-md-12">
+                <table class="table" style="margin-bottom: 0px;">
+                    <tr>
+                        <td width="100%" style="border: 0px; text-align: center; font-size: 11px">
+                            POS powered by Devlab Africa | www.devlabafrica.com | +254 780912916
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        
+
+    </body>
+</html>

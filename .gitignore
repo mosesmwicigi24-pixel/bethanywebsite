@@ -1,0 +1,27 @@
+# Secrets / environment-specific config — mounted from the host at deploy time.
+# (Templates are committed as *.example.)
+/application/config/database.php
+/application/config/config.php
+
+# Runtime-generated
+/application/logs/*
+!/application/logs/index.html
+/application/cache/*
+!/application/cache/index.html
+
+# User uploads — persisted as a host-mounted Docker volume, not versioned.
+/uploads/
+
+# Dependencies / build artifacts
+/node_modules/
+/vendor/
+composer.phar
+
+# Backups / dumps
+*.zip
+*.sql
+/home1/
+
+# OS cruft
+.DS_Store
+Thumbs.db

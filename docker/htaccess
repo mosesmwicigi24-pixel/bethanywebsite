@@ -1,0 +1,16 @@
+# Container-safe .htaccess. Differs from the repo-root .htaccess in two ways:
+#  1. No cPanel "ea-php73" AddHandler (would break PHP under the official image).
+#  2. No app-level force-HTTPS redirect (nginx already forces HTTPS at the edge;
+#     an app-level redirect loops behind TLS termination).
+RewriteEngine On
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php/$1 [L]
+
+<IfModule mod_deflate.c>
+AddOutputFilterByType DEFLATE text/text text/html text/plain text/xml text/css application/x-javascript application/javascript
+</IfModule>
+
+<FilesMatch "\.(jpg|jpeg|png|gif|swf|js|css)$">
+    Header set Cache-Control "max-age=604800, public"
+</FilesMatch>
