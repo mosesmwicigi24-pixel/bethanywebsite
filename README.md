@@ -6,9 +6,19 @@ and Christian gifts). Separate from the `bethany-house` app that powers `hub.bet
 
 ## Stack
 
-- **CodeIgniter 3** (PHP 8.1), MySQL (`mysqli`).
-- Served in production as a Docker image (`php:8.1-apache`) behind the VPS nginx, which
+- **CodeIgniter 3** (PHP 8.3), MySQL (`mysqli`).
+- Served in production as a Docker image (`php:8.3-apache`) behind the VPS nginx, which
   terminates TLS and proxies `https://bethanyhouse.co.ke` → the container on `127.0.0.1:8096`.
+- **Portable service layer** in [`services/`](services) (`Bethany\Services\*`, no CI
+  dependency) for password hashing and AI SEO — unit-tested, CI-gated, and portable to a
+  future CI4/Laravel migration. See [`docs/AI_SEO.md`](docs/AI_SEO.md).
+
+## Security & tests
+
+- Passwords are hashed with **bcrypt** (`password_hash`) via `Bethany\Services\Security\PasswordHasher`,
+  which transparently accepts legacy md5 hashes and upgrades them on next login — no resets.
+- `composer install && vendor/bin/phpunit` runs the portable-service suite offline (fakes,
+  no API key). CI (`.github/workflows/ci.yml`) lints + tests every PR before deploy.
 
 ## Edit → GitHub → production
 

@@ -2201,7 +2201,7 @@ class Main_model extends CI_Model{
                 'phone_number' => $this->input->post('phone_number'),
                 'email_address' => $this->input->post('email_address'),
                 'init_password' => $init_password,
-                'password' => md5($init_password),
+                'password' => bethany_hash($init_password),
                 'created_on' => date("Y-m-d H:i:s", time())
             );
 
@@ -5007,7 +5007,7 @@ class Main_model extends CI_Model{
                     'email_address' => $this->input->post('email_address'),
                     'gender' => $this->input->post('gender'),
                     'birth_date' => $this->input->post('birth_date'),
-                    'password' => md5($this->input->post('password')),
+                    'password' => bethany_hash($this->input->post('password')),
                     'created_on' => date("Y-m-d H:i:s", time())
                 );
 

@@ -9,6 +9,10 @@ services:
     ports:
       # nginx (host) proxies https://bethanyhouse.co.ke -> here.
       - "127.0.0.1:8096:80"
+    environment:
+      # AI SEO (Claude). Provided by /opt/bethanywebsite/.env on the host; empty by
+      # default so the app runs fine without it — the AI features simply stay disabled.
+      ANTHROPIC_API_KEY: "${ANTHROPIC_API_KEY:-}"
     volumes:
       # User-uploaded product media — the live directory, shared with the host.
       - /var/www/bethanyhouse/uploads:/var/www/html/uploads
