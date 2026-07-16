@@ -104,9 +104,21 @@ th.price {
     align-content: center;
 }
 
+/* The ticket is built for an ~80mm thermal roll (the columns below total 310px
+ * = ~82mm). It had no horizontal centring, so anywhere the paper is WIDER than
+ * the roll — Save to PDF, AirPrint, an A4 sheet — the receipt was pinned to the
+ * top-left of the page with half the sheet blank next to it, which is what made
+ * it look broken rather than deliberate.
+ *
+ * `margin: 0 auto` centres it on wide paper and is a no-op on the roll itself
+ * (auto margins resolve to 0 when the page is not wider than the box), so the
+ * in-store thermal output is byte-for-byte unchanged. `width: 100%` lets it fill
+ * a narrower roll instead of overflowing it.
+ */
 .ticket {
-    width: 310px;
+    width: 100%;
     max-width: 310px;
+    margin: 0 auto;
 }
 
 .text-right {

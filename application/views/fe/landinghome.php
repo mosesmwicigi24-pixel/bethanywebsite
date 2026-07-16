@@ -575,7 +575,7 @@
                         <img src="<?php echo base_url();?>assets/landing/images/logo.png" alt="Bethany House" />
                     </div>
                     <div class="col-12 col-md-6 col-lg-4 text-md-right order-3 mt-4 mt-md-7 mt-lg-0">
-                        <small>Powered by <a href="https://devlabafrica.com" target="_blank">Devlab Africa</a></small>
+                       
                     </div>
                 </div>
             </div>

@@ -129,7 +129,7 @@
                     <tr>
                         <td width="100%" style="border: 0px; text-align: center; font-size: 11px">
                             Generated on <?php echo date('d M, Y H:i:s'); ?><br>
-                            POS powered by Devlab Africa | www.devlabafrica.com | +254 780912916
+                            Bethany House | www.bethanyhouse.co.ke | +254 727 891 989
                         </td>
                     </tr>
                 </table>
