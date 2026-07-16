@@ -2,7 +2,7 @@
 <html lang="zxx" class="js">
     <head>
         <meta charset="utf-8">
-        <meta name="author" content="Devlab Africa">
+        <meta name="author" content="Bethany House">
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
         <meta name="description" content="">
         <link rel="shortcut icon" href="<?php echo base_url();?>assets/pos/images/favicon.png">
@@ -72,7 +72,7 @@
                                     </div>
                                     <div class="col-lg-6">
                                         <div class="nk-block-content text-center text-lg-left">
-                                            <p class="text-soft">&copy; <?php echo date('Y'); ?> Bethany House POS. <small>Powered by <a href="https://devlabafrica.com" target="_blank">Devlab Africa</a></small></p>
+                                            <p class="text-soft">&copy; <?php echo date('Y'); ?> Bethany House POS.</p>
                                         </div>
                                     </div>
                                 </div>
