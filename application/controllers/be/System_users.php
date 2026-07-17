@@ -69,7 +69,7 @@ class System_users extends CI_Controller {
 				'first_name' => $this->input->post('first_name'),
 				'last_name' => $this->input->post('last_name'),
 				'user_role_id' => $this->input->post('user_role_id'),
-				'user_password' => md5($this->input->post('user_password')),
+				'user_password' => bethany_hash($this->input->post('user_password')),
 				'email_address' => $this->input->post('email_address'),
 				'phone_number' => $this->input->post('phone_number'),
 				'address' => $this->input->post('address'),
@@ -144,8 +144,8 @@ class System_users extends CI_Controller {
 		$system_user_id = $this->input->post('system_user_id');
 
 		$data = array(
-			'user_password' => md5($this->input->post('user_password'))
-		);	
+			'user_password' => bethany_hash($this->input->post('user_password'))
+		);
 
 		$q = $this->system_users_model->change_password($data,$system_user_id);
 		if ($q['res'] == true){

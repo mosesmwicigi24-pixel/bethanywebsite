@@ -107,7 +107,7 @@ class Affiliates extends CI_Controller {
                 'country_id' => $this->input->post('register_country_id'),
                 'company_name' => $this->input->post('register_company_name'),
                 'website' => $this->input->post('register_website'),
-                'password' => md5($new_password),
+                'password' => bethany_hash($new_password),
                 'temp_pass' => $new_password,
             );
             $q = $this->affiliates_model->submit_register($data, $affiliate_code);
@@ -237,7 +237,7 @@ class Affiliates extends CI_Controller {
             }else{
 
                 $data = array(
-                    'password' => md5($this->input->post('new_password'))           
+                    'password' => bethany_hash($this->input->post('new_password'))
                 );
 
                 $q = $this->affiliates_model->update_password($data,$affiliate_id);
