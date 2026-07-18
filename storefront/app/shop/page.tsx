@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import Crumbs from "@/components/Crumbs";
 import { ProductCard } from "@/components/cards";
 import { products } from "@/lib/products";
 
@@ -25,9 +26,7 @@ const categories = [
 export default function Shop() {
   return (
     <main className="wrap">
-      <div className="crumbs">
-        <Link href="/">Home</Link><span className="sep">»</span><b>Communion &amp; Clergy Store</b>
-      </div>
+      <Crumbs items={[{ label: "Home", href: "/" }, { label: "Communion & Clergy Store" }]} />
       <div className="toolbar">
         <div></div>
         <div className="sort">Sort by
@@ -56,9 +55,7 @@ export default function Shop() {
           ))}
           <h4>Shop by Price</h4>
           <div className="range"><i className="lo" /><i className="hi" /></div>
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: "12.5px", color: "#666" }}>
-            <span>KES 500</span><span>KES 50,000</span>
-          </div>
+          <div className="range-labels"><span>KES 500</span><span>KES 50,000</span></div>
           <h4>Shop by Size</h4>
           {["S", "M", "L / XL", "Made to Measure"].map((s) => (
             <label className="f-row" key={s}><input type="checkbox" /> {s}</label>

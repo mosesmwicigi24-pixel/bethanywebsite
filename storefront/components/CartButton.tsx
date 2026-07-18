@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef } from "react";
+import { CartIcon } from "./icons";
 
 /** Mini-card add-to-cart button with gold flash + nav cart-count bump. */
 export default function CartButton() {
@@ -18,7 +19,7 @@ export default function CartButton() {
 
   return (
     <button ref={ref} className="cartbtn" aria-label="Add to cart" onClick={add}>
-      <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7zm3 0a3 3 0 0 1 6 0" /></svg>
+      <CartIcon />
     </button>
   );
 }

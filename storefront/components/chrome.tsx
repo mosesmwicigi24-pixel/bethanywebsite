@@ -1,9 +1,12 @@
 import Link from "next/link";
 import Search from "./Search";
 import MobileMenu from "./MobileMenu";
+import { SITE } from "@/lib/site";
+import { CartIcon, UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
 
 /* Shared site chrome: utility bar, nav (CSS-hover mega menu), footer, chat fab.
-   All server components — interactivity is pure CSS. */
+   All server components — interactivity is pure CSS.
+   Business facts (phones, address, delivery promise) come from lib/site.ts. */
 
 export function UtilityBar() {
   return (
@@ -13,24 +16,20 @@ export function UtilityBar() {
           Free delivery within Nairobi on orders over <b>KES 2,000</b> — we ship across East Africa
         </div>
         <div className="meta">
-          <a href="#">Sonalux Building, Moi Avenue</a>
-          <a href="tel:+254727891989">+254 727 891 989</a>
+          <a href="#">{SITE.address}</a>
+          <a href={SITE.phoneHref}>{SITE.phone}</a>
         </div>
       </div>
     </div>
   );
 }
 
-const CartIcon = () => (
-  <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7zm3 0a3 3 0 0 1 6 0" /></svg>
-);
-
 export function Nav() {
   return (
     <nav className="nav">
       <div className="wrap">
         <MobileMenu />
-        <Link className="logo" href="/"><img src="/brand/logo-light.png" alt="Bethany House" /></Link>
+        <Link className="logo" href="/"><img src="/brand/logo-light.png" alt={SITE.name} /></Link>
         <ul className="nav-links">
           <li><Link href="/shop">Offers <span className="flame">🔥</span></Link></li>
           <li className="has-mega">
@@ -68,7 +67,7 @@ export function Nav() {
                   </div>
                   <div className="contact">
                     <span className="badge-pay">M-PESA</span><span className="badge-pay">VISA</span><span className="badge-pay">COD</span>
-                    <b style={{ marginTop: 12 }}>+254 727 891 989</b>
+                    <b style={{ marginTop: 12 }}>{SITE.phone}</b>
                     Order on WhatsApp — quotes for parishes &amp; dioceses
                   </div>
                 </div>
@@ -81,9 +80,9 @@ export function Nav() {
           <li className="has-drop">
             <a href="#">Support</a>
             <div className="drop">
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7zM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>Track Order<span>Delivery status &amp; ETA</span></a>
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9A5.6 5.6 0 0 1 12 6a5.6 5.6 0 0 1 9.5 6c-2.5 4.4-9.5 9-9.5 9z" /></svg>Visit Our Store<span>Sonalux Bldg, Moi Ave</span></a>
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9m9 0-9 9m9-9v5m0-5h-5" /></svg>WhatsApp Us<span>+254 727 891 989</span></a>
+              <a href="#"><TruckIcon />Track Order<span>Delivery status &amp; ETA</span></a>
+              <a href="#"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9A5.6 5.6 0 0 1 12 6a5.6 5.6 0 0 1 9.5 6c-2.5 4.4-9.5 9-9.5 9z" /></svg>Visit Our Store<span>{SITE.address}</span></a>
+              <a href={SITE.phoneHref}><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9m9 0-9 9m9-9v5m0-5h-5" /></svg>WhatsApp Us<span>{SITE.phone}</span></a>
             </div>
           </li>
           <li><Link href="/shop">Hot &amp; New</Link></li>
@@ -91,7 +90,7 @@ export function Nav() {
         <div className="nav-icons">
           <Search />
           <a href="#" aria-label="Cart"><CartIcon /><span className="cart-dot">2</span></a>
-          <a href="#" aria-label="Account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-3.6 4.5-5 8-5s6.5 1.4 8 5" /></svg></a>
+          <a href="#" aria-label="Account"><UserIcon /></a>
         </div>
       </div>
     </nav>
@@ -102,9 +101,9 @@ export function TrustRow() {
   return (
     <div className="wrap">
       <div className="trust">
-        <div className="item"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7zM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>Free Nairobi Delivery over KES 2,000</div>
-        <div className="item"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa, Card &amp; Cash on Delivery</div>
-        <div className="item"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3z" /><path d="m9 12 2 2 4-4" /></svg>Sanctuary-Grade Quality Guarantee</div>
+        <div className="item"><TruckIcon />{SITE.deliveryShort}</div>
+        <div className="item"><CardIcon />M-Pesa, Card &amp; Cash on Delivery</div>
+        <div className="item"><ShieldIcon />Sanctuary-Grade Quality Guarantee</div>
       </div>
     </div>
   );
@@ -115,8 +114,8 @@ export function Footer() {
     <footer className="footer">
       <div className="wrap cols">
         <div className="brand">
-          <img src="/brand/logo-light.png" alt="Bethany House" />
-          <p>The #1 supplier of Holy Communion elements, clergy apparel and Christian gifts — serving churches across East Africa.</p>
+          <img src="/brand/logo-light.png" alt={SITE.name} />
+          <p>{SITE.tagline}</p>
           <div className="newsletter"><input placeholder="Email for offers & new arrivals" /><button>Subscribe</button></div>
         </div>
         <div>
@@ -137,15 +136,15 @@ export function Footer() {
         </div>
         <div className="contact">
           <h5>Visit Us</h5>
-          <p><b>Sonalux Building, Moi Avenue</b><br />Nairobi, Kenya</p>
-          <p>Mon–Sat · 8:00 AM – 5:00 PM</p>
-          <p><b>+254 727 891 989</b> · +254 785 490 805</p>
-          <p>info@bethanygiftshop.com</p>
+          <p><b>{SITE.address}</b><br />{SITE.city}</p>
+          <p>{SITE.hours}</p>
+          <p><b>{SITE.phone}</b> · {SITE.phone2}</p>
+          <p>{SITE.email}</p>
         </div>
       </div>
       <div className="wrap base">
-        <span>© 2026 Bethany House. All rights reserved.</span>
-        <span>M-Pesa · Visa · Mastercard · Cash on Delivery</span>
+        <span>© 2026 {SITE.name}. All rights reserved.</span>
+        <span>{SITE.payments}</span>
       </div>
     </footer>
   );

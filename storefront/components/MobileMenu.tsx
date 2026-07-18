@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { SITE } from "@/lib/site";
 
 const SHOP_LINKS = [
   ["Offers 🔥", "/shop"],
@@ -47,14 +48,14 @@ export default function MobileMenu() {
           </nav>
           <div className="mnav-sub">
             <a href="#" onClick={close}>Track Your Order</a>
-            <a href="#" onClick={close}>Visit Our Store — Sonalux Bldg, Moi Ave</a>
-            <a href="tel:+254727891989">WhatsApp / Call +254 727 891 989</a>
+            <a href="#" onClick={close}>Visit Our Store — {SITE.address}</a>
+            <a href={SITE.phoneHref}>WhatsApp / Call {SITE.phone}</a>
           </div>
           <div className="mnav-foot">
             <span className="badge-pay">M-PESA</span>
             <span className="badge-pay">VISA</span>
             <span className="badge-pay">COD</span>
-            <p>Free Nairobi delivery over KES 2,000<br />Mon–Sat · 8:00 AM – 5:00 PM</p>
+            <p>{SITE.deliveryShort}<br />{SITE.hours}</p>
           </div>
         </aside>
       </div>

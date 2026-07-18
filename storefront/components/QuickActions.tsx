@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CartIcon } from "./icons";
 
 /** Hover quick-actions on product cards: wishlist + instant add-to-cart. */
 export default function QuickActions() {
@@ -26,7 +27,7 @@ export default function QuickActions() {
         {wished ? "♥" : "♡"}
       </button>
       <button aria-label="Quick add to cart" onClick={addToCart}>
-        <svg viewBox="0 0 24 24"><path d="M6 7h12l-1 13H7L6 7zm3 0a3 3 0 0 1 6 0" /></svg>
+        <CartIcon />
       </button>
     </span>
   );

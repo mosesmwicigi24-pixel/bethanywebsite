@@ -1,7 +1,8 @@
 import Link from "next/link";
 import Rail from "@/components/Rail";
 import Reveal from "@/components/Reveal";
-import { ProductCard, MiniCard, LineupCard, EditorialCard } from "@/components/cards";
+import ProductRail from "@/components/ProductRail";
+import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { bySlug } from "@/lib/products";
 
 const pick = (...slugs: string[]) =>
@@ -26,9 +27,7 @@ export default function Home() {
             </p>
             <div className="ctas">
               <Link className="pill pill-gold" href="/shop">Shop Communion</Link>
-              <Link className="pill pill-ghost" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.35)" }} href="/shop">
-                Explore Clergy Apparel
-              </Link>
+              <Link className="pill pill-ghost-dark" href="/shop">Explore Clergy Apparel</Link>
             </div>
             <div className="marks">
               <div className="mark"><b>Same-day</b>Nairobi delivery</div>
@@ -57,8 +56,8 @@ export default function Home() {
 
       {/* ---- Category index ---- */}
       <Reveal as="section">
-        <header className="hero-index wrap" style={{ paddingTop: 64, paddingBottom: 56 }}>
-          <h1 className="serif" style={{ fontSize: "clamp(34px,4vw,52px)", fontWeight: 600 }}>Begin with what you need.</h1>
+        <header className="hero-index compact wrap">
+          <h1 className="mid">Begin with what you need.</h1>
           <div className="cat-index">
             <Link href="/shop"><span className="thumb"><img src="/products/Chalice_Cup.jpg" alt="" /></span>Communion</Link>
             <Link href="/shop"><span className="thumb"><img src="/products/preaching_gown1.jpg" alt="" /></span>Clergy Apparel<span className="new">New</span></Link>
@@ -117,11 +116,8 @@ export default function Home() {
       </section>
 
       {/* ---- Fresh on the shelves ---- */}
-      <Reveal as="section" className="section wrap">
-        <div className="section-head"><h2>Fresh on the shelves.</h2><Link href="/shop">Shop new arrivals →</Link></div>
-        <Rail navInWrap>
-          {fresh.map((p) => <MiniCard key={p.slug} p={p} />)}
-        </Rail>
+      <Reveal>
+        <ProductRail title="Fresh on the shelves." cta="Shop new arrivals" products={fresh} />
       </Reveal>
 
       {/* ---- Testimonials ---- */}

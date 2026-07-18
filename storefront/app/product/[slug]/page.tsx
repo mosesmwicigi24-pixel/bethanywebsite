@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import Rail from "@/components/Rail";
-import { MiniCard } from "@/components/cards";
+import Crumbs from "@/components/Crumbs";
+import ProductRail from "@/components/ProductRail";
 import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful, BundleAdd } from "@/components/pdp";
 import { bySlug, formatKES, products } from "@/lib/products";
 
@@ -30,16 +30,16 @@ export default async function ProductPage(
   const sku = `BH-${p.slug.slice(0, 3).toUpperCase()}-01`;
 
   return (
-    <main style={{ paddingBottom: 90 }}>
+    <main className="pdp-page">
       <StickyChrome name={p.short} sku={sku} price={formatKES(p.price)} img={p.img} />
 
       <div className="wrap">
-        <div className="crumbs">
-          <Link href="/">Home</Link><span className="sep">»</span>
-          <Link href="/shop">Product</Link><span className="sep">»</span>
-          <Link href="/shop">{p.category}</Link><span className="sep">»</span>
-          <b>{p.name}</b>
-        </div>
+        <Crumbs items={[
+          { label: "Home", href: "/" },
+          { label: "Product", href: "/shop" },
+          { label: p.category, href: "/shop" },
+          { label: p.name },
+        ]} />
 
         <div className="pdp">
           <Gallery images={isFlagship
@@ -92,14 +92,9 @@ export default async function ProductPage(
         </div>
 
         {isFlagship && <BoughtTogether />}
-
-        <section className="section" style={{ paddingTop: 20 }}>
-          <div className="section-head"><h2 style={{ fontSize: 30 }}>You May Also Like</h2></div>
-          <Rail navInWrap>
-            {also.map((x) => <MiniCard key={x.slug} p={x} />)}
-          </Rail>
-        </section>
       </div>
+
+      <ProductRail title="You May Also Like" products={also} small tight />
 
       {isFlagship && <FlagshipStory />}
 
