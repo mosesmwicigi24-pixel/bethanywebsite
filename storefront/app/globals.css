@@ -527,3 +527,164 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .pill{transition:transform .16s var(--ease),background .2s,border-color .2s,box-shadow .2s}
 .pill:active{transform:scale(.965)}
 .pill-gold{box-shadow:0 8px 24px rgba(201,162,39,.35)}
+
+/* ============================================================
+   RESPONSIVE SYSTEM — tiered breakpoints, touch, mobile drawer
+   ============================================================ */
+
+/* mobile drawer */
+.nav-burger{display:none;width:42px;height:42px;border-radius:10px;align-items:center;justify-content:center;margin-right:2px}
+.nav-burger svg{width:24px;height:24px;stroke:#e8edf5;fill:none;stroke-width:1.8}
+.mnav-veil{position:fixed;inset:0;background:rgba(7,15,28,.6);backdrop-filter:blur(4px);z-index:400;opacity:0;visibility:hidden;transition:.25s var(--ease)}
+.mnav-veil.open{opacity:1;visibility:visible}
+.mnav{position:absolute;left:0;top:0;bottom:0;width:min(330px,86vw);background:var(--navy-950);color:#fff;display:flex;flex-direction:column;transform:translateX(-100%);transition:.3s var(--ease);overflow-y:auto}
+.mnav-veil.open .mnav{transform:none}
+.mnav-head{display:flex;align-items:center;justify-content:space-between;padding:18px 20px;border-bottom:1px solid rgba(255,255,255,.1)}
+.mnav-head img{height:30px}
+.mnav-head button{color:#c8d2e0;font-size:18px;width:40px;height:40px;border-radius:10px}
+.mnav-links{display:flex;flex-direction:column;padding:10px 8px}
+.mnav-links a{display:flex;justify-content:space-between;align-items:center;padding:14px 14px;font-size:15.5px;font-weight:600;color:#e8edf5;border-radius:10px}
+.mnav-links a:active,.mnav-links a:hover{background:rgba(255,255,255,.06)}
+.mnav-links a span{color:var(--gold-bright)}
+.mnav-sub{border-top:1px solid rgba(255,255,255,.1);padding:14px 8px;display:flex;flex-direction:column}
+.mnav-sub a{padding:11px 14px;font-size:13.5px;color:#aeb9cb;border-radius:10px}
+.mnav-foot{margin-top:auto;padding:18px 22px 26px;border-top:1px solid rgba(255,255,255,.1)}
+.mnav-foot p{font-size:12.5px;color:#8d99ac;margin-top:12px;line-height:1.7}
+
+/* touch devices: quick actions always visible, no hover zoom */
+@media(hover:none){
+  .pcard .quick{opacity:1;transform:none}
+  .gallery .main{cursor:default}
+  .gallery .main img{transform:none!important}
+}
+
+/* ---- ≤1360: desktop-small ---- */
+@media(max-width:1360px){
+  .grid-products{grid-template-columns:repeat(3,1fr)}
+  .catalog .grid-products{grid-template-columns:repeat(3,1fr)}
+}
+
+/* ---- ≤1180: tablet-wide ---- */
+@media(max-width:1180px){
+  .catalog{grid-template-columns:230px 1fr;gap:34px}
+  .catalog .grid-products{grid-template-columns:repeat(2,1fr)}
+  .pdp{gap:40px}
+  .why .grid{grid-template-columns:repeat(2,1fr)}
+  .nav-links{gap:20px}
+  .rev-summary{grid-template-columns:1fr 1fr;row-gap:26px}
+  .rev-summary .rate-input{grid-column:1/-1}
+}
+
+/* ---- ≤980: tablet ---- */
+@media(max-width:980px){
+  .nav-links,.mega,.drop{display:none}
+  .nav-burger{display:flex}
+  .nav .wrap{gap:14px}
+  .nav .logo{margin-right:auto}
+  .grid-products{grid-template-columns:repeat(2,1fr);gap:20px}
+  .hero-cath>.wrap{grid-template-columns:1fr;min-height:0;padding-top:48px;gap:38px}
+  .arch{justify-self:center;width:min(440px,92%)}
+  .hero-cath .marks{gap:24px;flex-wrap:wrap}
+  .creed .wrap{justify-content:flex-start;row-gap:4px}
+  .catalog{grid-template-columns:1fr}
+  .filters{position:static;max-height:none;overflow:visible;display:grid;grid-template-columns:repeat(2,1fr);column-gap:30px;border:1px solid var(--line);border-radius:14px;padding:18px 20px;margin-bottom:8px}
+  .filters .count{grid-column:1/-1}
+  .pdp{grid-template-columns:1fr;gap:30px}
+  .testis .grid{grid-template-columns:1fr;max-width:560px;margin:8px auto 0}
+  .trio{grid-template-columns:1fr}
+  .trio .cell.wide{flex-direction:column;align-items:flex-start}
+  .trio .cell.wide img{margin:16px auto 0}
+  .footer .cols{grid-template-columns:1fr 1fr;gap:30px}
+  .cat-banner{flex-wrap:wrap;padding:26px 28px}
+  .cat-banner img{display:none}
+  .bundle{padding:26px 24px}
+  .bundle .sum{margin:18px auto 0;width:100%}
+  .compare{padding:30px 16px;overflow-x:auto}
+  .compare table{min-width:560px}
+  .stats{gap:44px;flex-wrap:wrap;padding:40px 0 6px}
+  .buybar .bb-info{display:none}
+  .buybar .pill{flex:1;min-width:0}
+  .mega-inner{display:none}
+}
+
+/* ---- ≤640: phone ---- */
+@media(max-width:640px){
+  body{font-size:14.5px}
+  .utility .meta{display:none}
+  .utility .wrap{justify-content:center;text-align:center;height:auto;padding-top:7px;padding-bottom:7px}
+  .nav .wrap{height:58px}
+  .nav .logo img{height:28px}
+  .trust{flex-direction:column;gap:14px;align-items:flex-start;padding:18px 22px;margin:22px auto}
+  .hero-cath .eyebrow{font-size:11px;letter-spacing:.12em}
+  .hero-cath .sub{font-size:15.5px}
+  .hero-cath .ctas .pill{padding:12px 22px;font-size:14px}
+  .hero-cath .marks{gap:18px}
+  .hero-cath .mark b{font-size:16px}
+  .cat-index{gap:22px;margin-top:30px}
+  .cat-index .thumb{width:62px;height:62px;border-radius:16px}
+  .band{padding:54px 0 60px}
+  .dark-band{padding:56px 0 64px}
+  .section{padding:48px 0}
+  .section-head{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:20px}
+  .grid-products{gap:14px}
+  .pcard .ph{padding:14px;border-radius:12px}
+  .pcard h3{font-size:14px;white-space:normal;line-height:1.35}
+  .pcard .chips{display:none}
+  .pcard .price b{font-size:16.5px}
+  .pcard .seller a{font-size:11.5px;padding:5px 9px}
+  .pcard .rating{font-size:12px;left:10px;bottom:9px}
+  .lineup-card{flex:0 0 76vw}
+  .edit-card{flex:0 0 80vw;height:440px}
+  .mini-card{flex:0 0 62vw}
+  .rail{gap:14px}
+  .gallery .main{height:clamp(320px,92vw,460px);padding:20px}
+  .thumbs button{width:68px;height:68px}
+  .buy h1{font-size:24px}
+  .buy .pricerow b{font-size:28px}
+  .assure .a{font-size:11.5px;padding:14px 6px}
+  .deliver{font-size:12.5px;padding:10px 13px}
+  .pheader .sku{display:none}
+  .pheader .name{font-size:17px}
+  .pheader .tabs{gap:20px;font-size:13.5px}
+  .banner.dark,.banner.ivory{padding:40px 22px 0;border-radius:16px}
+  .story-lede{padding:34px 0 18px}
+  .stats .s b{font-size:40px}
+  .bundle .row{justify-content:center}
+  .bundle .bitem{width:124px}
+  .bundle .bitem .im{width:100px;height:100px}
+  .faqs summary{font-size:14px;padding:15px 2px}
+  .rev-summary{grid-template-columns:1fr}
+  .review{padding:18px 18px}
+  .review .shots img{width:86px;height:86px}
+  .testis{padding:54px 0 48px}
+  .why{padding:54px 0 60px}
+  .why .grid{grid-template-columns:1fr}
+  .vespers{padding:60px 20px}
+  .footer .cols{grid-template-columns:1fr;gap:26px;padding:40px 0 28px}
+  .footer .base{flex-direction:column;gap:6px;text-align:center}
+  .chat-fab{right:16px;bottom:88px;width:46px;height:46px;font-size:18px}
+  .search-veil{padding:0}
+  .search-panel{width:100%;max-height:100vh;height:100%;border-radius:0}
+  .crumbs{flex-wrap:wrap;row-gap:2px;font-size:12.5px;padding:14px 0}
+  .toolbar{flex-wrap:wrap;gap:10px}
+  .hero-index{padding:44px 0 40px}
+}
+
+/* ---- ≤420: small phone ---- */
+@media(max-width:420px){
+  .hero-cath .ctas{flex-direction:column;align-items:stretch}
+  .hero-cath .ctas .pill{width:100%}
+  .arch{width:100%}
+  .arch .plate{padding:8px 12px;gap:8px}
+  .arch .plate .nm{font-size:12px}
+  .mini-card{flex:0 0 74vw}
+  .bundle .row{flex-direction:column}
+  .bundle .plus-sign{display:none}
+  .buybar .wrap{gap:8px}
+  .buybar .pill{padding:13px 10px;font-size:14px}
+}
+
+/* price never breaks mid-number */
+.pcard .price,.mini-card .price{flex-wrap:wrap;row-gap:0}
+.pcard .price b,.pcard .price s,.mini-card .price b,.mini-card .price s,.buy .pricerow b{white-space:nowrap}
+.buybar .pill{white-space:nowrap}

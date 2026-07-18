@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Search from "./Search";
+import MobileMenu from "./MobileMenu";
 
 /* Shared site chrome: utility bar, nav (CSS-hover mega menu), footer, chat fab.
    All server components — interactivity is pure CSS. */
@@ -28,6 +29,7 @@ export function Nav() {
   return (
     <nav className="nav">
       <div className="wrap">
+        <MobileMenu />
         <Link className="logo" href="/"><img src="/brand/logo-light.png" alt="Bethany House" /></Link>
         <ul className="nav-links">
           <li><Link href="/shop">Offers <span className="flame">🔥</span></Link></li>
