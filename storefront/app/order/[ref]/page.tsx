@@ -87,6 +87,7 @@ export default function OrderReceiptPage() {
                   {it.measurements && (
                     <div className="r-meas">✂ Made to order — {Object.entries(it.measurements).filter(([, v]) => v).map(([k, v]) => `${k}: ${v}`).join(", ")}</div>
                   )}
+                  {it.size && <div className="r-meas ready">Ready-made — Size {it.size}</div>}
                 </td>
                 <td>{it.qty}</td>
                 <td>{fmt(it.unit)}</td>

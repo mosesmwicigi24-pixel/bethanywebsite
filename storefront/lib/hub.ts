@@ -44,6 +44,7 @@ export interface OnlineOrderDraft {
     unit_price: number;
     requires_production: boolean;
     measurements?: Record<string, string>;
+    size?: string;
   }>;
   checkout: CheckoutPayload;
 }
@@ -65,9 +66,12 @@ export function buildOrderNotes(items: CartItem[], church?: string): string {
   const lines: string[] = [];
   if (church?.trim()) lines.push(`Church/parish: ${church.trim()}`);
   for (const i of items) {
-    if (!i.measurements) continue;
     const p = bySlug(i.slug);
-    lines.push(`MADE TO ORDER — ${p?.name ?? i.slug} ×${i.qty} — measurements (in): ${measurementsToNote(i.measurements)}`);
+    if (i.measurements) {
+      lines.push(`MADE TO ORDER — ${p?.name ?? i.slug} ×${i.qty} — measurements (in): ${measurementsToNote(i.measurements)}`);
+    } else if (i.size) {
+      lines.push(`READY-MADE — ${p?.name ?? i.slug} ×${i.qty} — Size ${i.size}`);
+    }
   }
   return lines.join("\n");
 }
@@ -98,6 +102,7 @@ export function buildOnlineOrder(
         unit_price: p ? (opts.currency === "KES" ? p.price : p.priceUsd) : 0,
         requires_production: Boolean(i.measurements),
         measurements: i.measurements,
+        size: i.size,
       };
     }),
     checkout: {
@@ -140,6 +145,7 @@ export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orde
         slug: i.slug,
         quantity: i.quantity,
         measurements: i.measurements,
+        size: i.size,
       })),
     };
     const r = await fetch(`${HUB}/storefront/orders`, {

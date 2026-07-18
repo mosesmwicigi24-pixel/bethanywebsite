@@ -66,7 +66,9 @@ export default async function ProductPage(
             </div>
             {p.producible && (
               <div style={{ margin: "2px 0 6px" }}>
-                <span className="tag tag-gold">✂ Made to order — measurements required</span>
+                <span className="tag tag-gold">
+                  {p.sizes ? "Ready-made sizes ✂ or made to measure" : "✂ Made to order — measurements required"}
+                </span>
               </div>
             )}
             {p.chips.map((c) => (
@@ -76,7 +78,9 @@ export default async function ProductPage(
             <div className="deliver">
               <span aria-hidden="true">🚚</span>
               <span>{p.producible
-                ? <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
+                ? p.sizes
+                  ? <>Ready-made sizes ship <b>today in Nairobi</b> — made to measure in <b>5–7 days</b>.</>
+                  : <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
                 : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
             </div>
             <MeasurementForm />
@@ -181,7 +185,7 @@ export default async function ProductPage(
   );
 
   return p.producible
-    ? <MeasureProvider template={p.measurements ?? []}>{body}</MeasureProvider>
+    ? <MeasureProvider template={p.measurements ?? []} sizes={p.sizes}>{body}</MeasureProvider>
     : body;
 }
 

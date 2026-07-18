@@ -84,6 +84,7 @@ export default function CheckoutClient() {
           qty: i.qty,
           unit: pr ? (currency === "KES" ? pr.price : pr.priceUsd) : 0,
           measurements: i.measurements,
+          size: i.size,
         };
       }),
       subtotal: sub,
@@ -219,6 +220,7 @@ export default function CheckoutClient() {
                   <span className="im"><img src={p.img} alt="" /><i>{i.qty}</i></span>
                   <span className="minw0"><b>{p.short}</b>
                     {i.measurements && <span className="muted-cap">✂ Made to order</span>}
+                    {i.size && <span className="muted-cap">Size {i.size} · ready-made</span>}
                   </span>
                   <span><Money kes={p.price * i.qty} usd={p.priceUsd * i.qty} /></span>
                 </div>

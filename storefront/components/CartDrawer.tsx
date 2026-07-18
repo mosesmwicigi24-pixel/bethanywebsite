@@ -68,6 +68,9 @@ export default function CartDrawer() {
                   {i.measurements && (
                     <span className="mto-chip">✂ Made to order · measurements attached</span>
                   )}
+                  {i.size && (
+                    <span className="mto-chip ready">Size {i.size} · ready-made</span>
+                  )}
                   <div className="qty sm">
                     <button aria-label="Decrease" onClick={() => setQty(i.key, i.qty - 1)}>‹</button>
                     <input value={i.qty} readOnly aria-label="Quantity" />

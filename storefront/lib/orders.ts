@@ -17,6 +17,7 @@ export interface OrderRecord {
     qty: number;
     unit: number;         // in order currency
     measurements?: Record<string, string>;
+    size?: string;
   }>;
   subtotal: number;
   delivery: number;

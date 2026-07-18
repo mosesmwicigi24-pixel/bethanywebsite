@@ -1020,3 +1020,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   .receipt-wrap{max-width:none;width:100%}
   .confirm-ctas{display:none!important}
 }
+
+/* ready-made vs made-to-measure */
+.mode-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:18px}
+.mode-card{border:1.5px solid #ddd0a8;border-radius:13px;background:#fff;padding:14px 16px;text-align:left;transition:.2s}
+.mode-card b{display:block;font-size:14px}
+.mode-card span{font-size:11.5px;color:var(--muted);display:block;margin-top:3px}
+.mode-card.active{border-color:var(--gold);background:var(--gold-soft);box-shadow:var(--shadow)}
+.size-pills{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+.size-pills button{min-width:52px;padding:11px 14px;border:1.5px solid #ddd0a8;border-radius:11px;background:#fff;font-size:14px;font-weight:700;transition:.18s}
+.size-pills button:hover{border-color:var(--gold)}
+.size-pills button.on{background:var(--navy-950);border-color:var(--navy-950);color:var(--gold-bright)}
+.mto-chip.ready,.co-meas.ready,.r-meas.ready{color:#1d5c38;background:#e7f4ec}
+@media(max-width:640px){.mode-cards{grid-template-columns:1fr}}

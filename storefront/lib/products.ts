@@ -26,6 +26,8 @@ export interface Product {
   producible?: boolean;
   /** hub: products.measurements JSON — template the customer must fill */
   measurements?: Measurement[];
+  /** ready-made standard sizes also in stock (producible items can have both) */
+  sizes?: string[];
   /** short campaign line for the product poster banner */
   tagline?: string;
   /** full gallery (falls back to [img]) */
@@ -163,6 +165,7 @@ export const products: Product[] = [
   },
   {
     slug: "preaching-gown",
+    sizes: ["S", "M", "L", "XL", "XXL"],
     tagline: "Preach with Presence",
     gallery: ["/products/preaching_gown1.jpg", "/products/live-ORDINATION2.png", "/products/live-ORDINATION6.png", "/products/live-preaching_gown_11.jpg", "/products/live-gown-back.jpg"],
     closerLook: [
@@ -200,6 +203,7 @@ export const products: Product[] = [
   },
   {
     slug: "clergy-cassock",
+    sizes: ["S", "M", "L", "XL", "XXL"],
     tagline: "Daily Reverence, Tailored",
     gallery: ["/products/cassock212.jpg", "/products/live-6U3A4750.jpg", "/products/live-6U3A4787.jpg", "/products/live-CASSOCK1.png", "/products/live-cassock2.jpg"],
     closerLook: [
@@ -234,6 +238,7 @@ export const products: Product[] = [
   },
   {
     slug: "ornate-chasuble",
+    sizes: ["S", "M", "L", "XL", "XXL"],
     tagline: "Vested in Glory",
     gallery: ["/products/chasuble31.jpg", "/products/live-CHASUBLE_1.png", "/products/live-CHASUBLE_2.png", "/products/live-CHASUBLE_4.png"],
     closerLook: [
@@ -293,6 +298,7 @@ export const products: Product[] = [
   },
   {
     slug: "clergy-shirt",
+    sizes: ["15\"", "15.5\"", "16\"", "16.5\"", "17\"", "17.5\""],
     tagline: "The Everyday Collar",
     gallery: ["/products/Shirt11.jpg", "/products/live-shirt.jpg"],
     closerLook: [

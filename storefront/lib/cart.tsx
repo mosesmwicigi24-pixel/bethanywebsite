@@ -10,6 +10,8 @@ export interface CartItem {
   qty: number;
   /** hub: production order measurements captured from the customer */
   measurements?: Record<string, string>;
+  /** ready-made standard size (stocked line, no production) */
+  size?: string;
 }
 
 interface CartCtx {
@@ -19,7 +21,7 @@ interface CartCtx {
   subtotalUsd: number;   // USD
   open: boolean;
   hydrated: boolean;
-  add: (slug: string, qty?: number, measurements?: Record<string, string>) => void;
+  add: (slug: string, qty?: number, measurements?: Record<string, string>, size?: string) => void;
   setQty: (key: string, qty: number) => void;
   remove: (key: string) => void;
   clear: () => void;
@@ -53,16 +55,18 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const add = useCallback((slug: string, qty = 1, measurements?: Record<string, string>) => {
+  const add = useCallback((slug: string, qty = 1, measurements?: Record<string, string>, size?: string) => {
     setItems((prev) => {
       if (measurements && Object.keys(measurements).length > 0) {
         // each measured item is its own production line
         return [...prev, { key: `${slug}#${prev.length}-${Math.random().toString(36).slice(2, 7)}`, slug, qty, measurements }];
       }
-      const found = prev.find((i) => i.slug === slug && !i.measurements);
+      // ready-made lines merge per slug+size
+      const key = size ? `${slug}@${size}` : slug;
+      const found = prev.find((i) => i.key === key);
       return found
         ? prev.map((i) => (i === found ? { ...i, qty: i.qty + qty } : i))
-        : [...prev, { key: slug, slug, qty }];
+        : [...prev, { key, slug, qty, size }];
     });
     setOpen(true);
   }, []);

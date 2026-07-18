@@ -37,8 +37,10 @@ export function ProductCard({ p }: { p: Product }) {
         <b><Price p={p} /></b>
         <OldPrice p={p} />
       </div>
-      <div className={`avail ${p.producible ? "mto" : ""}`}>
-        {p.producible ? "Made to order · 5–7 days" : "In stock · ships today"}
+      <div className={`avail ${p.producible && !p.sizes ? "mto" : ""}`}>
+        {p.producible
+          ? p.sizes ? "Ready-made & made to measure" : "Made to order · 5–7 days"
+          : "In stock · ships today"}
       </div>
       {p.seller && (
         <div className="seller">

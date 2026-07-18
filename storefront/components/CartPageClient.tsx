@@ -47,9 +47,12 @@ export default function CartPageClient() {
                 <div className="minw0 cp-mid">
                   <Link href={`/product/${p.slug}`}><b>{p.name}</b></Link>
                   <span className="muted-cap"><Money kes={p.price} usd={p.priceUsd} /> each
-                    {p.producible ? " · Made to order, 5–7 days" : " · In stock, ships today"}</span>
+                    {i.measurements ? " · Made to order, 5–7 days" : " · In stock, ships today"}</span>
                   {i.measurements && (
                     <div className="co-meas">✂ Measurements: {measurementsToNote(i.measurements)}</div>
+                  )}
+                  {i.size && (
+                    <div className="co-meas ready">Size {i.size} · ready-made — ships today</div>
                   )}
                   <div className="cp-actions">
                     <div className="qty sm">

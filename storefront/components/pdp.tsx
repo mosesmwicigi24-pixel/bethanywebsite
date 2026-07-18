@@ -104,7 +104,11 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
       document.getElementById("measurements")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return false;
     }
-    add(slug, readQty(), measure?.values);
+    if (measure?.mode === "ready") {
+      add(slug, readQty(), undefined, measure.size ?? undefined);
+    } else {
+      add(slug, readQty(), measure?.values);
+    }
     return true;
   };
   const [scrolled, setScrolled] = useState(0);
