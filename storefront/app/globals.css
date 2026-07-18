@@ -23,7 +23,7 @@
   --radius:16px;
   --shadow:0 10px 30px rgba(10,20,37,.08);
   --shadow-lift:0 18px 50px rgba(10,20,37,.16);
-  --wrap:1700px;
+  --wrap:2400px;
   --font:var(--font-jakarta),-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --serif:var(--font-fraunces),'Georgia',serif;
   --ease:cubic-bezier(.22,.61,.36,1);
@@ -47,7 +47,7 @@ body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-fo
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(24px,2.6vw,48px)}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(24px,3.4vw,110px)}
 
 /* ---------- utility bar ---------- */
 .utility{background:var(--navy-950);color:#c8d2e0;font-size:12.5px}
@@ -386,7 +386,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* ---------- cathedral hero ---------- */
 .hero-cath{background:radial-gradient(130% 120% at 78% 10%,#1d3457 0%,var(--navy-950) 58%);color:#fff;overflow:hidden;position:relative}
 .hero-cath::after{content:"";position:absolute;inset:0;background:radial-gradient(46% 42% at 74% 62%,rgba(201,162,39,.16),transparent 70%);pointer-events:none}
-.hero-cath>.wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;min-height:640px;padding-top:40px;padding-bottom:40px;position:relative;z-index:1}
+.hero-cath>.wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;min-height:640px;padding-top:40px;padding-bottom:40px;position:relative;z-index:1;max-width:1780px}
 .hero-cath .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-bright);margin-bottom:22px}
 .hero-cath .eyebrow::before{content:"";width:26px;height:1.5px;background:var(--gold)}
 .hero-cath h1{font-family:var(--serif);font-size:clamp(46px,5.6vw,78px);font-weight:600;letter-spacing:-.02em;line-height:1.04}
@@ -688,3 +688,19 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .pcard .price,.mini-card .price{flex-wrap:wrap;row-gap:0}
 .pcard .price b,.pcard .price s,.mini-card .price b,.mini-card .price s,.buy .pricerow b{white-space:nowrap}
 .buybar .pill{white-space:nowrap}
+
+/* ============================================================
+   FLUID DENSITY — grids auto-fill the available width
+   ============================================================ */
+.grid-products{grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:clamp(18px,1.6vw,30px)}
+.catalog .grid-products{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
+@media(max-width:900px){.grid-products,.catalog .grid-products{grid-template-columns:repeat(2,1fr);gap:16px}}
+@media(max-width:640px){.grid-products,.catalog .grid-products{grid-template-columns:repeat(2,1fr);gap:14px}}
+.gallery .main{height:clamp(520px,40vw,760px)}
+.testis .grid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
+.why .grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+@media(max-width:640px){.testis .grid,.why .grid{grid-template-columns:1fr}}
+.lineup-card{flex:0 0 clamp(300px,20vw,400px)}
+.edit-card{flex:0 0 clamp(340px,23vw,470px);height:clamp(460px,30vw,560px)}
+.mini-card{flex:0 0 clamp(240px,15vw,320px)}
+@media(max-width:640px){.lineup-card{flex:0 0 76vw}.edit-card{flex:0 0 80vw;height:440px}.mini-card{flex:0 0 62vw}}
