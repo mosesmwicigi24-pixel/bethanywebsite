@@ -65,6 +65,8 @@ export default function CheckoutClient() {
     const draft = buildOnlineOrder(items, {
       currency, countryCode, firstName, lastName, phone, church,
       deliveryMethod: delivery, paymentMethod: pay,
+      address: delivery === "delivery" ? address : undefined,
+      city: delivery === "delivery" ? (isKE ? county : undefined) : undefined,
     });
     const live = await submitOnlineOrder(draft);
     const ref = live?.orderNumber ?? `ORD-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;

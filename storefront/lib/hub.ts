@@ -4,21 +4,19 @@ import { bySlug, type Currency } from "./products";
 /* ============================================================
    Hub integration (bethany-house Laravel backend, /api/v1)
 
-   Live flow the hub accepts (verified against backend source):
-     1. POST /auth/register            -> Sanctum token
-     2. POST /cart/items               -> server-side cart (variant ids)
-     3. POST /checkout                 -> order_type='online', returns
-                                          { order, payment_link: FRONTEND/pay/{token} }
-     4. customer pays at /pay/{token}  -> M-Pesa STK / Paystack / COD
+   Guest checkout bridge (bethany-house PR #141):
+     POST /storefront/orders — one-shot online order with items, guest
+     customer details and structured measurements. The hub resolves the
+     currency (Order::resolveCurrency: 'KE' -> KES, else USD), creates
+     the order as order_type='online', RAISES a draft production order
+     per made-to-order line (measurements validated against the
+     product's template), and returns { order, payment_link } — the
+     customer completes payment on the hub's /pay/{token} page
+     (M-Pesa STK / Paystack / COD).
 
-   Currency is resolved SERVER-SIDE from country_code
-   (Order::resolveCurrency: 'KE' -> KES, else USD). We mirror it for
-   display only; the hub's answer is authoritative.
-
-   Made-to-order: there is no public endpoint that accepts structured
-   measurements — they travel in the order notes in the staff-readable
-   format below, and staff raise the production_order from the line
-   (order_items.requires_production / production_order_id).
+   We mirror the currency rule client-side for display only; the hub's
+   resolution from country_code is authoritative. Requests carry a
+   client_request_id so retries are idempotent.
    ============================================================ */
 
 const HUB = process.env.NEXT_PUBLIC_HUB_API; // e.g. https://hub.bethanyhouse.co.ke/api/v1
@@ -30,6 +28,8 @@ export interface CheckoutPayload {
   phone?: string;
   notes: string;
   country_code: string; // ISO-2 — drives KES/USD on the hub
+  address?: string;
+  city?: string;
 }
 
 export interface OnlineOrderDraft {
@@ -80,6 +80,8 @@ export function buildOnlineOrder(
     firstName: string; lastName: string; phone: string; church?: string;
     deliveryMethod: "delivery" | "pickup";
     paymentMethod: "mpesa" | "card" | "cash_on_delivery";
+    address?: string;
+    city?: string;
   },
 ): OnlineOrderDraft {
   return {
@@ -104,27 +106,50 @@ export function buildOnlineOrder(
       phone: opts.phone,
       notes: buildOrderNotes(items, opts.church),
       country_code: opts.countryCode,
+      address: opts.address,
+      city: opts.city,
     },
   };
 }
 
-/** Best-effort live submission. Returns the hub's payment link when the
-    hub is configured and reachable; null means "demo mode" (no hub URL
-    set, or the call failed) — the storefront then confirms locally. */
+/** Best-effort live submission to the hub's guest-checkout bridge
+    (POST /api/v1/storefront/orders — bethany-house PR #141). Returns the
+    hub's order number + payment link when configured and reachable; null
+    means demo mode (no hub URL set, or the call failed) and the
+    storefront confirms locally instead. */
 export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orderNumber: string; paymentLink?: string } | null> {
   if (!HUB) return null;
   try {
-    // The hub's flow needs a customer token + server cart. A guest-checkout
-    // bridge endpoint is the planned addition on the hub; until then we POST
-    // the draft to the storefront-orders inbox if it exists.
+    const body = {
+      client_request_id: crypto.randomUUID(),
+      country_code: draft.country_code,
+      customer: {
+        first_name: draft.customer.first_name,
+        last_name: draft.customer.last_name,
+        phone: draft.customer.phone,
+        church: draft.customer.church || undefined,
+      },
+      delivery: {
+        method: draft.checkout.delivery_method,
+        address: draft.checkout.address,
+        city: draft.checkout.city,
+      },
+      payment_method: draft.checkout.payment_method,
+      notes: draft.checkout.notes || undefined,
+      items: draft.items.map((i) => ({
+        slug: i.slug,
+        quantity: i.quantity,
+        measurements: i.measurements,
+      })),
+    };
     const r = await fetch(`${HUB}/storefront/orders`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(draft),
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
     });
     if (!r.ok) return null;
     const data = await r.json();
-    return { orderNumber: data.order?.order_number ?? data.order_number, paymentLink: data.payment_link };
+    return { orderNumber: data.order?.order_number, paymentLink: data.payment_link ?? undefined };
   } catch {
     return null;
   }
