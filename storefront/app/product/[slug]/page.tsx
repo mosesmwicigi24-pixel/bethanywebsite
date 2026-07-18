@@ -5,6 +5,8 @@ import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
 import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful, BundleAdd } from "@/components/pdp";
 import { MeasureProvider, MeasurementForm } from "@/components/measure";
+import Highlights from "@/components/Highlights";
+import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
 import { bySlug, products } from "@/lib/products";
 
@@ -44,7 +46,7 @@ export default async function ProductPage(
         ]} />
 
         <div className="pdp">
-          <Gallery images={isFlagship
+          <Gallery kes={p.price} usd={p.priceUsd} images={isFlagship
             ? ["/products/Chalice_Cup.jpg", "/products/Chalice_Cup21.jpg", "/products/gold-wares.jpg", "/products/gold0_72.jpg"]
             : [p.img]} />
 
@@ -106,7 +108,19 @@ export default async function ProductPage(
 
       <ProductRail title="You May Also Like" products={also} small tight />
 
+      {isFlagship && (
+        <div className="story" style={{ marginTop: 10 }}>
+          <Highlights items={[
+            { label: "24K Finish", title: "Hand-polished 24K gold.", text: "Electroplate over solid brass, sealed with an anti-tarnish coat — six hours of hand-polishing per piece.", img: "/products/Chalice_Cup.jpg" },
+            { label: "450ml Cup", title: "A full communion cup.", text: "450ml capacity with a precisely fitted paten lid that keeps the elements covered until the moment of service.", img: "/products/Chalice_Cup21.jpg" },
+            { label: "Engraving", title: "Your parish, engraved free.", text: "Dedications, anniversaries, ordinations — etched beneath the base so the cup itself stays unmarked.", img: "/products/gold0_72.jpg" },
+            { label: "The Set", title: "One finish, whole altar.", text: "Pair with the matching thurible and communion ware for a single finish across the sanctuary.", img: "/products/gold-wares.jpg" },
+          ]} />
+        </div>
+      )}
       {isFlagship && <FlagshipStory />}
+
+      <WhyBuy />
 
       <div id="reviews" className="story">
         <div className="rev-summary">
@@ -198,12 +212,13 @@ function FlagshipStory() {
       </div>
 
       <div className="banner ivory">
-        <div className="eyebrow">In Service</div>
+        <div className="eyebrow gn">In Service</div>
         <h3>Serve with reverence.</h3>
         <div className="art"><img src="/products/gold-wares.jpg" alt="" /></div>
       </div>
 
       <div className="story-lede">
+        <div className="lede-eyebrow bl">Care</div>
         <h4>Built for every Sunday</h4>
         <p>The gold electroplate is sealed with an anti-tarnish coat, so weekly service — and weekly washing — keeps its lustre. A soft cloth is all it needs.</p>
       </div>

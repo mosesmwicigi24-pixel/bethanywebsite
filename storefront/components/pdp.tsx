@@ -8,7 +8,7 @@ import { Money } from "./Money";
 
 /* Client-side pieces of the product page. */
 
-export function Gallery({ images }: { images: string[] }) {
+export function Gallery({ images, kes, usd }: { images: string[]; kes?: number; usd?: number }) {
   const [active, setActive] = useState(0);
   const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const step = (d: number) => setActive((a) => (a + d + images.length) % images.length);
@@ -28,6 +28,9 @@ export function Gallery({ images }: { images: string[] }) {
         />
         <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>
         <button className="gnav next" aria-label="Next image" onClick={() => step(1)}>›</button>
+        {kes !== undefined && usd !== undefined && (
+          <span className="price-chip">From <b><Money kes={kes} usd={usd} /></b></span>
+        )}
       </div>
       <div className="thumbs">
         {images.map((src, i) => (
@@ -127,6 +130,9 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
             <a href="#description" className={inReviews ? "" : "active"}>Description</a>
             <a href="#reviews" className={inReviews ? "active" : ""}>Reviews</a>
           </div>
+          <button className="pill pill-gold ph-buy" onClick={() => { if (tryAdd()) router.push("/checkout"); }}>
+            Buy · <Money kes={kes} usd={usd} />
+          </button>
         </div>
       </div>
       <div className={`buybar ${scrolled > 300 ? "show" : ""}`}>
