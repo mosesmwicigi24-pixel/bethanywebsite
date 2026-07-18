@@ -68,10 +68,20 @@ export default async function ProductPage(
               <span aria-hidden="true">🚚</span>
               <span>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</span>
             </div>
-            <FinishSwatches finishes={[
-              { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
-              { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
-            ]} />
+            {p.category === "Clergy Apparel" || p.category === "Prayer Wear" ? (
+              <FinishSwatches label="Colour" finishes={[
+                { label: "White", css: "#f4f4f6" },
+                { label: "Black", css: "#15181e" },
+                { label: "Purple", css: "#6b3fa0" },
+                { label: "Red", css: "#b0312f" },
+                { label: "Green", css: "#2f7d4f" },
+              ]} />
+            ) : (
+              <FinishSwatches finishes={[
+                { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
+                { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
+              ]} />
+            )}
             <Qty />
             <div className="assure">
               <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card ⓘ</div>

@@ -36,10 +36,10 @@ export function Gallery({ images }: { images: string[] }) {
   );
 }
 
-export function FinishSwatches({ finishes }: { finishes: { label: string; css: string }[] }) {
+export function FinishSwatches({ finishes, label = "Finish" }: { finishes: { label: string; css: string }[]; label?: string }) {
   const [active, setActive] = useState(0);
   return (
-    <div className="opt">Finish
+    <div className="opt">{label}
       <div className="swatches">
         {finishes.map((f, i) => (
           <button key={f.label} aria-label={f.label} style={{ background: f.css }}

@@ -23,7 +23,7 @@
   --radius:16px;
   --shadow:0 10px 30px rgba(10,20,37,.08);
   --shadow-lift:0 18px 50px rgba(10,20,37,.16);
-  --wrap:1220px;
+  --wrap:1700px;
   --font:var(--font-jakarta),-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --serif:var(--font-fraunces),'Georgia',serif;
   --ease:cubic-bezier(.22,.61,.36,1);
@@ -47,7 +47,7 @@ body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-fo
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 28px}
+.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(24px,2.6vw,48px)}
 
 /* ---------- utility bar ---------- */
 .utility{background:var(--navy-950);color:#c8d2e0;font-size:12.5px}
@@ -145,7 +145,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* Apple lineup carousel */
 .rail{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 4px 22px;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
-.lineup-card{scroll-snap-align:start;flex:0 0 300px;background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:0 0 26px;text-align:center;display:flex;flex-direction:column}
+.lineup-card{scroll-snap-align:start;flex:0 0 clamp(300px,22vw,360px);background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:0 0 26px;text-align:center;display:flex;flex-direction:column}
 .lineup-card .art{height:300px;border-radius:22px 22px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:24px}
 .lineup-card .art img{max-height:100%;object-fit:contain;transition:.35s}
 .lineup-card:hover .art img{transform:scale(1.045)}
@@ -158,7 +158,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* dark editorial cards */
 .dark-band{background:var(--navy-950);color:#fff;padding:80px 0 90px}
 .dark-band h2{color:#fff}
-.edit-card{scroll-snap-align:start;flex:0 0 340px;height:460px;border-radius:22px;overflow:hidden;position:relative;background:var(--navy-800);display:flex;flex-direction:column}
+.edit-card{scroll-snap-align:start;flex:0 0 clamp(340px,25vw,420px);height:500px;border-radius:22px;overflow:hidden;position:relative;background:var(--navy-800);display:flex;flex-direction:column}
 .edit-card .txt{padding:24px 24px 8px;position:relative;z-index:2}
 .edit-card .eyebrow{font-size:12px;font-weight:700;color:var(--gold-bright);letter-spacing:.02em;margin-bottom:8px}
 .edit-card h3{font-size:23px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
@@ -197,7 +197,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .pcard .seller a:hover{border-color:var(--gold)}
 
 /* mini card (You may also like) */
-.mini-card{scroll-snap-align:start;flex:0 0 240px;border:1px solid var(--line);border-radius:14px;padding:0 0 18px;position:relative}
+.mini-card{scroll-snap-align:start;flex:0 0 clamp(240px,17vw,290px);border:1px solid var(--line);border-radius:14px;padding:0 0 18px;position:relative}
 .mini-card .ph{background:var(--tile);border-radius:14px 14px 0 0;height:190px;display:flex;align-items:center;justify-content:center;padding:18px;position:relative}
 .mini-card .ph img{max-height:100%;object-fit:contain;mix-blend-mode:multiply}
 .mini-card .ph .tag{position:absolute;top:10px;left:10px}
@@ -219,7 +219,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .toolbar{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);padding-bottom:18px}
 .toolbar .sort{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:600}
 .toolbar select{font-family:inherit;font-size:14px;padding:9px 34px 9px 14px;border:1px solid #cfd2d9;border-radius:9px;background:#fff;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' viewBox='0 0 24 24' fill='none' stroke='%23555' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center}
-.catalog{display:grid;grid-template-columns:250px 1fr;gap:44px;padding:26px 0 70px}
+.catalog{display:grid;grid-template-columns:270px 1fr;gap:52px;padding:26px 0 70px}
 .filters h4{font-size:15px;font-weight:800;padding:20px 0 14px;border-top:1px solid var(--line)}
 .filters h4:first-child{border-top:none;padding-top:6px}
 .filters .count{font-weight:800;font-size:15px;margin-bottom:8px}
@@ -232,7 +232,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 
 /* ---------- product page ---------- */
 .pdp{display:grid;grid-template-columns:1.05fr 1fr;gap:60px;padding:14px 0 50px}
-.gallery .main{background:var(--tile);border-radius:18px;height:520px;display:flex;align-items:center;justify-content:center;padding:36px;position:relative;overflow:hidden}
+.gallery .main{background:var(--tile);border-radius:18px;height:clamp(520px,44vw,640px);display:flex;align-items:center;justify-content:center;padding:36px;position:relative;overflow:hidden}
 .gallery .main img{max-height:100%;object-fit:contain;mix-blend-mode:multiply}
 .gallery .gnav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:99px;background:rgba(255,255,255,.9);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:18px}
 .gallery .gnav.prev{left:14px}.gallery .gnav.next{right:14px}
@@ -280,7 +280,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .buybar .pill{width:300px;padding:15px 0;font-size:16px}
 
 /* ---------- storytelling ---------- */
-.story{max-width:1010px;margin:0 auto;padding:0 28px}
+.story{max-width:1240px;margin:0 auto;padding:0 28px}
 .story-lede{ text-align:center;padding:46px 0 26px}
 .story-lede h4{font-size:17px;font-weight:800;margin-bottom:8px}
 .story-lede p{color:#444;font-size:14.5px;max-width:640px;margin:4px auto}
@@ -396,7 +396,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .hero-cath .marks{display:flex;gap:34px;margin-top:52px;padding-top:26px;border-top:1px solid rgba(255,255,255,.12)}
 .hero-cath .mark{font-size:12.5px;color:#93a2b8;line-height:1.5}
 .hero-cath .mark b{display:block;font-family:var(--serif);font-size:19px;font-weight:600;color:#fff;letter-spacing:0}
-.arch{justify-self:end;width:min(430px,100%);aspect-ratio:43/54;border-radius:999px 999px 22px 22px;overflow:hidden;position:relative;border:1px solid rgba(230,191,71,.35);box-shadow:0 40px 90px rgba(0,0,0,.5),inset 0 0 0 10px rgba(7,15,28,.35)}
+.arch{justify-self:end;width:min(500px,100%);aspect-ratio:43/54;border-radius:999px 999px 22px 22px;overflow:hidden;position:relative;border:1px solid rgba(230,191,71,.35);box-shadow:0 40px 90px rgba(0,0,0,.5),inset 0 0 0 10px rgba(7,15,28,.35)}
 .arch img{width:100%;height:100%;object-fit:cover}
 .arch .plate{position:absolute;left:50%;bottom:18px;transform:translateX(-50%);background:rgba(7,15,28,.82);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.14);border-radius:999px;padding:10px 20px;display:flex;align-items:center;gap:14px;white-space:nowrap}
 .arch .plate .nm{font-size:13.5px;font-weight:700;color:#fff}
