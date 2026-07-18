@@ -54,19 +54,68 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ---- Category index ---- */}
-      <Reveal as="section">
-        <header className="hero-index compact wrap">
-          <h1 className="mid">Begin with what you need.</h1>
-          <div className="cat-index">
-            <Link href="/shop"><span className="thumb"><img src="/products/Chalice_Cup.jpg" alt="" /></span>Communion</Link>
-            <Link href="/shop"><span className="thumb"><img src="/products/preaching_gown1.jpg" alt="" /></span>Clergy Apparel<span className="new">New</span></Link>
-            <Link href="/shop"><span className="thumb"><img src="/products/niv_bible.jpg" alt="" /></span>Bibles</Link>
-            <Link href="/shop"><span className="thumb"><img src="/products/cross1.jpg" alt="" /></span>Gifts</Link>
-            <Link href="/shop"><span className="thumb"><img src="/products/bell.jpg" alt="" /></span>Essentials</Link>
-            <Link href="/shop"><span className="thumb"><img src="/products/tallit.jpg" alt="" /></span>Prayer Wear</Link>
+      {/* ---- Shop by category: full-width tile grid ---- */}
+      <Reveal as="section" className="section wrap">
+        <div className="section-head">
+          <h2>Shop by category.</h2>
+          <Link href="/shop">All products →</Link>
+        </div>
+        <div className="cat-tiles">
+          <Link className="cat-tile" href="/shop">
+            <span className="im"><img src="/products/Chalice_Cup.jpg" alt="Communion elements" /></span>
+            <span className="lbl">Communion <i>›</i></span>
+            <span className="sub">Chalices · wine · hosts</span>
+          </Link>
+          <Link className="cat-tile" href="/shop">
+            <span className="im"><img src="/products/preaching_gown1.jpg" alt="Clergy apparel" /></span>
+            <span className="lbl">Clergy Apparel <i>›</i></span>
+            <span className="newdot">New arrivals</span>
+          </Link>
+          <Link className="cat-tile" href="/shop">
+            <span className="im"><img src="/products/niv_bible.jpg" alt="Bibles" /></span>
+            <span className="lbl">Bibles <i>›</i></span>
+            <span className="sub">Study · children's · gift</span>
+          </Link>
+          <Link className="cat-tile" href="/shop">
+            <span className="im"><img src="/products/cross1.jpg" alt="Gifts" /></span>
+            <span className="lbl">Gifts <i>›</i></span>
+            <span className="sub">Crosses · keepsakes</span>
+          </Link>
+          <Link className="cat-tile" href="/shop">
+            <span className="im"><img src="/products/bell.jpg" alt="Church essentials" /></span>
+            <span className="lbl">Essentials <i>›</i></span>
+            <span className="sub">Bells · linens · ware</span>
+          </Link>
+          <Link className="cat-tile" href="/shop">
+            <span className="im"><img src="/products/tallit.jpg" alt="Prayer wear" /></span>
+            <span className="lbl">Prayer Wear <i>›</i></span>
+            <span className="sub">Tallits · shawls</span>
+          </Link>
+        </div>
+      </Reveal>
+
+      {/* ---- Promo banner duo ---- */}
+      <Reveal as="section" className="wrap">
+        <div className="promo-duo">
+          <div className="promo-b navy">
+            <div className="txt">
+              <span className="eyebrow">Holy Week Offer</span>
+              <h3>The Lord&apos;s Table, complete.</h3>
+              <p>Chalice, altar wine and 1,000 hosts — bundled from KES 21,200.</p>
+              <Link className="pill pill-gold" href="/product/chalice-royale">Shop the bundle</Link>
+            </div>
+            <img src="/products/gold-wares.jpg" alt="" />
           </div>
-        </header>
+          <div className="promo-b ivory">
+            <div className="txt">
+              <span className="eyebrow">Made to Measure</span>
+              <h3>Tailored for the pulpit.</h3>
+              <p>Gowns, cassocks and chasubles measured in Nairobi — ready in 5–7 days.</p>
+              <Link className="pill pill-solid" href="/shop">Book a fitting</Link>
+            </div>
+            <img src="/products/preaching_gown1.jpg" alt="" />
+          </div>
+        </div>
       </Reveal>
 
       {/* ---- Explore the collection ---- */}
