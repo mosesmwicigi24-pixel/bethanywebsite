@@ -2,6 +2,7 @@ import Link from "next/link";
 import Search from "./Search";
 import MobileMenu from "./MobileMenu";
 import NavCart from "./NavCart";
+import { CurrencyToggle } from "./Money";
 import { SITE } from "@/lib/site";
 import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
 
@@ -89,6 +90,7 @@ export function Nav() {
           <li><Link href="/shop">Hot &amp; New</Link></li>
         </ul>
         <div className="nav-icons">
+          <CurrencyToggle />
           <Search />
           <NavCart />
           <a href="#" aria-label="Account"><UserIcon /></a>

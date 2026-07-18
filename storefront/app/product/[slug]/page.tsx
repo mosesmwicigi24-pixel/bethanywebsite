@@ -4,7 +4,9 @@ import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
 import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful, BundleAdd } from "@/components/pdp";
-import { bySlug, formatKES, products } from "@/lib/products";
+import { MeasureProvider, MeasurementForm } from "@/components/measure";
+import { Money, Price, OldPrice } from "@/components/Money";
+import { bySlug, products } from "@/lib/products";
 
 export function generateStaticParams() {
   return products.map((p) => ({ slug: p.slug }));
@@ -29,9 +31,9 @@ export default async function ProductPage(
   const isFlagship = p.slug === "chalice-royale";
   const sku = `BH-${p.slug.slice(0, 3).toUpperCase()}-01`;
 
-  return (
+  const body = (
     <main className="pdp-page">
-      <StickyChrome name={p.short} sku={sku} price={formatKES(p.price)} img={p.img} slug={p.slug} />
+      <StickyChrome name={p.short} sku={sku} kes={p.price} usd={p.priceUsd} img={p.img} slug={p.slug} />
 
       <div className="wrap">
         <Crumbs items={[
@@ -57,17 +59,25 @@ export default async function ProductPage(
               <div><Link className="seller" href="/shop"><span className="tag tag-top"></span>&nbsp;{p.seller} ›</Link></div>
             )}
             <div className="pricerow">
-              <b>{formatKES(p.price)}</b>
-              {p.oldPrice && <s>{formatKES(p.oldPrice)}</s>}
+              <b><Price p={p} /></b>
+              <OldPrice p={p} />
             </div>
+            {p.producible && (
+              <div style={{ margin: "2px 0 6px" }}>
+                <span className="tag tag-gold">✂ Made to order — measurements required</span>
+              </div>
+            )}
             {p.chips.map((c) => (
               <div className="feat" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
             ))}
             {isFlagship && <div className="feat"><span className="ic">◎</span>450ml cup with fitted paten lid</div>}
             <div className="deliver">
               <span aria-hidden="true">🚚</span>
-              <span>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</span>
+              <span>{p.producible
+                ? <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
+                : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
             </div>
+            <MeasurementForm />
             {p.category === "Clergy Apparel" || p.category === "Prayer Wear" ? (
               <FinishSwatches label="Colour" finishes={[
                 { label: "White", css: "#f4f4f6" },
@@ -150,6 +160,10 @@ export default async function ProductPage(
       </div>
     </main>
   );
+
+  return p.producible
+    ? <MeasureProvider template={p.measurements ?? []}>{body}</MeasureProvider>
+    : body;
 }
 
 /** Apple-style long-scroll story for the flagship chalice. */
@@ -245,6 +259,8 @@ function BoughtTogether() {
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const total = items.reduce((s, p) => s + p.price, 0);
   const was = items.reduce((s, p) => s + (p.oldPrice ?? p.price), 0);
+  const totalUsd = items.reduce((s, p) => s + p.priceUsd, 0);
+  const wasUsd = items.reduce((s, p) => s + (p.oldPriceUsd ?? p.priceUsd), 0);
 
   return (
     <section className="bundle">
@@ -256,14 +272,14 @@ function BoughtTogether() {
             <Link className="bitem" href={`/product/${p.slug}`}>
               <span className="im"><img src={p.img} alt="" /></span>
               <b>{p.short}</b>
-              <span>{formatKES(p.price)}</span>
+              <span><Price p={p} /></span>
             </Link>
           </div>
         ))}
         <div className="sum">
           <small>The Lord&apos;s Table, complete</small>
-          <div className="tot">{formatKES(total)}</div>
-          <div className="was">{formatKES(was)}</div>
+          <div className="tot"><Money kes={total} usd={totalUsd} /></div>
+          <div className="was"><Money kes={was} usd={wasUsd} /></div>
           <BundleAdd slugs={items.map((p) => p.slug)} />
         </div>
       </div>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import { UtilityBar, Nav, Footer, ChatFab } from "@/components/chrome";
 import { CartProvider } from "@/lib/cart";
+import { CurrencyProvider } from "@/lib/currency";
 import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
@@ -31,6 +32,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
       <body>
+        <CurrencyProvider>
         <CartProvider>
           <UtilityBar />
           <Nav />
@@ -39,6 +41,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChatFab />
           <CartDrawer />
         </CartProvider>
+        </CurrencyProvider>
       </body>
     </html>
   );

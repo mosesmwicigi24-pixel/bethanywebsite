@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
+import { useMeasure } from "./measure";
+import { Money } from "./Money";
 
 /* Client-side pieces of the product page. */
 
@@ -88,9 +90,20 @@ export function BundleAdd({ slugs }: { slugs: string[] }) {
 }
 
 /** Sticky sub-header + bottom buy bar, revealed on scroll. */
-export function StickyChrome({ name, sku, price, img, slug }: { name: string; sku: string; price: string; img: string; slug: string }) {
+export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string; sku: string; kes: number; usd: number; img: string; slug: string }) {
   const { add } = useCart();
   const router = useRouter();
+  const measure = useMeasure();
+
+  const tryAdd = (): boolean => {
+    if (measure && !measure.valid) {
+      measure.markTouched();
+      document.getElementById("measurements")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return false;
+    }
+    add(slug, readQty(), measure?.values);
+    return true;
+  };
   const [scrolled, setScrolled] = useState(0);
   const [inReviews, setInReviews] = useState(false);
 
@@ -120,11 +133,11 @@ export function StickyChrome({ name, sku, price, img, slug }: { name: string; sk
         <div className="wrap">
           <div className="bb-info">
             <span className="im"><img src={img} alt="" /></span>
-            <span style={{ minWidth: 0 }}><b>{name}</b><span>{price} · Free Nairobi delivery</span></span>
+            <span style={{ minWidth: 0 }}><b>{name}</b><span><Money kes={kes} usd={usd} /> · Free Nairobi delivery</span></span>
           </div>
           <div className="bb-ctas">
-            <button className="pill pill-ghost" onClick={() => add(slug, readQty())}>Add to Cart</button>
-            <button className="pill pill-solid" onClick={() => { add(slug, readQty()); router.push("/checkout"); }}>Buy It Now</button>
+            <button className="pill pill-ghost" onClick={tryAdd}>Add to Cart</button>
+            <button className="pill pill-solid" onClick={() => { if (tryAdd()) router.push("/checkout"); }}>Buy It Now</button>
           </div>
         </div>
       </div>

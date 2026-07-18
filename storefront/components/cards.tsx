@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Product, badgeLabel, formatKES } from "@/lib/products";
+import { Product, badgeLabel } from "@/lib/products";
+import { Price, OldPrice } from "./Money";
 import CartButton from "./CartButton";
 import QuickActions from "./QuickActions";
 
@@ -33,11 +34,11 @@ export function ProductCard({ p }: { p: Product }) {
         ))}
       </div>
       <div className="price">
-        <b>{formatKES(p.price)}</b>
-        {p.oldPrice && <s>{formatKES(p.oldPrice)}</s>}
+        <b><Price p={p} /></b>
+        <OldPrice p={p} />
       </div>
-      <div className={`avail ${p.category === "Clergy Apparel" ? "mto" : ""}`}>
-        {p.category === "Clergy Apparel" ? "Made to order · 5–7 days" : "In stock · ships today"}
+      <div className={`avail ${p.producible ? "mto" : ""}`}>
+        {p.producible ? "Made to order · 5–7 days" : "In stock · ships today"}
       </div>
       {p.seller && (
         <div className="seller">
@@ -60,8 +61,8 @@ export function MiniCard({ p }: { p: Product }) {
       <h4>{p.name}</h4>
       <div className="row">
         <div className="price">
-          <b>{formatKES(p.price)}</b>
-          {p.oldPrice && <s>{formatKES(p.oldPrice)}</s>}
+          <b><Price p={p} /></b>
+          <OldPrice p={p} />
         </div>
         <CartButton slug={p.slug} />
       </div>

@@ -5,10 +5,13 @@ import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useCart, FREE_DELIVERY_AT } from "@/lib/cart";
 import { bySlug, formatKES } from "@/lib/products";
+import { useCurrency } from "@/lib/currency";
+import { Money } from "./Money";
 
 /** oraimo-style slide-in cart with free-delivery progress. */
 export default function CartDrawer() {
-  const { items, subtotal, open, setOpen, setQty, remove } = useCart();
+  const { items, subtotal, subtotalUsd, open, setOpen, setQty, remove } = useCart();
+  const { currency } = useCurrency();
   const pathname = usePathname();
 
   useEffect(() => { setOpen(false); }, [pathname, setOpen]);
@@ -34,7 +37,7 @@ export default function CartDrawer() {
           <button aria-label="Close cart" onClick={() => setOpen(false)}>✕</button>
         </div>
 
-        {items.length > 0 && (
+        {items.length > 0 && currency === "KES" && (
           <div className="cart-free">
             {toFree > 0
               ? <>Add <b>{formatKES(toFree)}</b> more for <b>free Nairobi delivery</b></>
@@ -55,22 +58,25 @@ export default function CartDrawer() {
             const p = bySlug(i.slug);
             if (!p) return null;
             return (
-              <div className="cart-item" key={i.slug}>
+              <div className="cart-item" key={i.key}>
                 <Link className="im" href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
                   <img src={p.img} alt="" />
                 </Link>
                 <div className="minw0" style={{ flex: 1 }}>
                   <b>{p.short}</b>
-                  <span className="muted-cap">{formatKES(p.price)}</span>
+                  <span className="muted-cap"><Money kes={p.price} usd={p.priceUsd} /></span>
+                  {i.measurements && (
+                    <span className="mto-chip">✂ Made to order · measurements attached</span>
+                  )}
                   <div className="qty sm">
-                    <button aria-label="Decrease" onClick={() => setQty(i.slug, i.qty - 1)}>‹</button>
+                    <button aria-label="Decrease" onClick={() => setQty(i.key, i.qty - 1)}>‹</button>
                     <input value={i.qty} readOnly aria-label="Quantity" />
-                    <button aria-label="Increase" onClick={() => setQty(i.slug, i.qty + 1)}>›</button>
+                    <button aria-label="Increase" onClick={() => setQty(i.key, i.qty + 1)}>›</button>
                   </div>
                 </div>
                 <div className="cart-right">
-                  <b>{formatKES(p.price * i.qty)}</b>
-                  <button className="rm" onClick={() => remove(i.slug)}>Remove</button>
+                  <b><Money kes={p.price * i.qty} usd={p.priceUsd * i.qty} /></b>
+                  <button className="rm" onClick={() => remove(i.key)}>Remove</button>
                 </div>
               </div>
             );
@@ -79,7 +85,7 @@ export default function CartDrawer() {
 
         {items.length > 0 && (
           <div className="cart-foot">
-            <div className="cart-sub"><span>Subtotal</span><span>{formatKES(subtotal)}</span></div>
+            <div className="cart-sub"><span>Subtotal</span><span><Money kes={subtotal} usd={subtotalUsd} /></span></div>
             <Link className="pill pill-gold" style={{ width: "100%" }} href="/checkout" onClick={() => setOpen(false)}>
               Checkout
             </Link>

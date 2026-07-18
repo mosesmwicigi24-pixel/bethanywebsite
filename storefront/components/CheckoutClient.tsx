@@ -1,26 +1,74 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Crumbs from "./Crumbs";
+import { Money } from "./Money";
 import { useCart, FREE_DELIVERY_AT, DELIVERY_FEE } from "@/lib/cart";
-import { bySlug, formatKES } from "@/lib/products";
+import { countryForPhone } from "@/lib/currency";
+import { useCurrency } from "@/lib/currency";
+import { bySlug, formatMoney, type Currency } from "@/lib/products";
+import { buildOnlineOrder, measurementsToNote, submitOnlineOrder } from "@/lib/hub";
 import { SITE } from "@/lib/site";
 
-type Pay = "mpesa" | "card" | "cod";
+type Pay = "mpesa" | "card" | "cash_on_delivery";
+type Delivery = "delivery" | "pickup";
+
+const INTL_COUNTRIES = [
+  ["US", "United States"], ["GB", "United Kingdom"], ["UG", "Uganda"], ["TZ", "Tanzania"],
+  ["RW", "Rwanda"], ["ET", "Ethiopia"], ["NG", "Nigeria"], ["ZA", "South Africa"],
+  ["DE", "Germany"], ["CA", "Canada"], ["AU", "Australia"], ["OTHER", "Other"],
+] as const;
 
 export default function CheckoutClient() {
-  const { items, subtotal, clear, hydrated } = useCart();
+  const { items, subtotal, subtotalUsd, clear, hydrated } = useCart();
+  const { setCurrency } = useCurrency();
+
+  const [phone, setPhone] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [church, setChurch] = useState("");
+  const [county, setCounty] = useState("Nairobi");
+  const [intlCountry, setIntlCountry] = useState("US");
+  const [address, setAddress] = useState("");
+  const [delivery, setDelivery] = useState<Delivery>("delivery");
   const [pay, setPay] = useState<Pay>("mpesa");
-  const [placed, setPlaced] = useState<string | null>(null);
+  const [placed, setPlaced] = useState<{ ref: string; payLink?: string; currency: Currency; total: number; mto: boolean; pay: Pay } | null>(null);
 
-  const delivery = subtotal >= FREE_DELIVERY_AT ? 0 : DELIVERY_FEE;
-  const total = subtotal + delivery;
+  // ── The hub's currency rule, read from the phone number ──────────────
+  // +254 / 07xx / 01xx → Kenya → KES; other international prefix → USD.
+  const phoneCountry = countryForPhone(phone);          // 'KE' | 'INTL' | null
+  const isKE = phoneCountry !== "INTL";                 // default to Kenya until told otherwise
+  const currency: Currency = isKE ? "KES" : "USD";
+  const countryCode = isKE ? "KE" : intlCountry === "OTHER" ? "XX" : intlCountry;
 
-  const placeOrder = (e: React.FormEvent) => {
+  useEffect(() => { setCurrency(currency); }, [currency, setCurrency]);
+
+  // International: no M-Pesa/COD; pickup unlikely but allowed
+  useEffect(() => {
+    if (!isKE && pay !== "card") setPay("card");
+    if (isKE && pay === "card") setPay("mpesa");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isKE]);
+
+  const sub = currency === "KES" ? subtotal : subtotalUsd;
+  const deliveryFee = useMemo(() => {
+    if (delivery === "pickup") return 0;
+    if (!isKE) return 0; // international shipping quoted after order
+    return subtotal >= FREE_DELIVERY_AT ? 0 : DELIVERY_FEE;
+  }, [delivery, isKE, subtotal]);
+  const total = sub + deliveryFee;
+  const hasMto = items.some((i) => i.measurements);
+
+  const placeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
-    const ref = `BH-${String(Math.floor(100000 + (subtotal % 900000)))}`;
-    setPlaced(ref);
+    const draft = buildOnlineOrder(items, {
+      currency, countryCode, firstName, lastName, phone, church,
+      deliveryMethod: delivery, paymentMethod: pay,
+    });
+    const live = await submitOnlineOrder(draft);
+    const ref = live?.orderNumber ?? `ORD-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+    setPlaced({ ref, payLink: live?.paymentLink, currency, total, mto: hasMto, pay });
     clear();
     window.scrollTo({ top: 0 });
   };
@@ -31,7 +79,17 @@ export default function CheckoutClient() {
         <div className="confirm">
           <div className="tick">✓</div>
           <h1 className="serif">Asante — order received.</h1>
-          <p>Your order <b>{placed}</b> is confirmed. We&apos;ll call you within the hour to confirm delivery details{pay === "mpesa" ? " and send the M-Pesa prompt" : ""}. Questions? <b>{SITE.phone}</b>.</p>
+          <p>
+            Your online order <b>{placed.ref}</b> ({formatMoney(placed.total, placed.currency)}) is confirmed.{" "}
+            {placed.pay === "mpesa" && <>We&apos;ll send an <b>M-Pesa prompt</b> to your phone to complete payment. </>}
+            {placed.pay === "card" && <>A secure <b>card payment link</b> is on its way to you. </>}
+            {placed.pay === "cash_on_delivery" && <>Pay in cash when your order arrives. </>}
+            {placed.mto && <>Your <b>made-to-order items</b> go straight to our tailoring workshop with the measurements you provided — allow 5–7 days. </>}
+            Questions? <b>{SITE.phone}</b>.
+          </p>
+          {placed.payLink && (
+            <p><a className="pill pill-gold" href={placed.payLink}>Complete payment now</a></p>
+          )}
           <div className="confirm-ctas">
             <Link className="pill pill-gold" href="/shop">Continue shopping</Link>
             <Link className="pill pill-ghost" href="/">Back home</Link>
@@ -61,39 +119,91 @@ export default function CheckoutClient() {
       <Crumbs items={[{ label: "Home", href: "/" }, { label: "Cart" }, { label: "Checkout" }]} />
       <form className="checkout" onSubmit={placeOrder}>
         <div className="co-form">
-          <h2 className="serif">Delivery details.</h2>
+          <h2 className="serif">Your details.</h2>
           <div className="f-row2">
-            <div className="field"><label htmlFor="co-name">Full name</label><input id="co-name" required placeholder="Rev. Jane Mwangi" /></div>
-            <div className="field"><label htmlFor="co-phone">Phone (M-Pesa)</label><input id="co-phone" required type="tel" placeholder="07XX XXX XXX" /></div>
+            <div className="field"><label htmlFor="co-fn">First name</label>
+              <input id="co-fn" required value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Jane" /></div>
+            <div className="field"><label htmlFor="co-ln">Last name</label>
+              <input id="co-ln" required value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Mwangi" /></div>
           </div>
-          <div className="field"><label htmlFor="co-church">Church / parish <span className="muted-cap">(optional)</span></label><input id="co-church" placeholder="St. Andrew's Cathedral" /></div>
           <div className="f-row2">
-            <div className="field"><label htmlFor="co-county">County</label>
-              <select id="co-county" defaultValue="Nairobi">
-                {["Nairobi", "Kiambu", "Machakos", "Nakuru", "Mombasa", "Kisumu", "Eldoret (Uasin Gishu)", "Other / East Africa"].map((c) => <option key={c}>{c}</option>)}
-              </select>
+            <div className="field">
+              <label htmlFor="co-phone">Phone</label>
+              <input id="co-phone" required type="tel" value={phone} onChange={(e) => setPhone(e.target.value)}
+                placeholder="07XX XXX XXX or +1 555…" />
+              <span className="muted-cap">
+                {phoneCountry === "INTL"
+                  ? "International number — prices shown in USD."
+                  : "Kenyan number (+254) — prices shown in KES."}
+              </span>
             </div>
-            <div className="field"><label htmlFor="co-addr">Delivery address</label><input id="co-addr" required placeholder="Street, building, landmark" /></div>
+            <div className="field"><label htmlFor="co-church">Church / parish <span className="muted-cap">(optional)</span></label>
+              <input id="co-church" value={church} onChange={(e) => setChurch(e.target.value)} placeholder="St. Andrew's Cathedral" /></div>
           </div>
 
-          <h2 className="serif" style={{ marginTop: 26 }}>Payment.</h2>
-          <div className="paycards">
-            <label className={`paycard ${pay === "mpesa" ? "active" : ""}`}>
-              <input type="radio" name="pay" checked={pay === "mpesa"} onChange={() => setPay("mpesa")} />
-              <span><b>M-Pesa <em className="reco">Recommended</em></b>
-                <span>You&apos;ll receive an STK prompt on your phone to complete payment.</span></span>
+          <h2 className="serif" style={{ marginTop: 20 }}>Delivery.</h2>
+          <div className="paycards" style={{ marginBottom: 18 }}>
+            <label className={`paycard ${delivery === "delivery" ? "active" : ""}`}>
+              <input type="radio" name="dm" checked={delivery === "delivery"} onChange={() => setDelivery("delivery")} />
+              <span><b>Deliver to me</b>
+                <span>{isKE ? "Same-day in Nairobi for orders before 2 PM." : "International shipping — we'll confirm the freight quote before dispatch."}</span></span>
             </label>
-            <label className={`paycard ${pay === "card" ? "active" : ""}`}>
-              <input type="radio" name="pay" checked={pay === "card"} onChange={() => setPay("card")} />
-              <span><b>Card</b><span>Visa or Mastercard — secure checkout.</span></span>
-            </label>
-            <label className={`paycard ${pay === "cod" ? "active" : ""}`}>
-              <input type="radio" name="pay" checked={pay === "cod"} onChange={() => setPay("cod")} />
-              <span><b>Cash on Delivery</b><span>Pay when your order arrives. Nairobi &amp; environs only.</span></span>
+            <label className={`paycard ${delivery === "pickup" ? "active" : ""}`}>
+              <input type="radio" name="dm" checked={delivery === "pickup"} onChange={() => setDelivery("pickup")} />
+              <span><b>Pick up in store</b>
+                <span>{SITE.address}, {SITE.city} · {SITE.hours}</span></span>
             </label>
           </div>
-          <button className="pill pill-gold co-place" type="submit">Place order · {formatKES(total)}</button>
-          <p className="muted-cap" style={{ marginTop: 12 }}>Orders before 2 PM deliver same-day within Nairobi. Parish accounts: call {SITE.phone}.</p>
+
+          {delivery === "delivery" && (
+            <div className="f-row2">
+              {isKE ? (
+                <div className="field"><label htmlFor="co-county">County</label>
+                  <select id="co-county" value={county} onChange={(e) => setCounty(e.target.value)}>
+                    {["Nairobi", "Kiambu", "Machakos", "Nakuru", "Mombasa", "Kisumu", "Uasin Gishu", "Other"].map((c) => <option key={c}>{c}</option>)}
+                  </select>
+                </div>
+              ) : (
+                <div className="field"><label htmlFor="co-country">Country</label>
+                  <select id="co-country" value={intlCountry} onChange={(e) => setIntlCountry(e.target.value)}>
+                    {INTL_COUNTRIES.map(([code, name]) => <option key={code} value={code}>{name}</option>)}
+                  </select>
+                </div>
+              )}
+              <div className="field"><label htmlFor="co-addr">Delivery address</label>
+                <input id="co-addr" required value={address} onChange={(e) => setAddress(e.target.value)}
+                  placeholder={isKE ? "Street, building, landmark" : "Street, city, postal code"} /></div>
+            </div>
+          )}
+
+          <h2 className="serif" style={{ marginTop: 20 }}>Payment.</h2>
+          <div className="paycards">
+            {isKE && (
+              <label className={`paycard ${pay === "mpesa" ? "active" : ""}`}>
+                <input type="radio" name="pay" checked={pay === "mpesa"} onChange={() => setPay("mpesa")} />
+                <span><b>M-Pesa <em className="reco">Recommended</em></b>
+                  <span>STK prompt to {phone || "your phone"} to complete payment.</span></span>
+              </label>
+            )}
+            <label className={`paycard ${pay === "card" ? "active" : ""}`}>
+              <input type="radio" name="pay" checked={pay === "card"} onChange={() => setPay("card")} />
+              <span><b>Card {!isKE && <em className="reco">USD</em>}</b>
+                <span>Visa or Mastercard — secure checkout{!isKE && " billed in US dollars"}.</span></span>
+            </label>
+            {isKE && (
+              <label className={`paycard ${pay === "cash_on_delivery" ? "active" : ""}`}>
+                <input type="radio" name="pay" checked={pay === "cash_on_delivery"} onChange={() => setPay("cash_on_delivery")} />
+                <span><b>Cash on Delivery</b><span>Pay when your order arrives. Nairobi &amp; environs only.</span></span>
+              </label>
+            )}
+          </div>
+          <button className="pill pill-gold co-place" type="submit">
+            Place order · {formatMoney(total, currency)}
+          </button>
+          <p className="muted-cap" style={{ marginTop: 12 }}>
+            {hasMto && "Made-to-order items are sewn after payment confirmation. "}
+            Parish accounts &amp; quantity quotes: call {SITE.phone}.
+          </p>
         </div>
 
         <aside className="co-summary">
@@ -102,18 +212,30 @@ export default function CheckoutClient() {
             const p = bySlug(i.slug);
             if (!p) return null;
             return (
-              <div className="co-item" key={i.slug}>
-                <span className="im"><img src={p.img} alt="" /><i>{i.qty}</i></span>
-                <span className="minw0"><b>{p.short}</b></span>
-                <span>{formatKES(p.price * i.qty)}</span>
+              <div key={i.key}>
+                <div className="co-item">
+                  <span className="im"><img src={p.img} alt="" /><i>{i.qty}</i></span>
+                  <span className="minw0"><b>{p.short}</b>
+                    {i.measurements && <span className="muted-cap">✂ Made to order</span>}
+                  </span>
+                  <span><Money kes={p.price * i.qty} usd={p.priceUsd * i.qty} /></span>
+                </div>
+                {i.measurements && (
+                  <div className="co-meas">{measurementsToNote(i.measurements)}</div>
+                )}
               </div>
             );
           })}
-          <div className="co-line"><span>Subtotal</span><span>{formatKES(subtotal)}</span></div>
-          <div className="co-line"><span>Delivery</span><span>{delivery === 0 ? "Free" : formatKES(delivery)}</span></div>
-          <div className="co-line co-total"><span>Total</span><span>{formatKES(total)}</span></div>
+          <div className="co-line"><span>Subtotal</span><span>{formatMoney(sub, currency)}</span></div>
+          <div className="co-line"><span>Delivery</span>
+            <span>{delivery === "pickup" ? "Free (pickup)" : !isKE ? "Quoted after order" : deliveryFee === 0 ? "Free" : formatMoney(deliveryFee, "KES")}</span></div>
+          <div className="co-line co-total"><span>Total</span><span>{formatMoney(total, currency)}</span></div>
           <p className="muted-cap" style={{ marginTop: 12 }}>
-            {delivery === 0 ? "✓ Free Nairobi delivery unlocked." : `Free Nairobi delivery on orders over ${formatKES(FREE_DELIVERY_AT)}.`}
+            {isKE
+              ? deliveryFee === 0 && delivery === "delivery"
+                ? "✓ Free Nairobi delivery unlocked."
+                : `Free Nairobi delivery on orders over ${formatMoney(FREE_DELIVERY_AT, "KES")}.`
+              : "International order — billed in USD, shipping confirmed before dispatch."}
           </p>
         </aside>
       </form>

@@ -4,19 +4,24 @@ import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, 
 import { bySlug } from "./products";
 
 export interface CartItem {
+  /** unique line key — producible items with measurements get their own line */
+  key: string;
   slug: string;
   qty: number;
+  /** hub: production order measurements captured from the customer */
+  measurements?: Record<string, string>;
 }
 
 interface CartCtx {
   items: CartItem[];
   count: number;
-  subtotal: number;
+  subtotal: number;      // KES
+  subtotalUsd: number;   // USD
   open: boolean;
   hydrated: boolean;
-  add: (slug: string, qty?: number) => void;
-  setQty: (slug: string, qty: number) => void;
-  remove: (slug: string) => void;
+  add: (slug: string, qty?: number, measurements?: Record<string, string>) => void;
+  setQty: (key: string, qty: number) => void;
+  remove: (key: string) => void;
   clear: () => void;
   setOpen: (o: boolean) => void;
 }
@@ -29,7 +34,7 @@ export function useCart(): CartCtx {
   return c;
 }
 
-const KEY = "bh-cart-v1";
+const KEY = "bh-cart-v2";
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -48,42 +53,47 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
-  const add = useCallback((slug: string, qty = 1) => {
+  const add = useCallback((slug: string, qty = 1, measurements?: Record<string, string>) => {
     setItems((prev) => {
-      const found = prev.find((i) => i.slug === slug);
+      if (measurements && Object.keys(measurements).length > 0) {
+        // each measured item is its own production line
+        return [...prev, { key: `${slug}#${prev.length}-${Math.random().toString(36).slice(2, 7)}`, slug, qty, measurements }];
+      }
+      const found = prev.find((i) => i.slug === slug && !i.measurements);
       return found
-        ? prev.map((i) => (i.slug === slug ? { ...i, qty: i.qty + qty } : i))
-        : [...prev, { slug, qty }];
+        ? prev.map((i) => (i === found ? { ...i, qty: i.qty + qty } : i))
+        : [...prev, { key: slug, slug, qty }];
     });
     setOpen(true);
   }, []);
 
-  const setQty = useCallback((slug: string, qty: number) => {
+  const setQty = useCallback((key: string, qty: number) => {
     setItems((prev) =>
-      qty <= 0 ? prev.filter((i) => i.slug !== slug)
-        : prev.map((i) => (i.slug === slug ? { ...i, qty } : i)),
+      qty <= 0 ? prev.filter((i) => i.key !== key)
+        : prev.map((i) => (i.key === key ? { ...i, qty } : i)),
     );
   }, []);
 
-  const remove = useCallback((slug: string) => {
-    setItems((prev) => prev.filter((i) => i.slug !== slug));
+  const remove = useCallback((key: string) => {
+    setItems((prev) => prev.filter((i) => i.key !== key));
   }, []);
 
   const clear = useCallback(() => setItems([]), []);
 
-  const { count, subtotal } = useMemo(() => {
-    let count = 0, subtotal = 0;
+  const { count, subtotal, subtotalUsd } = useMemo(() => {
+    let count = 0, subtotal = 0, subtotalUsd = 0;
     for (const i of items) {
       const p = bySlug(i.slug);
       if (!p) continue;
       count += i.qty;
       subtotal += p.price * i.qty;
+      subtotalUsd += p.priceUsd * i.qty;
     }
-    return { count, subtotal };
+    return { count, subtotal, subtotalUsd };
   }, [items]);
 
   return (
-    <Ctx.Provider value={{ items, count, subtotal, open, hydrated, add, setQty, remove, clear, setOpen }}>
+    <Ctx.Provider value={{ items, count, subtotal, subtotalUsd, open, hydrated, add, setQty, remove, clear, setOpen }}>
       {children}
     </Ctx.Provider>
   );

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
+import { Money } from "./Money";
 
 const N = 3;
 const INTERVAL = 6000;
@@ -63,7 +64,7 @@ export default function HeroCarousel() {
                 <img src="/products/Chalice_Cup.jpg" alt="Chalice Royale — gold chalice and paten set" />
                 <div className="plate">
                   <span className="nm">Chalice Royale</span>
-                  <span className="pr">KES 18,500</span>
+                  <span className="pr"><Money kes={18500} usd={142} /></span>
                   <Link href="/product/chalice-royale">View</Link>
                 </div>
               </div>
@@ -96,7 +97,7 @@ export default function HeroCarousel() {
                 <img src="/products/gold-wares.jpg" alt="Communion ware set" />
                 <div className="plate">
                   <span className="nm">Communion Bundle</span>
-                  <span className="pr">from KES 21,200</span>
+                  <span className="pr">from <Money kes={21200} usd={168} /></span>
                   <Link href="/product/chalice-royale">View</Link>
                 </div>
               </div>
@@ -129,7 +130,7 @@ export default function HeroCarousel() {
                 <img src="/products/preaching_gown1.jpg" alt="Tailored preaching gown" />
                 <div className="plate">
                   <span className="nm">Preaching Gown</span>
-                  <span className="pr">KES 12,500</span>
+                  <span className="pr"><Money kes={12500} usd={96} /></span>
                   <Link href="/product/preaching-gown">View</Link>
                 </div>
               </div>

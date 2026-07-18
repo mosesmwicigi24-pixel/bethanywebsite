@@ -2,7 +2,8 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { products, formatKES } from "@/lib/products";
+import { products } from "@/lib/products";
+import { Price } from "./Money";
 
 const POPULAR = ["Chalice", "Preaching gown", "Altar wine", "Stole", "Communion hosts", "Tallit"];
 
@@ -86,7 +87,7 @@ export default function Search() {
                   <button className="search-hit" key={p.slug} onClick={() => go(p.slug)}>
                     <span className="im"><img src={p.img} alt="" /></span>
                     <span style={{ minWidth: 0 }}><b>{p.name}</b><span>{p.category}</span></span>
-                    <span className="pr">{formatKES(p.price)}</span>
+                    <span className="pr"><Price p={p} /></span>
                   </button>
                 ))}
               </>
@@ -106,7 +107,7 @@ export default function Search() {
                   >
                     <span className="im"><img src={p.img} alt="" /></span>
                     <span style={{ minWidth: 0 }}><b>{p.name}</b><span>{p.category}</span></span>
-                    <span className="pr">{formatKES(p.price)}</span>
+                    <span className="pr"><Price p={p} /></span>
                   </button>
                 ))}
               </>

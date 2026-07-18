@@ -5,13 +5,27 @@ export interface Chip {
   text: string;
 }
 
+export interface Measurement {
+  name: string;
+  unit?: string;
+  required?: boolean;
+}
+
 export interface Product {
   slug: string;
   name: string;
   short: string;
   img: string;
+  /** KES price (hub: prices row where currency_code=KES) */
   price: number;
   oldPrice?: number;
+  /** USD price (hub: prices row where currency_code=USD) */
+  priceUsd: number;
+  oldPriceUsd?: number;
+  /** hub: products.is_producible — made to order */
+  producible?: boolean;
+  /** hub: products.measurements JSON — template the customer must fill */
+  measurements?: Measurement[];
   rating: number;
   reviews: number;
   badge?: Badge;
@@ -22,6 +36,17 @@ export interface Product {
 
 export const formatKES = (n: number) => `KES ${n.toLocaleString("en-KE")}`;
 
+export type Currency = "KES" | "USD";
+
+/** Hub rule (Order::resolveCurrency): Kenya -> KES, everywhere else -> USD. */
+export const formatMoney = (n: number, c: Currency) =>
+  c === "KES" ? formatKES(n) : `$${n.toLocaleString("en-US")}`;
+
+export const priceFor = (p: Product, c: Currency) =>
+  c === "KES" ? p.price : p.priceUsd;
+export const oldPriceFor = (p: Product, c: Currency) =>
+  c === "KES" ? p.oldPrice : p.oldPriceUsd;
+
 export const badgeLabel: Record<Badge, { text: string; cls: string }> = {
   best: { text: "Best Seller", cls: "tag-gold" },
   new: { text: "New Arrival", cls: "tag-green" },
@@ -31,6 +56,7 @@ export const badgeLabel: Record<Badge, { text: string; cls: string }> = {
 export const products: Product[] = [
   {
     slug: "chalice-royale",
+    priceUsd: 142, oldPriceUsd: 169,
     name: "Chalice Royale — Gold Chalice & Paten Set",
     short: "Chalice Royale",
     img: "/products/Chalice_Cup.jpg",
@@ -48,6 +74,7 @@ export const products: Product[] = [
   },
   {
     slug: "communion-ware-deluxe",
+    priceUsd: 269, oldPriceUsd: 319,
     name: "Communion Ware Deluxe Set",
     short: "Communion Ware Deluxe",
     img: "/products/gold-wares.jpg",
@@ -65,6 +92,7 @@ export const products: Product[] = [
   },
   {
     slug: "altar-wine",
+    priceUsd: 12,
     name: "Altar Wine — 750ml",
     short: "Altar Wine",
     img: "/products/Altar_wine.png",
@@ -80,6 +108,7 @@ export const products: Product[] = [
   },
   {
     slug: "communion-hosts",
+    priceUsd: 14, oldPriceUsd: 16,
     name: "Communion Hosts — 1,000 pieces",
     short: "Communion Hosts",
     img: "/products/Hosts.jpg",
@@ -97,6 +126,17 @@ export const products: Product[] = [
   },
   {
     slug: "preaching-gown",
+    priceUsd: 96, oldPriceUsd: 115,
+    producible: true,
+    measurements: [
+      { name: "Neck", unit: "in", required: true },
+      { name: "Shoulders", unit: "in", required: true },
+      { name: "Sleeves", unit: "in", required: true },
+      { name: "Chest", unit: "in", required: true },
+      { name: "Waist", unit: "in" },
+      { name: "Hips", unit: "in" },
+      { name: "Full Length", unit: "in", required: true },
+    ],
     name: "Premium Preaching Gown — Tailored",
     short: "Preaching Gown",
     img: "/products/preaching_gown1.jpg",
@@ -114,6 +154,17 @@ export const products: Product[] = [
   },
   {
     slug: "clergy-cassock",
+    priceUsd: 65,
+    producible: true,
+    measurements: [
+      { name: "Neck", unit: "in", required: true },
+      { name: "Shoulders", unit: "in", required: true },
+      { name: "Sleeves", unit: "in", required: true },
+      { name: "Chest", unit: "in", required: true },
+      { name: "Waist", unit: "in" },
+      { name: "Hips", unit: "in" },
+      { name: "Full Length", unit: "in", required: true },
+    ],
     name: "Classic Clergy Cassock",
     short: "Clergy Cassock",
     img: "/products/cassock212.jpg",
@@ -129,6 +180,17 @@ export const products: Product[] = [
   },
   {
     slug: "ornate-chasuble",
+    priceUsd: 108, oldPriceUsd: 127,
+    producible: true,
+    measurements: [
+      { name: "Neck", unit: "in", required: true },
+      { name: "Shoulders", unit: "in", required: true },
+      { name: "Sleeves", unit: "in", required: true },
+      { name: "Chest", unit: "in", required: true },
+      { name: "Waist", unit: "in" },
+      { name: "Hips", unit: "in" },
+      { name: "Full Length", unit: "in", required: true },
+    ],
     name: "Ornate Chasuble — Embroidered",
     short: "Ornate Chasuble",
     img: "/products/chasuble31.jpg",
@@ -146,6 +208,7 @@ export const products: Product[] = [
   },
   {
     slug: "clergy-stole",
+    priceUsd: 27,
     name: "Embroidered Clergy Stole",
     short: "Clergy Stole",
     img: "/products/Stoles5.jpg",
@@ -161,6 +224,14 @@ export const products: Product[] = [
   },
   {
     slug: "clergy-shirt",
+    priceUsd: 22, oldPriceUsd: 25,
+    producible: true,
+    measurements: [
+      { name: "Neck", unit: "in", required: true },
+      { name: "Chest", unit: "in", required: true },
+      { name: "Sleeves", unit: "in", required: true },
+      { name: "Shirt Length", unit: "in" },
+    ],
     name: "Tab-Collar Clergy Shirt",
     short: "Clergy Shirt",
     img: "/products/Shirt11.jpg",
@@ -177,6 +248,7 @@ export const products: Product[] = [
   },
   {
     slug: "pectoral-cross",
+    priceUsd: 50, oldPriceUsd: 60,
     name: "Pectoral Cross — Gold Finish",
     short: "Pectoral Cross",
     img: "/products/cross1.jpg",
@@ -193,6 +265,7 @@ export const products: Product[] = [
   },
   {
     slug: "altar-bell",
+    priceUsd: 40,
     name: "Altar Bell — 4-Bell Brass",
     short: "Altar Bell",
     img: "/products/bell.jpg",
@@ -208,6 +281,7 @@ export const products: Product[] = [
   },
   {
     slug: "tallit-prayer-shawl",
+    priceUsd: 35,
     name: "Tallit Prayer Shawl",
     short: "Tallit",
     img: "/products/tallit.jpg",
@@ -224,6 +298,7 @@ export const products: Product[] = [
   },
   {
     slug: "devotional-365",
+    priceUsd: 15,
     name: "365 Days With Jesus — Devotional",
     short: "365 Days With Jesus",
     img: "/products/365days.png",
