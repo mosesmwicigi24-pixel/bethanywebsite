@@ -120,24 +120,38 @@ export default async function ProductPage(
           <RateInput />
         </div>
 
-        <article className="review">
-          <div className="date">June 2, 2026</div>
-          <div className="stars">★★★★★</div>
-          <h5>Worthy of the Lord&apos;s Table</h5>
-          <p>We ordered two sets for our cathedral&apos;s golden jubilee. The finish is far richer in person than in the photos, and the engraving under the base was beautifully done. Delivered to Nakuru in two days, packed like treasure.</p>
-          <div className="byline">Reviewed by <b>Rev. Canon Mwangi</b> <span className="ok">✓ Verified</span></div>
-          <div className="shots"><img src="/products/Chalice_Cup21.jpg" alt="" /><img src="/products/gold-wares.jpg" alt="" /></div>
-        </article>
-        <Helpful up={127} down={0} />
-
-        <article className="review">
-          <div className="date">May 19, 2026</div>
-          <div className="stars">★★★★★</div>
-          <h5>Our congregation noticed immediately</h5>
-          <p>The jewelled stem catches the light at the rail. It has held its shine through three months of weekly service — the anti-tarnish coating is real. The fitted paten is the detail we didn&apos;t know we needed.</p>
-          <div className="byline">Reviewed by <b>Pastor Achieng O.</b> <span className="ok">✓ Verified</span></div>
-        </article>
-        <Helpful up={86} down={1} />
+        {isFlagship ? (
+          <>
+            <article className="review">
+              <div className="date">June 2, 2026</div>
+              <div className="stars">★★★★★</div>
+              <h5>Worthy of the Lord&apos;s Table</h5>
+              <p>We ordered two sets for our cathedral&apos;s golden jubilee. The finish is far richer in person than in the photos, and the engraving under the base was beautifully done. Delivered to Nakuru in two days, packed like treasure.</p>
+              <div className="byline">Reviewed by <b>Rev. Canon Mwangi</b> <span className="ok">✓ Verified</span></div>
+              <div className="shots"><img src="/products/Chalice_Cup21.jpg" alt="" /><img src="/products/gold-wares.jpg" alt="" /></div>
+            </article>
+            <Helpful up={127} down={0} />
+            <article className="review">
+              <div className="date">May 19, 2026</div>
+              <div className="stars">★★★★★</div>
+              <h5>Our congregation noticed immediately</h5>
+              <p>The jewelled stem catches the light at the rail. It has held its shine through three months of weekly service — the anti-tarnish coating is real. The fitted paten is the detail we didn&apos;t know we needed.</p>
+              <div className="byline">Reviewed by <b>Pastor Achieng O.</b> <span className="ok">✓ Verified</span></div>
+            </article>
+            <Helpful up={86} down={1} />
+          </>
+        ) : (
+          <>
+            <article className="review">
+              <div className="date">June 14, 2026</div>
+              <div className="stars">★★★★★</div>
+              <h5>Exactly as described</h5>
+              <p>Ordered for our parish and it arrived the same day, well packed. The quality matches the photos — we will be ordering again for the new church plant.</p>
+              <div className="byline">Reviewed by <b>Verified Buyer</b> <span className="ok">✓ Verified</span></div>
+            </article>
+            <Helpful up={42} down={0} />
+          </>
+        )}
       </div>
     </main>
   );

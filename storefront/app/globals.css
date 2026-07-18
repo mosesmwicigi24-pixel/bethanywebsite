@@ -23,7 +23,7 @@
   --radius:16px;
   --shadow:0 10px 30px rgba(10,20,37,.08);
   --shadow-lift:0 18px 50px rgba(10,20,37,.16);
-  --wrap:2400px;
+  --wrap:2040px;
   --font:var(--font-jakarta),-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
   --serif:var(--font-fraunces),'Georgia',serif;
   --ease:cubic-bezier(.22,.61,.36,1);
@@ -47,7 +47,9 @@ body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-fo
 img{max-width:100%;display:block}
 a{color:inherit;text-decoration:none}
 button{font-family:inherit;cursor:pointer;border:none;background:none}
-.wrap{max-width:var(--wrap);margin:0 auto;padding:0 clamp(24px,3.4vw,110px)}
+/* oraimo-style container: content is always 89% of the viewport (capped),
+   margins symmetric at every size — one rule governs every section */
+.wrap{width:min(89vw,var(--wrap));max-width:none;margin:0 auto;padding:0}
 
 /* ---------- utility bar ---------- */
 .utility{background:var(--navy-950);color:#c8d2e0;font-size:12.5px}
@@ -165,7 +167,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .edit-card .ph{flex:1;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
 .edit-card .ph img{width:100%;height:100%;object-fit:cover;opacity:.94}
 .edit-card .plus{position:absolute;right:16px;bottom:16px;width:34px;height:34px;border-radius:99px;background:rgba(255,255,255,.92);color:#111;font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center;z-index:2}
-.rail-nav{display:flex;gap:10px;justify-content:flex-end;max-width:var(--wrap);margin:0 auto;padding:0 28px}
+.rail-nav{display:flex;gap:10px;justify-content:flex-end;width:min(89vw,var(--wrap));margin:0 auto;padding:0}
 .rail-nav button{width:38px;height:38px;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center}
 .band .rail-nav button{background:#e4e5e9;color:#333}
 .rail-nav button:hover{background:var(--gold);color:var(--navy-950)}
@@ -280,7 +282,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .buybar .pill{width:300px;padding:15px 0;font-size:16px}
 
 /* ---------- storytelling ---------- */
-.story{max-width:1240px;margin:0 auto;padding:0 28px}
+.story{width:min(89vw,1300px);margin:0 auto;padding:0}
 .story-lede{ text-align:center;padding:46px 0 26px}
 .story-lede h4{font-size:17px;font-weight:800;margin-bottom:8px}
 .story-lede p{color:#444;font-size:14.5px;max-width:640px;margin:4px auto}
@@ -386,7 +388,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* ---------- cathedral hero ---------- */
 .hero-cath{background:radial-gradient(130% 120% at 78% 10%,#1d3457 0%,var(--navy-950) 58%);color:#fff;overflow:hidden;position:relative}
 .hero-cath::after{content:"";position:absolute;inset:0;background:radial-gradient(46% 42% at 74% 62%,rgba(201,162,39,.16),transparent 70%);pointer-events:none}
-.hero-cath>.wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;min-height:640px;padding-top:40px;padding-bottom:40px;position:relative;z-index:1;max-width:1780px}
+.hero-cath>.wrap{display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center;min-height:640px;padding-top:40px;padding-bottom:40px;position:relative;z-index:1;max-width:1560px}
 .hero-cath .eyebrow{display:inline-flex;align-items:center;gap:10px;font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--gold-bright);margin-bottom:22px}
 .hero-cath .eyebrow::before{content:"";width:26px;height:1.5px;background:var(--gold)}
 .hero-cath h1{font-family:var(--serif);font-size:clamp(46px,5.6vw,78px);font-weight:600;letter-spacing:-.02em;line-height:1.04}

@@ -57,7 +57,7 @@ export default function Home() {
 
       {/* ---- Category index ---- */}
       <Reveal as="section">
-        <header className="hero-index wrap" style={{ padding: "64px 28px 56px" }}>
+        <header className="hero-index wrap" style={{ paddingTop: 64, paddingBottom: 56 }}>
           <h1 className="serif" style={{ fontSize: "clamp(34px,4vw,52px)", fontWeight: 600 }}>Begin with what you need.</h1>
           <div className="cat-index">
             <Link href="/shop"><span className="thumb"><img src="/products/Chalice_Cup.jpg" alt="" /></span>Communion</Link>
