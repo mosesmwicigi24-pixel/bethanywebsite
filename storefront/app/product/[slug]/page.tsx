@@ -6,6 +6,8 @@ import ProductRail from "@/components/ProductRail";
 import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful, BundleAdd } from "@/components/pdp";
 import { MeasureProvider, MeasurementForm } from "@/components/measure";
 import Highlights from "@/components/Highlights";
+import CloserLook from "@/components/CloserLook";
+import PosterBanner from "@/components/PosterBanner";
 import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
 import { bySlug, products } from "@/lib/products";
@@ -46,9 +48,7 @@ export default async function ProductPage(
         ]} />
 
         <div className="pdp">
-          <Gallery kes={p.price} usd={p.priceUsd} images={isFlagship
-            ? ["/products/Chalice_Cup.jpg", "/products/Chalice_Cup21.jpg", "/products/gold-wares.jpg", "/products/gold0_72.jpg"]
-            : [p.img]} />
+          <Gallery kes={p.price} usd={p.priceUsd} images={p.gallery ?? [p.img]} />
 
           <div className="buy">
             <button className="wish" aria-label="Wishlist">♡</button>
@@ -107,6 +107,11 @@ export default async function ProductPage(
       </div>
 
       <ProductRail title="You May Also Like" products={also} small tight />
+
+      <PosterBanner p={p} />
+      {p.closerLook && p.closerLook.length > 0 && (
+        <CloserLook features={p.closerLook} fallbackImg={p.img} />
+      )}
 
       {isFlagship && (
         <div className="story" style={{ marginTop: 10 }}>
