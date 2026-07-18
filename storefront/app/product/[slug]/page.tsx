@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import Rail from "@/components/Rail";
 import { MiniCard } from "@/components/cards";
-import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful } from "@/components/pdp";
+import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful, BundleAdd } from "@/components/pdp";
 import { bySlug, formatKES, products } from "@/lib/products";
 
 export function generateStaticParams() {
@@ -31,7 +31,7 @@ export default async function ProductPage(
 
   return (
     <main style={{ paddingBottom: 90 }}>
-      <StickyChrome name={p.short} sku={sku} />
+      <StickyChrome name={p.short} sku={sku} price={formatKES(p.price)} img={p.img} />
 
       <div className="wrap">
         <div className="crumbs">
@@ -64,6 +64,10 @@ export default async function ProductPage(
               <div className="feat" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
             ))}
             {isFlagship && <div className="feat"><span className="ic">◎</span>450ml cup with fitted paten lid</div>}
+            <div className="deliver">
+              <span aria-hidden="true">🚚</span>
+              <span>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</span>
+            </div>
             <FinishSwatches finishes={[
               { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
               { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
@@ -76,6 +80,8 @@ export default async function ProductPage(
             </div>
           </div>
         </div>
+
+        {isFlagship && <BoughtTogether />}
 
         <section className="section" style={{ paddingTop: 20 }}>
           <div className="section-head"><h2 style={{ fontSize: 30 }}>You May Also Like</h2></div>
@@ -189,6 +195,59 @@ function FlagshipStory() {
         <h4>What&apos;s in the Box?</h4>
         <p>Chalice Royale gold chalice ×1<br />Fitted paten lid ×1<br />Velvet-lined presentation case ×1<br />Polishing cloth ×1<br />Care card ×1</p>
       </div>
+
+      <div className="faqs">
+        <h4>Questions, answered.</h4>
+        <details>
+          <summary>How does free engraving work?</summary>
+          <p>Add your parish name or dedication at checkout. Engraving is etched beneath the base — the cup itself stays unmarked — and adds 3–5 working days before dispatch.</p>
+        </details>
+        <details>
+          <summary>How should the chalice be cleaned?</summary>
+          <p>Hand-wash with warm water and a soft cloth only. The anti-tarnish seal keeps the lustre through weekly service; avoid abrasives and dishwashers.</p>
+        </details>
+        <details>
+          <summary>Can our diocese order in quantity?</summary>
+          <p>Yes — parish and diocese accounts get quantity quotes, consolidated delivery and invoicing. Call +254 727 891 989 or ask in-store on Moi Avenue.</p>
+        </details>
+        <details>
+          <summary>What if it arrives damaged?</summary>
+          <p>Every piece is inspected and packed in a velvet-lined case. If anything arrives less than perfect, we replace it — that is the quality guarantee.</p>
+        </details>
+      </div>
     </div>
+  );
+}
+
+/** Frequently-bought-together bundle for the flagship. */
+function BoughtTogether() {
+  const items = ["chalice-royale", "altar-wine", "communion-hosts"]
+    .map(bySlug)
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  const total = items.reduce((s, p) => s + p.price, 0);
+  const was = items.reduce((s, p) => s + (p.oldPrice ?? p.price), 0);
+
+  return (
+    <section className="bundle">
+      <h4>Frequently bought together</h4>
+      <div className="row">
+        {items.map((p, i) => (
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }} key={p.slug}>
+            {i > 0 && <span className="plus-sign">+</span>}
+            <Link className="bitem" href={`/product/${p.slug}`}>
+              <span className="im"><img src={p.img} alt="" /></span>
+              <b>{p.short}</b>
+              <span>{formatKES(p.price)}</span>
+            </Link>
+          </div>
+        ))}
+        <div className="sum">
+          <small>The Lord&apos;s Table, complete</small>
+          <div className="tot">{formatKES(total)}</div>
+          <div className="was">{formatKES(was)}</div>
+          <BundleAdd count={items.length} />
+        </div>
+      </div>
+    </section>
   );
 }

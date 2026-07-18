@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Search from "./Search";
 
 /* Shared site chrome: utility bar, nav (CSS-hover mega menu), footer, chat fab.
    All server components — interactivity is pure CSS. */
@@ -86,7 +87,7 @@ export function Nav() {
           <li><Link href="/shop">Hot &amp; New</Link></li>
         </ul>
         <div className="nav-icons">
-          <a href="#" aria-label="Search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" /></svg></a>
+          <Search />
           <a href="#" aria-label="Cart"><CartIcon /><span className="cart-dot">2</span></a>
           <a href="#" aria-label="Account"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" /><path d="M4 21c1.5-3.6 4.5-5 8-5s6.5 1.4 8 5" /></svg></a>
         </div>

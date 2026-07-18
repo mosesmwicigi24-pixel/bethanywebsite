@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { TrustRow } from "@/components/chrome";
 import Rail from "@/components/Rail";
+import Reveal from "@/components/Reveal";
 import { ProductCard, MiniCard, LineupCard, EditorialCard } from "@/components/cards";
 import { bySlug } from "@/lib/products";
 
@@ -13,73 +13,161 @@ export default function Home() {
 
   return (
     <main>
-      <TrustRow />
-
-      {/* Apple-style index hero */}
-      <header className="hero-index wrap">
-        <h1>Everything the<br />altar calls for.</h1>
-        <p className="sub">
-          Holy Communion elements, clergy apparel and Christian gifts — supplied to
-          churches across East Africa from the heart of Nairobi.
-        </p>
-        <div className="cat-index">
-          <Link href="/shop"><span className="thumb"><img src="/products/Chalice_Cup.jpg" alt="" /></span>Communion</Link>
-          <Link href="/shop"><span className="thumb"><img src="/products/preaching_gown1.jpg" alt="" /></span>Clergy Apparel<span className="new">New</span></Link>
-          <Link href="/shop"><span className="thumb"><img src="/products/niv_bible.jpg" alt="" /></span>Bibles</Link>
-          <Link href="/shop"><span className="thumb"><img src="/products/cross1.jpg" alt="" /></span>Gifts</Link>
-          <Link href="/shop"><span className="thumb"><img src="/products/bell.jpg" alt="" /></span>Essentials</Link>
-          <Link href="/shop"><span className="thumb"><img src="/products/tallit.jpg" alt="" /></span>Prayer Wear</Link>
+      {/* ---- Cathedral hero ---- */}
+      <section className="hero-cath">
+        <div className="wrap">
+          <div>
+            <span className="eyebrow">Nairobi · Serving churches across East Africa</span>
+            <h1>Everything the <em>altar</em> calls for.</h1>
+            <p className="sub">
+              Holy Communion elements, tailored clergy apparel and Christian gifts —
+              chosen with reverence, delivered with care, from the heart of Nairobi
+              to sanctuaries across the region.
+            </p>
+            <div className="ctas">
+              <Link className="pill pill-gold" href="/shop">Shop Communion</Link>
+              <Link className="pill pill-ghost" style={{ background: "transparent", color: "#fff", borderColor: "rgba(255,255,255,.35)" }} href="/shop">
+                Explore Clergy Apparel
+              </Link>
+            </div>
+            <div className="marks">
+              <div className="mark"><b>Same-day</b>Nairobi delivery</div>
+              <div className="mark"><b>Made-to-measure</b>vestments &amp; gowns</div>
+              <div className="mark"><b>M-Pesa &amp; Card</b>secure checkout</div>
+            </div>
+          </div>
+          <div className="arch">
+            <img src="/products/Chalice_Cup.jpg" alt="Chalice Royale — gold chalice and paten set" />
+            <div className="plate">
+              <span className="nm">Chalice Royale</span>
+              <span className="pr">KES 18,500</span>
+              <Link href="/product/chalice-royale">View</Link>
+            </div>
+          </div>
         </div>
-      </header>
-
-      {/* Explore the collection */}
-      <section className="band">
-        <div className="wrap"><h2>Explore the collection.</h2></div>
-        <Rail>
-          <LineupCard href="/product/chalice-royale" img="/products/Chalice_Cup.jpg"
-            dots={["#c9a227", "#cfd3da"]} title="Chalice Royale"
-            blurb="24K gold-plated chalice & paten. The centrepiece of the Lord's Table." />
-          <LineupCard href="/shop" img="/products/preaching_gown1.jpg"
-            dots={["#111", "#6b3fa0", "#b0312f", "#fff"]} title="Preaching Gowns"
-            blurb="Tailored in Nairobi. Made to measure for every pulpit." />
-          <LineupCard href="/shop" img="/products/gold-wares.jpg"
-            dots={["#c9a227", "#cfd3da"]} title="Communion Sets"
-            blurb="Complete ware for congregations of 50 to 5,000." />
-          <LineupCard href="/shop" img="/products/Stoles5.jpg"
-            dots={["#2f7d4f", "#6b3fa0", "#b0312f", "#c9a227"]} title="Stoles & Vestments"
-            blurb="Every liturgical colour, embroidered by hand." />
-          <LineupCard href="/shop" img="/products/365days.png"
-            dots={["#16355e"]} title="Bibles & Devotionals"
-            blurb="From children's Bibles to 365-day devotionals." />
-        </Rail>
+        <div className="creed">
+          <div className="wrap">
+            <span><i>✦</i> Free Nairobi delivery over KES 2,000</span>
+            <span><i>✦</i> Sonalux Building, Moi Avenue</span>
+            <span><i>✦</i> Parish &amp; diocese accounts</span>
+            <span><i>✦</i> Free engraving on communion ware</span>
+          </div>
+        </div>
       </section>
 
-      {/* Best sellers */}
-      <section className="section wrap">
+      {/* ---- Category index ---- */}
+      <Reveal as="section">
+        <header className="hero-index wrap" style={{ padding: "64px 28px 56px" }}>
+          <h1 className="serif" style={{ fontSize: "clamp(34px,4vw,52px)", fontWeight: 600 }}>Begin with what you need.</h1>
+          <div className="cat-index">
+            <Link href="/shop"><span className="thumb"><img src="/products/Chalice_Cup.jpg" alt="" /></span>Communion</Link>
+            <Link href="/shop"><span className="thumb"><img src="/products/preaching_gown1.jpg" alt="" /></span>Clergy Apparel<span className="new">New</span></Link>
+            <Link href="/shop"><span className="thumb"><img src="/products/niv_bible.jpg" alt="" /></span>Bibles</Link>
+            <Link href="/shop"><span className="thumb"><img src="/products/cross1.jpg" alt="" /></span>Gifts</Link>
+            <Link href="/shop"><span className="thumb"><img src="/products/bell.jpg" alt="" /></span>Essentials</Link>
+            <Link href="/shop"><span className="thumb"><img src="/products/tallit.jpg" alt="" /></span>Prayer Wear</Link>
+          </div>
+        </header>
+      </Reveal>
+
+      {/* ---- Explore the collection ---- */}
+      <section className="band">
+        <Reveal>
+          <div className="wrap"><h2>Explore the collection.</h2></div>
+          <Rail>
+            <LineupCard href="/product/chalice-royale" img="/products/Chalice_Cup.jpg"
+              dots={["#c9a227", "#cfd3da"]} title="Chalice Royale"
+              blurb="24K gold-plated chalice & paten. The centrepiece of the Lord's Table." />
+            <LineupCard href="/shop" img="/products/preaching_gown1.jpg"
+              dots={["#111", "#6b3fa0", "#b0312f", "#fff"]} title="Preaching Gowns"
+              blurb="Tailored in Nairobi. Made to measure for every pulpit." />
+            <LineupCard href="/shop" img="/products/gold-wares.jpg"
+              dots={["#c9a227", "#cfd3da"]} title="Communion Sets"
+              blurb="Complete ware for congregations of 50 to 5,000." />
+            <LineupCard href="/shop" img="/products/Stoles5.jpg"
+              dots={["#2f7d4f", "#6b3fa0", "#b0312f", "#c9a227"]} title="Stoles & Vestments"
+              blurb="Every liturgical colour, embroidered by hand." />
+            <LineupCard href="/shop" img="/products/365days.png"
+              dots={["#16355e"]} title="Bibles & Devotionals"
+              blurb="From children's Bibles to 365-day devotionals." />
+          </Rail>
+        </Reveal>
+      </section>
+
+      {/* ---- Best sellers ---- */}
+      <Reveal as="section" className="section wrap">
         <div className="section-head"><h2>Best sellers.</h2><Link href="/shop">View all →</Link></div>
         <div className="grid-products">
           {bestSellers.map((p) => <ProductCard key={p.slug} p={p} />)}
         </div>
-      </section>
+      </Reveal>
 
-      {/* Get to know */}
+      {/* ---- Get to know ---- */}
       <section className="dark-band">
-        <div className="wrap"><h2>Get to know Bethany House.</h2></div>
-        <Rail dark>
-          <EditorialCard eyebrow="Craft" title={["Set apart", "for the sacred."]} img="/products/gold-wares.jpg" />
-          <EditorialCard eyebrow="Tailoring" title={["Vestments,", "made to measure."]} img="/products/cassock212.jpg" />
-          <EditorialCard eyebrow="Delivery" title={["Nairobi today.", "East Africa this week."]} img="/products/usher.jpg" />
-          <EditorialCard eyebrow="Heritage" title={["Serving the church,", "faithfully."]} img="/products/bishop.jpeg" />
-          <EditorialCard eyebrow="Prayer Wear" title={["The tallit,", "woven with meaning."]} img="/products/tallit.jpg" />
-        </Rail>
+        <Reveal>
+          <div className="wrap"><h2>Get to know Bethany House.</h2></div>
+          <Rail dark>
+            <EditorialCard eyebrow="Craft" title={["Set apart", "for the sacred."]} img="/products/gold-wares.jpg" />
+            <EditorialCard eyebrow="Tailoring" title={["Vestments,", "made to measure."]} img="/products/cassock212.jpg" />
+            <EditorialCard eyebrow="Delivery" title={["Nairobi today.", "East Africa this week."]} img="/products/usher.jpg" />
+            <EditorialCard eyebrow="Heritage" title={["Serving the church,", "faithfully."]} img="/products/bishop.jpeg" />
+            <EditorialCard eyebrow="Prayer Wear" title={["The tallit,", "woven with meaning."]} img="/products/tallit.jpg" />
+          </Rail>
+        </Reveal>
       </section>
 
-      {/* Fresh on the shelves */}
-      <section className="section wrap">
+      {/* ---- Fresh on the shelves ---- */}
+      <Reveal as="section" className="section wrap">
         <div className="section-head"><h2>Fresh on the shelves.</h2><Link href="/shop">Shop new arrivals →</Link></div>
         <Rail navInWrap>
           {fresh.map((p) => <MiniCard key={p.slug} p={p} />)}
         </Rail>
+      </Reveal>
+
+      {/* ---- Testimonials ---- */}
+      <section className="testis">
+        <Reveal className="wrap">
+          <div className="section-head"><h2>Loved at the altar.</h2></div>
+          <div className="grid">
+            <article className="testi">
+              <div className="stars">★★★★★</div>
+              <q>The finish is far richer in person than in the photos. Delivered to Nakuru in two days, packed like treasure.</q>
+              <div className="who"><span className="av">M</span><span><b>Rev. Canon Mwangi</b><span>Cathedral parish, Nakuru</span></span></div>
+            </article>
+            <article className="testi">
+              <div className="stars">★★★★★</div>
+              <q>Our preaching gowns were measured on Tuesday and worn that Sunday. The tailoring is simply excellent.</q>
+              <div className="who"><span className="av">A</span><span><b>Pastor Achieng O.</b><span>Nairobi West</span></span></div>
+            </article>
+            <article className="testi">
+              <div className="stars">★★★★★</div>
+              <q>One supplier for hosts, wine and ware — with a parish account. Bethany House understands how churches buy.</q>
+              <div className="who"><span className="av">K</span><span><b>Fr. Kamau</b><span>Diocese procurement</span></span></div>
+            </article>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ---- Why Bethany ---- */}
+      <section className="why">
+        <Reveal className="wrap">
+          <div className="section-head"><h2>Why Bethany House.</h2></div>
+          <div className="grid">
+            <article className="pillar"><div className="ico">✦</div><h3>Sanctuary-grade craft</h3><p>Communion ware in 24K electroplate, vestments embroidered by hand — chosen to be worthy of their use.</p></article>
+            <article className="pillar"><div className="ico">✂</div><h3>Made to measure</h3><p>Cassocks, gowns and chasubles tailored in Nairobi to your measurements, in every liturgical colour.</p></article>
+            <article className="pillar"><div className="ico">🚚</div><h3>Delivery you can plan on</h3><p>Same-day within Nairobi, days across East Africa — with delivery dates you can schedule services around.</p></article>
+            <article className="pillar"><div className="ico">🤝</div><h3>With you after the sale</h3><p>Engraving, repairs, replacements and parish accounts — a supplier relationship, not a transaction.</p></article>
+          </div>
+        </Reveal>
+      </section>
+
+      {/* ---- Newsletter vesper ---- */}
+      <section className="vespers">
+        <Reveal>
+          <h2>Grace in <em>every</em> detail.</h2>
+          <p>New arrivals, seasonal collections and parish offers — a short letter, once a month.</p>
+          <div className="newsletter"><input placeholder="Your email address" aria-label="Email address" /><button>Subscribe</button></div>
+        </Reveal>
       </section>
     </main>
   );

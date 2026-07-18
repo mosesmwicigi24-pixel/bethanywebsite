@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Product, badgeLabel, formatKES } from "@/lib/products";
 import CartButton from "./CartButton";
+import QuickActions from "./QuickActions";
 
 const Stars = ({ p }: { p: Product }) => (
   <>
@@ -24,6 +25,7 @@ export function ProductCard({ p }: { p: Product }) {
         <img src={p.img} alt={p.name} />
         <span className="rating"><Stars p={p} /></span>
       </Link>
+      <QuickActions />
       <h3>{p.name}</h3>
       <div className="chips">
         {p.chips.map((c) => (
@@ -33,6 +35,9 @@ export function ProductCard({ p }: { p: Product }) {
       <div className="price">
         <b>{formatKES(p.price)}</b>
         {p.oldPrice && <s>{formatKES(p.oldPrice)}</s>}
+      </div>
+      <div className={`avail ${p.category === "Clergy Apparel" ? "mto" : ""}`}>
+        {p.category === "Clergy Apparel" ? "Made to order · 5–7 days" : "In stock · ships today"}
       </div>
       {p.seller && (
         <div className="seller">

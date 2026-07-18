@@ -66,6 +66,14 @@ export default function Shop() {
         </aside>
 
         <div className="grid-products">
+          <div className="cat-banner">
+            <div>
+              <h3>Easter is coming.<br />Is the sanctuary ready?</h3>
+              <p>Communion ware, fresh hosts and seasonal vestments — order early for guaranteed delivery before Holy Week.</p>
+            </div>
+            <img src="/products/gold-wares.jpg" alt="" />
+            <Link className="pill pill-gold" href="/product/chalice-royale">Shop the set</Link>
+          </div>
           {products.map((p) => <ProductCard key={p.slug} p={p} />)}
         </div>
       </div>

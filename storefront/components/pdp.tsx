@@ -6,11 +6,22 @@ import { useEffect, useState } from "react";
 
 export function Gallery({ images }: { images: string[] }) {
   const [active, setActive] = useState(0);
+  const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const step = (d: number) => setActive((a) => (a + d + images.length) % images.length);
+
+  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
+  };
+
   return (
     <div className="gallery">
-      <div className="main">
-        <img src={images[active]} alt="Product view" />
+      <div className="main" onMouseMove={onMove} onMouseLeave={() => setZoom(null)}>
+        <img
+          src={images[active]}
+          alt="Product view"
+          style={zoom ? { transform: "scale(1.7)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
+        />
         <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>
         <button className="gnav next" aria-label="Next image" onClick={() => step(1)}>›</button>
       </div>
@@ -52,8 +63,25 @@ export function Qty() {
   );
 }
 
+/** Add a whole bundle to the cart. */
+export function BundleAdd({ count }: { count: number }) {
+  const [added, setAdded] = useState(false);
+  const add = () => {
+    if (added) return;
+    const dot = document.querySelector(".cart-dot");
+    if (dot) dot.textContent = String(Number(dot.textContent) + count);
+    setAdded(true);
+    setTimeout(() => setAdded(false), 2200);
+  };
+  return (
+    <button className="pill pill-gold" onClick={add} style={{ width: "100%" }}>
+      {added ? "✓ Added to cart" : `Add all ${count} to Cart`}
+    </button>
+  );
+}
+
 /** Sticky sub-header + bottom buy bar, revealed on scroll. */
-export function StickyChrome({ name, sku }: { name: string; sku: string }) {
+export function StickyChrome({ name, sku, price, img }: { name: string; sku: string; price: string; img: string }) {
   const [scrolled, setScrolled] = useState(0);
   const [inReviews, setInReviews] = useState(false);
 
@@ -81,8 +109,14 @@ export function StickyChrome({ name, sku }: { name: string; sku: string }) {
       </div>
       <div className={`buybar ${scrolled > 300 ? "show" : ""}`}>
         <div className="wrap">
-          <button className="pill pill-ghost">Add to Cart</button>
-          <button className="pill pill-solid">Buy It Now</button>
+          <div className="bb-info">
+            <span className="im"><img src={img} alt="" /></span>
+            <span style={{ minWidth: 0 }}><b>{name}</b><span>{price} · Free Nairobi delivery</span></span>
+          </div>
+          <div className="bb-ctas">
+            <button className="pill pill-ghost">Add to Cart</button>
+            <button className="pill pill-solid">Buy It Now</button>
+          </div>
         </div>
       </div>
     </>
