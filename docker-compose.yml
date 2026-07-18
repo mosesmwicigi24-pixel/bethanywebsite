@@ -19,3 +19,12 @@ services:
       - /run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # Customer-facing storefront (Next.js). nginx routes / here; the legacy
+  # app above keeps serving POS/back-office paths.
+  storefront:
+    image: ghcr.io/mosesmwicigi24-pixel/bethanywebsite-storefront:latest
+    container_name: bethany_storefront
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8097:3000"

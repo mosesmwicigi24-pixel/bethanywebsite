@@ -1,0 +1,6 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "bethany-redesign", "runtimeExecutable": "python3", "runtimeArgs": ["-m", "http.server", "8402", "--directory", "/Users/mwicigi/Claude/Projects/bethanywebsite"], "port": 8402 }
+  ]
+}
