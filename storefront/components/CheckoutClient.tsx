@@ -9,6 +9,8 @@ import { countryForPhone } from "@/lib/currency";
 import { useCurrency } from "@/lib/currency";
 import { bySlug, formatMoney, type Currency } from "@/lib/products";
 import { buildOnlineOrder, measurementsToNote, submitOnlineOrder } from "@/lib/hub";
+import { saveOrder } from "@/lib/orders";
+import { useRouter } from "next/navigation";
 import { SITE } from "@/lib/site";
 
 type Pay = "mpesa" | "card" | "cash_on_delivery";
@@ -23,6 +25,7 @@ const INTL_COUNTRIES = [
 export default function CheckoutClient() {
   const { items, subtotal, subtotalUsd, clear, hydrated } = useCart();
   const { setCurrency } = useCurrency();
+  const router = useRouter();
 
   const [phone, setPhone] = useState("");
   const [firstName, setFirstName] = useState("");
@@ -33,7 +36,6 @@ export default function CheckoutClient() {
   const [address, setAddress] = useState("");
   const [delivery, setDelivery] = useState<Delivery>("delivery");
   const [pay, setPay] = useState<Pay>("mpesa");
-  const [placed, setPlaced] = useState<{ ref: string; payLink?: string; currency: Currency; total: number; mto: boolean; pay: Pay } | null>(null);
 
   // ── The hub's currency rule, read from the phone number ──────────────
   // +254 / 07xx / 01xx → Kenya → KES; other international prefix → USD.
@@ -70,36 +72,34 @@ export default function CheckoutClient() {
     });
     const live = await submitOnlineOrder(draft);
     const ref = live?.orderNumber ?? `ORD-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
-    setPlaced({ ref, payLink: live?.paymentLink, currency, total, mto: hasMto, pay });
+    saveOrder({
+      ref,
+      placedAt: new Date().toISOString(),
+      currency,
+      items: items.map((i) => {
+        const pr = bySlug(i.slug);
+        return {
+          slug: i.slug,
+          name: pr?.name ?? i.slug,
+          qty: i.qty,
+          unit: pr ? (currency === "KES" ? pr.price : pr.priceUsd) : 0,
+          measurements: i.measurements,
+        };
+      }),
+      subtotal: sub,
+      delivery: deliveryFee,
+      total,
+      paymentMethod: pay,
+      deliveryMethod: delivery,
+      customer: { name: `${firstName} ${lastName}`.trim(), phone, church: church || undefined },
+      address: delivery === "delivery" ? address : undefined,
+      city: delivery === "delivery" && isKE ? county : undefined,
+      countryCode,
+      paymentLink: live?.paymentLink,
+    });
     clear();
-    window.scrollTo({ top: 0 });
+    router.push(`/order/${encodeURIComponent(ref)}`);
   };
-
-  if (placed) {
-    return (
-      <main className="wrap">
-        <div className="confirm">
-          <div className="tick">✓</div>
-          <h1 className="serif">Asante — order received.</h1>
-          <p>
-            Your online order <b>{placed.ref}</b> ({formatMoney(placed.total, placed.currency)}) is confirmed.{" "}
-            {placed.pay === "mpesa" && <>We&apos;ll send an <b>M-Pesa prompt</b> to your phone to complete payment. </>}
-            {placed.pay === "card" && <>A secure <b>card payment link</b> is on its way to you. </>}
-            {placed.pay === "cash_on_delivery" && <>Pay in cash when your order arrives. </>}
-            {placed.mto && <>Your <b>made-to-order items</b> go straight to our tailoring workshop with the measurements you provided — allow 5–7 days. </>}
-            Questions? <b>{SITE.phone}</b>.
-          </p>
-          {placed.payLink && (
-            <p><a className="pill pill-gold" href={placed.payLink}>Complete payment now</a></p>
-          )}
-          <div className="confirm-ctas">
-            <Link className="pill pill-gold" href="/shop">Continue shopping</Link>
-            <Link className="pill pill-ghost" href="/">Back home</Link>
-          </div>
-        </div>
-      </main>
-    );
-  }
 
   if (hydrated && items.length === 0) {
     return (

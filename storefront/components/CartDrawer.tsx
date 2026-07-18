@@ -89,9 +89,10 @@ export default function CartDrawer() {
             <Link className="pill pill-gold" style={{ width: "100%" }} href="/checkout" onClick={() => setOpen(false)}>
               Checkout
             </Link>
-            <button className="pill pill-ghost" style={{ width: "100%", marginTop: 10 }} onClick={() => setOpen(false)}>
-              Continue shopping
-            </button>
+            <Link className="pill pill-ghost" style={{ width: "100%", marginTop: 10 }} href="/cart" onClick={() => setOpen(false)}>
+              View full cart
+            </Link>
+
           </div>
         )}
       </aside>

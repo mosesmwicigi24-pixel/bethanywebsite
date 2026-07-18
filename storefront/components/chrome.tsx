@@ -93,7 +93,7 @@ export function Nav() {
           <CurrencyToggle />
           <Search />
           <NavCart />
-          <a href="#" aria-label="Account"><UserIcon /></a>
+          <Link href="/orders" aria-label="My orders"><UserIcon /></Link>
         </div>
       </div>
     </nav>
