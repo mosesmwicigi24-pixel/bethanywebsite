@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getOrder, payLabel, statusFor, type OrderRecord } from "@/lib/orders";
+import { fetchOrderStatus, hubLive, type HubOrderStatus } from "@/lib/hub";
 import { formatMoney } from "@/lib/products";
 import { SITE } from "@/lib/site";
 
@@ -11,8 +12,24 @@ import { SITE } from "@/lib/site";
 export default function OrderReceiptPage() {
   const { ref } = useParams<{ ref: string }>();
   const [order, setOrder] = useState<OrderRecord | null | undefined>(undefined);
+  const [live, setLive] = useState<HubOrderStatus | null>(null);
 
   useEffect(() => { setOrder(getOrder(decodeURIComponent(ref))); }, [ref]);
+
+  // Live tracker: refresh payment/shipment state from the hub while the
+  // page is open (paid orders confirm within seconds of the M-Pesa prompt).
+  useEffect(() => {
+    const token = order?.paymentToken;
+    if (!token || !hubLive()) return;
+    let stop = false;
+    const tick = async () => {
+      const s = await fetchOrderStatus(token);
+      if (!stop && s) setLive(s);
+    };
+    tick();
+    const t = setInterval(tick, 20000);
+    return () => { stop = true; clearInterval(t); };
+  }, [order?.paymentToken]);
 
   if (order === undefined) return <main className="wrap" style={{ minHeight: 400 }} />;
 
@@ -45,10 +62,27 @@ export default function OrderReceiptPage() {
           </p>
         </div>
         <div className="receipt-ctas">
-          {order.paymentLink && <a className="pill pill-gold" href={order.paymentLink}>Complete payment</a>}
+          {(live ? live.payment_status !== "paid" && live.payment_link : order.paymentLink) && (
+            <a className="pill pill-gold" href={(live?.payment_link ?? order.paymentLink)!}>Complete payment</a>
+          )}
           <button className="pill pill-solid" onClick={() => window.print()}>Print / Save PDF</button>
         </div>
       </div>
+
+      {live?.shipment && (
+        <div className="ship-banner no-print">
+          <div>
+            <b>🚚 Your order is {live.shipment.status.replace("_", " ")}</b>
+            <span>
+              {live.shipment.carrier && <>{live.shipment.carrier}{live.shipment.tracking_number && <> · {live.shipment.tracking_number}</>}. </>}
+              {live.shipment.estimated_delivery_date && <>Estimated delivery {new Date(live.shipment.estimated_delivery_date).toLocaleDateString("en-KE", { day: "numeric", month: "long" })}.</>}
+            </span>
+          </div>
+          {live.shipment.tracking_url && (
+            <a className="pill pill-gold" href={live.shipment.tracking_url}>Track shipment</a>
+          )}
+        </div>
+      )}
 
       <section className="receipt" aria-label="Order receipt">
         <header className="r-top">
@@ -63,7 +97,12 @@ export default function OrderReceiptPage() {
         <div className="r-meta">
           <div><span>Order receipt</span><b>{order.ref}</b></div>
           <div><span>Date</span><b>{d.toLocaleDateString("en-KE", { day: "numeric", month: "long", year: "numeric" })} · {d.toLocaleTimeString("en-KE", { hour: "2-digit", minute: "2-digit" })}</b></div>
-          <div><span>Status</span><b>{statusFor(order)}</b></div>
+          <div><span>Status</span>
+            <b>{live
+              ? live.payment_status === "paid" ? "✓ Paid — being prepared" : `${live.status} · ${live.payment_status.replace("_", " ")}`
+              : statusFor(order)}</b>
+            {live?.invoice_number && <em>Invoice {live.invoice_number}</em>}
+          </div>
         </div>
 
         <div className="r-meta">

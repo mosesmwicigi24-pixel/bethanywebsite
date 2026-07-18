@@ -29,6 +29,8 @@ export interface OrderRecord {
   city?: string;
   countryCode: string;
   paymentLink?: string;
+  paymentToken?: string;
+  email?: string;
 }
 
 const KEY = "bh-orders-v1";

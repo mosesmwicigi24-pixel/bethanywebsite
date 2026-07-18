@@ -36,7 +36,7 @@ export interface OnlineOrderDraft {
   order_type: "online";
   currency_code: Currency;
   country_code: string;
-  customer: { first_name: string; last_name: string; phone: string; church?: string };
+  customer: { first_name: string; last_name: string; phone: string; email?: string; church?: string };
   items: Array<{
     slug: string;
     product_name: string;
@@ -81,7 +81,7 @@ export function buildOnlineOrder(
   items: CartItem[],
   opts: {
     currency: Currency; countryCode: string;
-    firstName: string; lastName: string; phone: string; church?: string;
+    firstName: string; lastName: string; phone: string; email?: string; church?: string;
     deliveryMethod: "delivery" | "pickup";
     paymentMethod: "mpesa" | "card" | "cash_on_delivery";
     address?: string;
@@ -92,7 +92,7 @@ export function buildOnlineOrder(
     order_type: "online",
     currency_code: opts.currency,
     country_code: opts.countryCode,
-    customer: { first_name: opts.firstName, last_name: opts.lastName, phone: opts.phone, church: opts.church },
+    customer: { first_name: opts.firstName, last_name: opts.lastName, phone: opts.phone, email: opts.email, church: opts.church },
     items: items.map((i) => {
       const p = bySlug(i.slug);
       return {
@@ -122,7 +122,7 @@ export function buildOnlineOrder(
     hub's order number + payment link when configured and reachable; null
     means demo mode (no hub URL set, or the call failed) and the
     storefront confirms locally instead. */
-export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orderNumber: string; paymentLink?: string } | null> {
+export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orderNumber: string; paymentLink?: string; paymentToken?: string } | null> {
   if (!HUB) return null;
   try {
     const body = {
@@ -132,6 +132,7 @@ export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orde
         first_name: draft.customer.first_name,
         last_name: draft.customer.last_name,
         phone: draft.customer.phone,
+        email: draft.customer.email || undefined,
         church: draft.customer.church || undefined,
       },
       delivery: {
@@ -155,7 +156,38 @@ export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orde
     });
     if (!r.ok) return null;
     const data = await r.json();
-    return { orderNumber: data.order?.order_number, paymentLink: data.payment_link ?? undefined };
+    return { orderNumber: data.order?.order_number, paymentLink: data.payment_link ?? undefined, paymentToken: data.order?.payment_token ?? undefined };
+  } catch {
+    return null;
+  }
+}
+
+export interface HubOrderStatus {
+  order_number: string;
+  status: string;
+  payment_status: string;
+  invoice_number?: string | null;
+  payment_link?: string | null;
+  shipment?: {
+    status: string;
+    carrier?: string | null;
+    tracking_number?: string | null;
+    tracking_url?: string | null;
+    estimated_delivery_date?: string | null;
+  } | null;
+}
+
+/** Live order state from the hub (GET /storefront/orders/{payment_token}).
+    Powers the receipt page's live tracker; null when hub is unreachable. */
+export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderStatus | null> {
+  if (!HUB) return null;
+  try {
+    const r = await fetch(`${HUB}/storefront/orders/${encodeURIComponent(paymentToken)}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    return (await r.json()) as HubOrderStatus;
   } catch {
     return null;
   }

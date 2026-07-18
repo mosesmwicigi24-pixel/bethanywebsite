@@ -31,6 +31,7 @@ export default function CheckoutClient() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [church, setChurch] = useState("");
+  const [email, setEmail] = useState("");
   const [county, setCounty] = useState("Nairobi");
   const [intlCountry, setIntlCountry] = useState("US");
   const [address, setAddress] = useState("");
@@ -65,7 +66,7 @@ export default function CheckoutClient() {
   const placeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     const draft = buildOnlineOrder(items, {
-      currency, countryCode, firstName, lastName, phone, church,
+      currency, countryCode, firstName, lastName, phone, email: email || undefined, church,
       deliveryMethod: delivery, paymentMethod: pay,
       address: delivery === "delivery" ? address : undefined,
       city: delivery === "delivery" ? (isKE ? county : undefined) : undefined,
@@ -97,6 +98,8 @@ export default function CheckoutClient() {
       city: delivery === "delivery" && isKE ? county : undefined,
       countryCode,
       paymentLink: live?.paymentLink,
+      paymentToken: live?.paymentToken,
+      email: email || undefined,
     });
     clear();
     router.push(`/order/${encodeURIComponent(ref)}`);
@@ -143,6 +146,8 @@ export default function CheckoutClient() {
             <div className="field"><label htmlFor="co-church">Church / parish <span className="muted-cap">(optional)</span></label>
               <input id="co-church" value={church} onChange={(e) => setChurch(e.target.value)} placeholder="St. Andrew's Cathedral" /></div>
           </div>
+          <div className="field"><label htmlFor="co-email">Email <span className="muted-cap">(optional — we&apos;ll send your receipt here)</span></label>
+            <input id="co-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="you@church.org" /></div>
 
           <h2 className="serif" style={{ marginTop: 20 }}>Delivery.</h2>
           <div className="paycards" style={{ marginBottom: 18 }}>
