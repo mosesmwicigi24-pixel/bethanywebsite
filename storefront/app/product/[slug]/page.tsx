@@ -31,7 +31,7 @@ export default async function ProductPage(
 
   return (
     <main className="pdp-page">
-      <StickyChrome name={p.short} sku={sku} price={formatKES(p.price)} img={p.img} />
+      <StickyChrome name={p.short} sku={sku} price={formatKES(p.price)} img={p.img} slug={p.slug} />
 
       <div className="wrap">
         <Crumbs items={[
@@ -264,7 +264,7 @@ function BoughtTogether() {
           <small>The Lord&apos;s Table, complete</small>
           <div className="tot">{formatKES(total)}</div>
           <div className="was">{formatKES(was)}</div>
-          <BundleAdd count={items.length} />
+          <BundleAdd slugs={items.map((p) => p.slug)} />
         </div>
       </div>
     </section>

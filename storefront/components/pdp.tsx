@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useCart } from "@/lib/cart";
 
 /* Client-side pieces of the product page. */
 
@@ -56,32 +58,39 @@ export function Qty() {
     <div className="opt">Qty
       <div className="qty">
         <button aria-label="Decrease" onClick={() => setN((v) => Math.max(1, v - 1))}>‹</button>
-        <input value={n} readOnly />
+        <input id="pdp-qty" value={n} readOnly />
         <button aria-label="Increase" onClick={() => setN((v) => v + 1)}>›</button>
       </div>
     </div>
   );
 }
 
+const readQty = () => {
+  const el = document.getElementById("pdp-qty") as HTMLInputElement | null;
+  return Math.max(1, Number(el?.value) || 1);
+};
+
 /** Add a whole bundle to the cart. */
-export function BundleAdd({ count }: { count: number }) {
+export function BundleAdd({ slugs }: { slugs: string[] }) {
   const [added, setAdded] = useState(false);
-  const add = () => {
+  const { add } = useCart();
+  const onAdd = () => {
     if (added) return;
-    const dot = document.querySelector(".cart-dot");
-    if (dot) dot.textContent = String(Number(dot.textContent) + count);
+    slugs.forEach((s) => add(s));
     setAdded(true);
     setTimeout(() => setAdded(false), 2200);
   };
   return (
-    <button className="pill pill-gold" onClick={add} style={{ width: "100%" }}>
-      {added ? "✓ Added to cart" : `Add all ${count} to Cart`}
+    <button className="pill pill-gold" onClick={onAdd} style={{ width: "100%" }}>
+      {added ? "✓ Added to cart" : `Add all ${slugs.length} to Cart`}
     </button>
   );
 }
 
 /** Sticky sub-header + bottom buy bar, revealed on scroll. */
-export function StickyChrome({ name, sku, price, img }: { name: string; sku: string; price: string; img: string }) {
+export function StickyChrome({ name, sku, price, img, slug }: { name: string; sku: string; price: string; img: string; slug: string }) {
+  const { add } = useCart();
+  const router = useRouter();
   const [scrolled, setScrolled] = useState(0);
   const [inReviews, setInReviews] = useState(false);
 
@@ -114,8 +123,8 @@ export function StickyChrome({ name, sku, price, img }: { name: string; sku: str
             <span style={{ minWidth: 0 }}><b>{name}</b><span>{price} · Free Nairobi delivery</span></span>
           </div>
           <div className="bb-ctas">
-            <button className="pill pill-ghost">Add to Cart</button>
-            <button className="pill pill-solid">Buy It Now</button>
+            <button className="pill pill-ghost" onClick={() => add(slug, readQty())}>Add to Cart</button>
+            <button className="pill pill-solid" onClick={() => { add(slug, readQty()); router.push("/checkout"); }}>Buy It Now</button>
           </div>
         </div>
       </div>

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import Search from "./Search";
 import MobileMenu from "./MobileMenu";
+import NavCart from "./NavCart";
 import { SITE } from "@/lib/site";
-import { CartIcon, UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
+import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
 
 /* Shared site chrome: utility bar, nav (CSS-hover mega menu), footer, chat fab.
    All server components — interactivity is pure CSS.
@@ -89,7 +90,7 @@ export function Nav() {
         </ul>
         <div className="nav-icons">
           <Search />
-          <a href="#" aria-label="Cart"><CartIcon /><span className="cart-dot">2</span></a>
+          <NavCart />
           <a href="#" aria-label="Account"><UserIcon /></a>
         </div>
       </div>

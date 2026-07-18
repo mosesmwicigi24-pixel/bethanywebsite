@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import { UtilityBar, Nav, Footer, ChatFab } from "@/components/chrome";
+import { CartProvider } from "@/lib/cart";
+import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
 const jakarta = Plus_Jakarta_Sans({
@@ -29,11 +31,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
       <body>
-        <UtilityBar />
-        <Nav />
-        {children}
-        <Footer />
-        <ChatFab />
+        <CartProvider>
+          <UtilityBar />
+          <Nav />
+          {children}
+          <Footer />
+          <ChatFab />
+          <CartDrawer />
+        </CartProvider>
       </body>
     </html>
   );

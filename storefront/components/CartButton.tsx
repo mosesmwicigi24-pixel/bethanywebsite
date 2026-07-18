@@ -1,15 +1,16 @@
 "use client";
 
 import { useRef } from "react";
+import { useCart } from "@/lib/cart";
 import { CartIcon } from "./icons";
 
-/** Mini-card add-to-cart button with gold flash + nav cart-count bump. */
-export default function CartButton() {
+/** Mini-card add-to-cart button — adds to the real cart with a gold flash. */
+export default function CartButton({ slug }: { slug: string }) {
   const ref = useRef<HTMLButtonElement>(null);
+  const { add } = useCart();
 
-  const add = () => {
-    const dot = document.querySelector(".cart-dot");
-    if (dot) dot.textContent = String(Number(dot.textContent) + 1);
+  const onAdd = () => {
+    add(slug);
     const b = ref.current;
     if (b) {
       b.style.background = "var(--gold)";
@@ -18,7 +19,7 @@ export default function CartButton() {
   };
 
   return (
-    <button ref={ref} className="cartbtn" aria-label="Add to cart" onClick={add}>
+    <button ref={ref} className="cartbtn" aria-label="Add to cart" onClick={onAdd}>
       <CartIcon />
     </button>
   );

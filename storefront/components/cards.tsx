@@ -25,7 +25,7 @@ export function ProductCard({ p }: { p: Product }) {
         <img src={p.img} alt={p.name} />
         <span className="rating"><Stars p={p} /></span>
       </Link>
-      <QuickActions />
+      <QuickActions slug={p.slug} />
       <h3>{p.name}</h3>
       <div className="chips">
         {p.chips.map((c) => (
@@ -63,7 +63,7 @@ export function MiniCard({ p }: { p: Product }) {
           <b>{formatKES(p.price)}</b>
           {p.oldPrice && <s>{formatKES(p.oldPrice)}</s>}
         </div>
-        <CartButton />
+        <CartButton slug={p.slug} />
       </div>
     </article>
   );

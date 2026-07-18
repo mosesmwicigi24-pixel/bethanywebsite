@@ -1,0 +1,94 @@
+"use client";
+
+import Link from "next/link";
+import { useEffect } from "react";
+import { usePathname } from "next/navigation";
+import { useCart, FREE_DELIVERY_AT } from "@/lib/cart";
+import { bySlug, formatKES } from "@/lib/products";
+
+/** oraimo-style slide-in cart with free-delivery progress. */
+export default function CartDrawer() {
+  const { items, subtotal, open, setOpen, setQty, remove } = useCart();
+  const pathname = usePathname();
+
+  useEffect(() => { setOpen(false); }, [pathname, setOpen]);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, setOpen]);
+
+  const toFree = Math.max(0, FREE_DELIVERY_AT - subtotal);
+  const pct = Math.min(100, Math.round((subtotal / FREE_DELIVERY_AT) * 100));
+
+  return (
+    <div className={`cart-veil ${open ? "open" : ""}`} onClick={() => setOpen(false)}>
+      <aside className="cart-panel" role="dialog" aria-modal="true" aria-label="Shopping cart" onClick={(e) => e.stopPropagation()}>
+        <div className="cart-head">
+          <span>Your Cart</span>
+          <button aria-label="Close cart" onClick={() => setOpen(false)}>✕</button>
+        </div>
+
+        {items.length > 0 && (
+          <div className="cart-free">
+            {toFree > 0
+              ? <>Add <b>{formatKES(toFree)}</b> more for <b>free Nairobi delivery</b></>
+              : <>✓ You&apos;ve unlocked <b>free Nairobi delivery</b></>}
+            <div className="bar"><i style={{ width: `${pct}%` }} /></div>
+          </div>
+        )}
+
+        <div className="cart-items">
+          {items.length === 0 && (
+            <div className="cart-empty">
+              <span className="big">🕊️</span>
+              <p>Your cart is empty.</p>
+              <Link className="pill pill-gold" href="/shop" onClick={() => setOpen(false)}>Start shopping</Link>
+            </div>
+          )}
+          {items.map((i) => {
+            const p = bySlug(i.slug);
+            if (!p) return null;
+            return (
+              <div className="cart-item" key={i.slug}>
+                <Link className="im" href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
+                  <img src={p.img} alt="" />
+                </Link>
+                <div className="minw0" style={{ flex: 1 }}>
+                  <b>{p.short}</b>
+                  <span className="muted-cap">{formatKES(p.price)}</span>
+                  <div className="qty sm">
+                    <button aria-label="Decrease" onClick={() => setQty(i.slug, i.qty - 1)}>‹</button>
+                    <input value={i.qty} readOnly aria-label="Quantity" />
+                    <button aria-label="Increase" onClick={() => setQty(i.slug, i.qty + 1)}>›</button>
+                  </div>
+                </div>
+                <div className="cart-right">
+                  <b>{formatKES(p.price * i.qty)}</b>
+                  <button className="rm" onClick={() => remove(i.slug)}>Remove</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {items.length > 0 && (
+          <div className="cart-foot">
+            <div className="cart-sub"><span>Subtotal</span><span>{formatKES(subtotal)}</span></div>
+            <Link className="pill pill-gold" style={{ width: "100%" }} href="/checkout" onClick={() => setOpen(false)}>
+              Checkout
+            </Link>
+            <button className="pill pill-ghost" style={{ width: "100%", marginTop: 10 }} onClick={() => setOpen(false)}>
+              Continue shopping
+            </button>
+          </div>
+        )}
+      </aside>
+    </div>
+  );
+}

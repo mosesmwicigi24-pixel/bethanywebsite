@@ -1,17 +1,18 @@
 "use client";
 
 import { useState } from "react";
+import { useCart } from "@/lib/cart";
 import { CartIcon } from "./icons";
 
 /** Hover quick-actions on product cards: wishlist + instant add-to-cart. */
-export default function QuickActions() {
+export default function QuickActions({ slug }: { slug: string }) {
   const [wished, setWished] = useState(false);
+  const { add } = useCart();
 
   const addToCart = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const dot = document.querySelector(".cart-dot");
-    if (dot) dot.textContent = String(Number(dot.textContent) + 1);
+    add(slug);
   };
 
   const wish = (e: React.MouseEvent) => {
