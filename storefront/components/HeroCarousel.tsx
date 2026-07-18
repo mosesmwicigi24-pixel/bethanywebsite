@@ -81,7 +81,7 @@ export default function HeroCarousel() {
                 <h1>The Lord&apos;s Table, <em>complete</em>.</h1>
                 <p className="sub">
                   Chalice, altar wine and 1,000 hosts — one bundle, one delivery,
-                  ready before Holy Week. From KES 21,200.
+                  ready before Holy Week. From KES 21,800.
                 </p>
                 <div className="ctas">
                   <Link className="pill pill-gold" href="/product/chalice-royale">Shop the bundle</Link>
@@ -97,7 +97,7 @@ export default function HeroCarousel() {
                 <img src="/products/gold-wares.jpg" alt="Communion ware set" />
                 <div className="plate">
                   <span className="nm">Communion Bundle</span>
-                  <span className="pr">from <Money kes={21200} usd={168} /></span>
+                  <span className="pr">from <Money kes={21800} usd={170} /></span>
                   <Link href="/product/chalice-royale">View</Link>
                 </div>
               </div>
@@ -130,7 +130,7 @@ export default function HeroCarousel() {
                 <img src="/products/preaching_gown1.jpg" alt="Tailored preaching gown" />
                 <div className="plate">
                   <span className="nm">Preaching Gown</span>
-                  <span className="pr"><Money kes={12500} usd={96} /></span>
+                  <span className="pr"><Money kes={13000} usd={130} /></span>
                   <Link href="/product/preaching-gown">View</Link>
                 </div>
               </div>

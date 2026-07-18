@@ -73,7 +73,7 @@ export default function Home() {
             <div className="txt">
               <span className="eyebrow">Holy Week Offer</span>
               <h3>The Lord&apos;s Table, complete.</h3>
-              <p>Chalice, altar wine and 1,000 hosts — bundled from KES 21,200.</p>
+              <p>Chalice, altar wine and 1,000 hosts — bundled from KES 21,800.</p>
               <Link className="pill pill-gold" href="/product/chalice-royale">Shop the bundle</Link>
             </div>
             <img src="/products/gold-wares.jpg" alt="" />

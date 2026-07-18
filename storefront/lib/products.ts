@@ -128,7 +128,7 @@ export const products: Product[] = [
     name: "Altar Wine — 750ml",
     short: "Altar Wine",
     img: "/products/Altar_wine.png",
-    price: 1200,
+    price: 1800,
     rating: 4.8,
     reviews: 1032,
     chips: [
@@ -189,7 +189,7 @@ export const products: Product[] = [
     name: "Premium Preaching Gown — Tailored",
     short: "Preaching Gown",
     img: "/products/preaching_gown1.jpg",
-    price: 12500,
+    price: 13000,
     oldPrice: 15000,
     rating: 4.8,
     reviews: 157,
@@ -364,7 +364,7 @@ export const products: Product[] = [
     name: "Altar Bell — 4-Bell Brass",
     short: "Altar Bell",
     img: "/products/bell.jpg",
-    price: 5200,
+    price: 3500,
     rating: 4.7,
     reviews: 64,
     chips: [
