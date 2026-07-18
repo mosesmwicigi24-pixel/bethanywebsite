@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Rail from "@/components/Rail";
+import HeroCarousel from "@/components/HeroCarousel";
 import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
@@ -14,45 +15,16 @@ export default function Home() {
 
   return (
     <main>
-      {/* ---- Cathedral hero ---- */}
-      <section className="hero-cath">
+      {/* ---- Rotating campaign hero ---- */}
+      <HeroCarousel />
+      <div className="creed">
         <div className="wrap">
-          <div>
-            <span className="eyebrow">Nairobi · Serving churches across East Africa</span>
-            <h1>Everything the <em>altar</em> calls for.</h1>
-            <p className="sub">
-              Holy Communion elements, tailored clergy apparel and Christian gifts —
-              chosen with reverence, delivered with care, from the heart of Nairobi
-              to sanctuaries across the region.
-            </p>
-            <div className="ctas">
-              <Link className="pill pill-gold" href="/shop">Shop Communion</Link>
-              <Link className="pill pill-ghost-dark" href="/shop">Explore Clergy Apparel</Link>
-            </div>
-            <div className="marks">
-              <div className="mark"><b>Same-day</b>Nairobi delivery</div>
-              <div className="mark"><b>Made-to-measure</b>vestments &amp; gowns</div>
-              <div className="mark"><b>M-Pesa &amp; Card</b>secure checkout</div>
-            </div>
-          </div>
-          <div className="arch">
-            <img src="/products/Chalice_Cup.jpg" alt="Chalice Royale — gold chalice and paten set" />
-            <div className="plate">
-              <span className="nm">Chalice Royale</span>
-              <span className="pr">KES 18,500</span>
-              <Link href="/product/chalice-royale">View</Link>
-            </div>
-          </div>
+          <span><i>✦</i> Free Nairobi delivery over KES 2,000</span>
+          <span><i>✦</i> Sonalux Building, Moi Avenue</span>
+          <span><i>✦</i> Parish &amp; diocese accounts</span>
+          <span><i>✦</i> Free engraving on communion ware</span>
         </div>
-        <div className="creed">
-          <div className="wrap">
-            <span><i>✦</i> Free Nairobi delivery over KES 2,000</span>
-            <span><i>✦</i> Sonalux Building, Moi Avenue</span>
-            <span><i>✦</i> Parish &amp; diocese accounts</span>
-            <span><i>✦</i> Free engraving on communion ware</span>
-          </div>
-        </div>
-      </section>
+      </div>
 
       {/* ---- Shop by category: full-width tile grid ---- */}
       <Reveal as="section" className="section wrap">
