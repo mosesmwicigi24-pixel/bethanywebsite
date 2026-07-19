@@ -201,8 +201,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 
 /* mini card (You may also like) */
 .mini-card{scroll-snap-align:start;flex:0 0 clamp(240px,17vw,290px);border:1px solid var(--line);border-radius:14px;padding:0 0 18px;position:relative}
-.mini-card .ph{background:var(--tile);border-radius:14px 14px 0 0;height:190px;display:flex;align-items:center;justify-content:center;padding:18px;position:relative}
-.mini-card .ph img{max-height:100%;object-fit:contain}
+.mini-card .ph{background:var(--tile);border-radius:14px 14px 0 0;height:190px;display:flex;align-items:center;justify-content:center;padding:0;position:relative;overflow:hidden}
+.mini-card .ph img{width:100%;height:100%;object-fit:cover;object-position:center}
 .mini-card .ph .tag{position:absolute;top:10px;left:10px}
 .mini-card .rating{font-size:12.5px;font-weight:800;padding:10px 14px 0;display:flex;gap:4px}
 .mini-card .rating .star{color:var(--gold)}
