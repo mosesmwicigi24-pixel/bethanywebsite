@@ -1125,8 +1125,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 @media(max-width:640px){.vs-drawer{width:100vw}.vs-mgrid{grid-template-columns:1fr 1fr}}
 
 /* ---- ProductStudio: one product page, variants selected in place ---- */
-.pstudio{display:grid;gap:36px;padding:24px 0 8px;align-items:start;grid-template-columns:minmax(0,1fr) minmax(320px,380px)}
-.pstudio.has-measure{grid-template-columns:minmax(0,1.05fr) minmax(300px,350px) minmax(268px,330px)}
+/* Always three columns on desktop: gallery · info · measurements. The third
+   stays reserved (empty, unseen) until Made-to-order is chosen, so the image
+   and description never shift position when the measurements appear. */
+.pstudio{display:grid;gap:36px;padding:24px 0 8px;align-items:start;grid-template-columns:minmax(0,1.05fr) minmax(300px,350px) minmax(268px,330px)}
 .ps-info{min-width:0}
 .ps-info h1{font-size:clamp(24px,2.4vw,32px);font-weight:800;letter-spacing:-.02em;line-height:1.18}
 .ps-info .rrow{display:flex;align-items:center;gap:12px;margin:14px 0 12px;font-size:14.5px}
@@ -1158,14 +1160,17 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .ps-measure .vs-mode{margin-bottom:14px}
 .ps-measure .size-pills{margin-top:6px}
 @media(max-width:1120px){
-  .pstudio.has-measure{grid-template-columns:minmax(0,1fr) minmax(300px,1fr)}
-  .pstudio.has-measure .ps-measure{grid-column:1 / -1;position:static;top:auto;margin-top:4px}
+  /* Below the 3-col breakpoint the image + description sit in a fixed 2-col
+     row and the measurements drop in as a full-width tap-to-open tab below —
+     so the two never resize when the tab appears. */
+  .pstudio{grid-template-columns:minmax(0,1fr) minmax(290px,1fr)}
+  .pstudio .ps-measure{grid-column:1 / -1;position:static;top:auto;margin-top:4px}
   .ps-measure-tab .chev{display:inline-block}
   .ps-measure.open .ps-measure-tab .chev{transform:rotate(180deg)}
   .ps-measure-body{display:none}
   .ps-measure.open .ps-measure-body{display:block;animation:vsFade .2s ease}
 }
-@media(max-width:760px){.pstudio,.pstudio.has-measure{grid-template-columns:1fr;gap:26px}}
+@media(max-width:760px){.pstudio{grid-template-columns:1fr;gap:26px}}
 .mto-chip.ready,.co-meas.ready,.r-meas.ready{color:#1d5c38;background:#e7f4ec}
 @media(max-width:640px){.mode-cards{grid-template-columns:1fr}}
 
