@@ -110,8 +110,8 @@ export function MeasurementForm() {
             <span>Sewn to these numbers in Nairobi · 5–7 days</span>
           </div>
           <div className="m-grid">
-            {m.template.map((f) => (
-              <label key={f.name} className="m-field">
+            {m.template.map((f, i) => (
+              <label key={`${f.name}-${i}`} className="m-field">
                 <span>{f.name}{f.required && <i aria-hidden="true"> *</i>}{f.unit && <em> ({f.unit})</em>}</span>
                 <input
                   inputMode="decimal"

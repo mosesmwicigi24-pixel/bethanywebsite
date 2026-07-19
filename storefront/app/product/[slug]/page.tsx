@@ -10,7 +10,7 @@ import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
 import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
-import VariantPicker from "@/components/VariantPicker";
+import VariantStudio from "@/components/VariantStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { bySlug as curatedBySlug } from "@/lib/products";
 
@@ -90,9 +90,8 @@ export default async function ProductPage(
                   : <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
                 : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
             </div>
-            <MeasurementForm />
             {siblings.length > 1 ? (
-              <VariantPicker current={p.slug} variants={siblings} />
+              <VariantStudio current={p.slug} variants={siblings} template={p.measurements ?? []} sizes={p.sizes} producible={p.producible} />
             ) : isCurated ? (
               p.category === "Clergy Apparel" || p.category === "Prayer Wear" ? (
                 <FinishSwatches label="Colour" finishes={[
@@ -109,6 +108,7 @@ export default async function ProductPage(
                 ]} />
               )
             ) : null}
+            <MeasurementForm />
             <Qty />
             <div className="assure">
               <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card ⓘ</div>
