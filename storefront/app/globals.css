@@ -42,11 +42,12 @@
 .reveal.in{opacity:1;transform:none}
 
 *{margin:0;padding:0;box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;font-size:15px;line-height:1.55}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+html,body{overflow-x:hidden;max-width:100%}
+body{font-family:var(--font);color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-size:15px;line-height:1.55}
 img{max-width:100%;display:block}
-a{color:inherit;text-decoration:none}
-button{font-family:inherit;cursor:pointer;border:none;background:none}
+a{color:inherit;text-decoration:none;-webkit-tap-highlight-color:transparent}
+button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-tap-highlight-color:transparent}
 /* oraimo-style container: content is always 89% of the viewport (capped),
    margins symmetric at every size — one rule governs every section */
 .wrap{width:min(89vw,var(--wrap));max-width:none;margin:0 auto;padding:0}
@@ -1062,3 +1063,56 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   .arch .plate .nm,.arch .plate .pr{font-size:11.5px}
   .arch .plate a{font-size:11px;padding:6px 12px}
 }
+
+/* ============================================================
+   APPLE-GRADE MOBILE — iOS safe areas, dynamic viewport, tap targets
+   (enabled by viewport-fit=cover in layout.tsx)
+   ============================================================ */
+
+/* Fixed bottom chrome lifts clear of the home indicator (0 on desktop). */
+.buybar{padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+.cart-foot{padding-bottom:calc(22px + env(safe-area-inset-bottom))}
+.mnav-foot{padding-bottom:calc(26px + env(safe-area-inset-bottom))}
+.mnav{padding-top:env(safe-area-inset-top)}
+.search-veil{padding-top:calc(9vh + env(safe-area-inset-top))}
+
+/* Overlays never chain their scroll to the page behind them. */
+.mnav,.cart-panel,.search-body,.hero-track{overscroll-behavior:contain}
+.rail{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
+
+@media(max-width:640px){
+  /* Dynamic viewport height so Safari's toolbar can't clip full-height UI. */
+  .mnav,.cart-panel{height:100dvh}
+  .search-panel{height:100dvh;max-height:100dvh}
+
+  /* Sticky top chrome clears the Dynamic Island (0 in Safari tabs, real
+     inset when the site is added to the Home Screen). */
+  .nav{padding-top:env(safe-area-inset-top)}
+  .pheader{padding-top:env(safe-area-inset-top)}
+  .chat-fab{bottom:calc(84px + env(safe-area-inset-bottom))}
+
+  /* Apple-legible body + comfortable HIG tap targets (>=44px). */
+  body{font-size:16px}
+  .nav-icons a,.nav-icons button,.nav-burger{min-width:44px;min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+  .qty button,.size-pills button{min-height:44px}
+  /* enlarge the dots' tap area without changing the visible pill */
+  .hero-dots{gap:14px;padding:10px 0}
+
+  /* Native-feeling CTAs: full-width, taller touch area. */
+  .hero-cath .ctas{flex-direction:column;align-items:stretch;gap:12px}
+  .hero-cath .ctas .pill{width:100%;padding:15px 22px}
+  .buybar .pill{min-height:50px}
+}
+
+/* When any full-screen sheet is open, the sticky bars and FAB step aside
+   (they otherwise bleed over the overlay) — the way iOS hides underlying
+   chrome behind a presented sheet. */
+body:has(.mnav-veil.open) .pheader,
+body:has(.mnav-veil.open) .buybar,
+body:has(.mnav-veil.open) .chat-fab,
+body:has(.search-veil.open) .pheader,
+body:has(.search-veil.open) .buybar,
+body:has(.search-veil.open) .chat-fab,
+body:has(.cart-veil.open) .pheader,
+body:has(.cart-veil.open) .buybar,
+body:has(.cart-veil.open) .chat-fab{visibility:hidden}

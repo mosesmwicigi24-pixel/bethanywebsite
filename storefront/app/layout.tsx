@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import { UtilityBar, Nav, Footer, ChatFab } from "@/components/chrome";
 import { CartProvider } from "@/lib/cart";
@@ -18,6 +18,15 @@ const fraunces = Fraunces({
   style: ["normal", "italic"],
   variable: "--font-fraunces",
 });
+
+// viewport-fit=cover enables iOS safe-area insets (Dynamic Island +
+// home indicator); themeColor matches the navy nav behind the status bar.
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0a1425",
+};
 
 export const metadata: Metadata = {
   title: {
