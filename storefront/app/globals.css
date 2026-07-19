@@ -229,6 +229,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .f-row{display:flex;align-items:center;gap:11px;padding:7px 0;font-size:14px;color:#333}
 .f-row input{width:16px;height:16px;accent-color:var(--navy-700)}
 .f-row .sw{margin-left:auto;width:26px;height:13px;border-radius:3px;border:1px solid rgba(0,0,0,.12)}
+.f-row.cat-link{text-decoration:none;color:#333;cursor:pointer}
+.f-row.cat-link:hover{color:var(--navy-900)}
+.f-row.cat-link .cbox{width:16px;height:16px;border:1.5px solid #cfd2d9;border-radius:5px;flex:none;position:relative;transition:.15s}
+.f-row.cat-link:hover .cbox{border-color:var(--navy-700)}
+.f-row.cat-link.active{font-weight:800;color:var(--navy-900)}
+.f-row.cat-link.active .cbox{background:var(--navy-900);border-color:var(--navy-900)}
+.f-row.cat-link.active .cbox::after{content:"";position:absolute;left:4.5px;top:1px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+.f-row .fcount{margin-left:auto;color:var(--muted);font-size:12px;font-weight:600}
 .range{margin:16px 2px 22px;position:relative;height:4px;background:#111;border-radius:99px}
 .range i{position:absolute;top:50%;width:22px;height:22px;border-radius:99px;background:#fff;border:1px solid #c8cad0;box-shadow:0 2px 6px rgba(0,0,0,.18);transform:translateY(-50%)}
 .range i.lo{left:-2px}.range i.hi{right:-2px}

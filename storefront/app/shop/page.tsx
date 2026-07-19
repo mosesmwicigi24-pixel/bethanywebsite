@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import { ProductCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
+import { ROOT_CATEGORIES, rootCategory, type RootCategory } from "@/lib/categories";
 
 export const metadata: Metadata = { title: "Shop" };
 export const revalidate = 300; // ISR — catalog refreshes without a rebuild
@@ -16,17 +17,24 @@ const colours = [
   ["Black", "#111"],
 ] as const;
 
-export default async function Shop() {
-  const products = await getCatalog();
+export default async function Shop({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
+  const { category } = await searchParams;
+  const all = await getCatalog();
 
-  // real category list, ordered by how many products each holds
-  const counts = new Map<string, number>();
-  for (const p of products) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
-  const categories = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+  // Fold every product onto its root department, count across the whole catalog.
+  const counts = new Map<RootCategory, number>();
+  for (const p of all) {
+    const root = rootCategory(p.category);
+    counts.set(root, (counts.get(root) ?? 0) + 1);
+  }
+  const roots = ROOT_CATEGORIES.filter((r) => (counts.get(r) ?? 0) > 0);
+  const active = roots.find((r) => r === category) ?? null;
+
+  const products = active ? all.filter((p) => rootCategory(p.category) === active) : all;
 
   return (
     <main className="wrap">
-      <Crumbs items={[{ label: "Home", href: "/" }, { label: "Communion & Clergy Store" }]} />
+      <Crumbs items={[{ label: "Home", href: "/" }, { label: active ?? "Communion & Clergy Store" }]} />
       <div className="toolbar">
         <div></div>
         <div className="sort">Sort by
@@ -44,8 +52,13 @@ export default async function Shop() {
         <aside className="filters">
           <div className="count">Shopping Options ({products.length} Results)</div>
           <h4>Shop by Category</h4>
-          {categories.map(([name, n]) => (
-            <label className="f-row" key={name}><input type="checkbox" /> {name} <span className="sw" style={{ background: "transparent", color: "var(--muted)", width: "auto", border: "none", fontSize: 12 }}>{n}</span></label>
+          <Link className={`f-row cat-link${!active ? " active" : ""}`} href="/shop">
+            <span className="cbox" /> All Products <span className="fcount">{all.length}</span>
+          </Link>
+          {roots.map((r) => (
+            <Link className={`f-row cat-link${active === r ? " active" : ""}`} key={r} href={`/shop?category=${encodeURIComponent(r)}`}>
+              <span className="cbox" /> {r} <span className="fcount">{counts.get(r)}</span>
+            </Link>
           ))}
           <h4>Shop by Liturgical Colour</h4>
           {colours.map(([name, hex]) => (
