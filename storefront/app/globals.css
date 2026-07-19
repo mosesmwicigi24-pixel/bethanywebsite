@@ -1099,8 +1099,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
   .hero-dots{gap:14px;padding:10px 0}
 
   /* Native-feeling CTAs: full-width, taller touch area. */
-  .hero-cath .ctas{flex-direction:column;align-items:stretch;gap:12px}
-  .hero-cath .ctas .pill{width:100%;padding:15px 22px}
+  /* split-pill CTAs: two half-width buttons on one row, outer edges
+     rounded, inner edges square where they meet */
+  .hero-cath .ctas{flex-direction:row;align-items:stretch;gap:10px}
+  .hero-cath .ctas .pill{flex:1;width:auto;min-width:0;padding:15px 10px;font-size:14px;line-height:1.15;text-align:center}
+  .hero-cath .ctas .pill:first-child{border-radius:999px 7px 7px 999px}
+  .hero-cath .ctas .pill:last-child{border-radius:7px 999px 999px 7px}
   .buybar .pill{min-height:50px}
 }
 
