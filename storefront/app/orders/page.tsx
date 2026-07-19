@@ -1,21 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Crumbs from "@/components/Crumbs";
+import FindMyOrders from "@/components/FindMyOrders";
 import { getOrders, statusFor, type OrderRecord } from "@/lib/orders";
 import { formatMoney } from "@/lib/products";
 
-/** Order history — every order placed from this device, receipt one tap away. */
+/** Order history — orders from this device plus any synced via Find my orders. */
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderRecord[] | null>(null);
 
   useEffect(() => { setOrders(getOrders()); }, []);
+  const onSynced = useCallback((recs: OrderRecord[]) => setOrders(recs), []);
 
   return (
     <main className="wrap">
       <Crumbs items={[{ label: "Home", href: "/" }, { label: "My Orders" }]} />
       <h1 className="serif cart-title">My orders.</h1>
+
+      <FindMyOrders onSynced={onSynced} />
 
       {orders && orders.length === 0 && (
         <div className="confirm">
