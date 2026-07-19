@@ -5,13 +5,15 @@ import Crumbs from "./Crumbs";
 import { Money } from "./Money";
 import { useCart, FREE_DELIVERY_AT } from "@/lib/cart";
 import { useCurrency } from "@/lib/currency";
-import { bySlug, formatKES } from "@/lib/products";
+import { formatKES } from "@/lib/products";
+import { useCatalog } from "@/lib/catalogClient";
 import { measurementsToNote } from "@/lib/hub";
 
 /** Full cart page — review every line (and its measurements) before checkout. */
 export default function CartPageClient() {
   const { items, subtotal, subtotalUsd, setQty, remove, hydrated } = useCart();
   const { currency } = useCurrency();
+  const { bySlug } = useCatalog();
 
   const toFree = Math.max(0, FREE_DELIVERY_AT - subtotal);
   const pct = Math.min(100, Math.round((subtotal / FREE_DELIVERY_AT) * 100));

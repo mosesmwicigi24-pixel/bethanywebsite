@@ -2,9 +2,10 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import { ProductCard } from "@/components/cards";
-import { products } from "@/lib/products";
+import { getCatalog } from "@/lib/catalog";
 
 export const metadata: Metadata = { title: "Shop" };
+export const revalidate = 300; // ISR — catalog refreshes without a rebuild
 
 const colours = [
   ["Gold", "#c9a227"],
@@ -15,15 +16,14 @@ const colours = [
   ["Black", "#111"],
 ] as const;
 
-const categories = [
-  ["Communion Elements", true],
-  ["Clergy Apparel", true],
-  ["Bibles & Devotionals", false],
-  ["Gifts & Accessories", false],
-  ["Church Essentials", false],
-] as const;
+export default async function Shop() {
+  const products = await getCatalog();
 
-export default function Shop() {
+  // real category list, ordered by how many products each holds
+  const counts = new Map<string, number>();
+  for (const p of products) counts.set(p.category, (counts.get(p.category) ?? 0) + 1);
+  const categories = [...counts.entries()].sort((a, b) => b[1] - a[1]);
+
   return (
     <main className="wrap">
       <Crumbs items={[{ label: "Home", href: "/" }, { label: "Communion & Clergy Store" }]} />
@@ -42,10 +42,10 @@ export default function Shop() {
 
       <div className="catalog">
         <aside className="filters">
-          <div className="count">Shopping Options ({products.length * 4} Results)</div>
+          <div className="count">Shopping Options ({products.length} Results)</div>
           <h4>Shop by Category</h4>
-          {categories.map(([name, on]) => (
-            <label className="f-row" key={name}><input type="checkbox" defaultChecked={on} /> {name}</label>
+          {categories.map(([name, n]) => (
+            <label className="f-row" key={name}><input type="checkbox" /> {name} <span className="sw" style={{ background: "transparent", color: "var(--muted)", width: "auto", border: "none", fontSize: 12 }}>{n}</span></label>
           ))}
           <h4>Shop by Liturgical Colour</h4>
           {colours.map(([name, hex]) => (

@@ -13,6 +13,14 @@ export interface Measurement {
 
 export interface Product {
   slug: string;
+  /** hub product slug this maps to (== slug for simple products) */
+  baseSlug?: string;
+  /** hub product_variants.id when this Product is an expanded variant */
+  variantId?: number;
+  /** variant attributes (Colour, Size, …) for display + selection */
+  variantAttributes?: Record<string, string>;
+  /** live stock signal from the hub */
+  inStock?: boolean;
   name: string;
   short: string;
   img: string;
@@ -421,3 +429,10 @@ export const products: Product[] = [
 
 export const bySlug = (slug: string) => products.find((p) => p.slug === slug);
 export const byCategory = (cat: string) => products.filter((p) => p.category === cat);
+
+/** Curated design overlay, keyed by hub slug. lib/catalog.ts layers this
+    on top of the live hub product so flagship items keep their rich
+    photography, chips, taglines and "closer look" stories. */
+export const curated: Record<string, Product> = Object.fromEntries(
+  products.map((p) => [p.slug, p]),
+);

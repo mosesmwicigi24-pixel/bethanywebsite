@@ -3,6 +3,8 @@ import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import { UtilityBar, Nav, Footer, ChatFab } from "@/components/chrome";
 import { CartProvider } from "@/lib/cart";
 import { CurrencyProvider } from "@/lib/currency";
+import { CatalogProvider } from "@/lib/catalogClient";
+import { getCatalog } from "@/lib/catalog";
 import CartDrawer from "@/components/CartDrawer";
 import "./globals.css";
 
@@ -37,11 +39,13 @@ export const metadata: Metadata = {
     "The #1 supplier of Holy Communion elements, clergy apparel and Christian gifts — serving churches across East Africa from Nairobi.",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const catalog = await getCatalog();
   return (
     <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
       <body>
         <CurrencyProvider>
+        <CatalogProvider catalog={catalog}>
         <CartProvider>
           <UtilityBar />
           <Nav />
@@ -50,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <ChatFab />
           <CartDrawer />
         </CartProvider>
+        </CatalogProvider>
         </CurrencyProvider>
       </body>
     </html>

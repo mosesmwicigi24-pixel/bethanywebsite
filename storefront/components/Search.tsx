@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
-import { products } from "@/lib/products";
+import { useCatalog } from "@/lib/catalogClient";
 import { Price } from "./Money";
 
 const POPULAR = ["Chalice", "Preaching gown", "Altar wine", "Stole", "Communion hosts", "Tallit"];
@@ -14,6 +14,7 @@ export default function Search() {
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
+  const { all: products } = useCatalog();
 
   const hits = useMemo(() => {
     const t = q.trim().toLowerCase();

@@ -4,7 +4,8 @@ import Link from "next/link";
 import { useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { useCart, FREE_DELIVERY_AT } from "@/lib/cart";
-import { bySlug, formatKES } from "@/lib/products";
+import { formatKES } from "@/lib/products";
+import { useCatalog } from "@/lib/catalogClient";
 import { useCurrency } from "@/lib/currency";
 import { Money } from "./Money";
 
@@ -12,6 +13,7 @@ import { Money } from "./Money";
 export default function CartDrawer() {
   const { items, subtotal, subtotalUsd, open, setOpen, setQty, remove } = useCart();
   const { currency } = useCurrency();
+  const { bySlug } = useCatalog();
   const pathname = usePathname();
 
   useEffect(() => { setOpen(false); }, [pathname, setOpen]);

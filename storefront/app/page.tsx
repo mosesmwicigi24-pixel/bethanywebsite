@@ -4,14 +4,24 @@ import HeroCarousel from "@/components/HeroCarousel";
 import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
-import { bySlug } from "@/lib/products";
+import { getCatalog } from "@/lib/catalog";
+import type { Product } from "@/lib/products";
 
-const pick = (...slugs: string[]) =>
-  slugs.map(bySlug).filter((p): p is NonNullable<typeof p> => Boolean(p));
+export const revalidate = 300;
 
-export default function Home() {
-  const bestSellers = pick("chalice-royale", "preaching-gown", "altar-wine", "pectoral-cross");
-  const fresh = pick("ornate-chasuble", "clergy-shirt", "communion-hosts", "altar-bell", "devotional-365", "tallit-prayer-shawl");
+export default async function Home() {
+  const catalog = await getCatalog();
+  const bySlug = (s: string) => catalog.find((p) => p.slug === s);
+  const pick = (...slugs: string[]) =>
+    slugs.map(bySlug).filter((p): p is Product => Boolean(p));
+
+  // curated picks first; if any are missing, top up from the live catalog
+  const topUp = (seed: Product[], n: number) => {
+    const have = new Set(seed.map((p) => p.slug));
+    return [...seed, ...catalog.filter((p) => !have.has(p.slug))].slice(0, n);
+  };
+  const bestSellers = topUp(pick("chalice-royale", "preaching-gown", "altar-wine", "pectoral-cross"), 4);
+  const fresh = topUp(pick("ornate-chasuble", "clergy-shirt", "communion-hosts", "altar-bell", "devotional-365", "tallit-prayer-shawl"), 8);
 
   return (
     <main>

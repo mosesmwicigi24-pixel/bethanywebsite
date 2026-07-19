@@ -10,17 +10,17 @@ import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
 import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
-import { bySlug, products } from "@/lib/products";
+import VariantPicker from "@/components/VariantPicker";
+import { getCatalog, getProductBySlug } from "@/lib/catalog";
+import { bySlug as curatedBySlug } from "@/lib/products";
 
-export function generateStaticParams() {
-  return products.map((p) => ({ slug: p.slug }));
-}
+export const revalidate = 300; // ISR — pages rebuild as the hub catalog changes
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
 ): Promise<Metadata> {
   const { slug } = await params;
-  const p = bySlug(slug);
+  const p = await getProductBySlug(slug);
   return { title: p ? p.name : "Product" };
 }
 
@@ -28,12 +28,19 @@ export default async function ProductPage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
-  const p = bySlug(slug);
+  const p = await getProductBySlug(slug);
   if (!p) notFound();
 
-  const also = products.filter((x) => x.slug !== p.slug).slice(0, 5);
+  const catalog = await getCatalog();
+  // related: same category first, then fill from the rest
+  const sameCat = catalog.filter((x) => x.slug !== p.slug && x.category === p.category);
+  const others = catalog.filter((x) => x.slug !== p.slug && x.category !== p.category);
+  const also = [...sameCat, ...others].slice(0, 8);
+  // sibling variants of the same hub product (each an independent product)
+  const siblings = catalog.filter((x) => x.baseSlug === p.baseSlug);
   const isFlagship = p.slug === "chalice-royale";
-  const sku = `BH-${p.slug.slice(0, 3).toUpperCase()}-01`;
+  const isCurated = Boolean(curatedBySlug(p.baseSlug ?? p.slug));
+  const sku = `BH-${(p.baseSlug ?? p.slug).slice(0, 3).toUpperCase()}-01`;
 
   const body = (
     <main className="pdp-page">
@@ -84,20 +91,24 @@ export default async function ProductPage(
                 : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
             </div>
             <MeasurementForm />
-            {p.category === "Clergy Apparel" || p.category === "Prayer Wear" ? (
-              <FinishSwatches label="Colour" finishes={[
-                { label: "White", css: "#f4f4f6" },
-                { label: "Black", css: "#15181e" },
-                { label: "Purple", css: "#6b3fa0" },
-                { label: "Red", css: "#b0312f" },
-                { label: "Green", css: "#2f7d4f" },
-              ]} />
-            ) : (
-              <FinishSwatches finishes={[
-                { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
-                { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
-              ]} />
-            )}
+            {siblings.length > 1 ? (
+              <VariantPicker current={p.slug} variants={siblings} />
+            ) : isCurated ? (
+              p.category === "Clergy Apparel" || p.category === "Prayer Wear" ? (
+                <FinishSwatches label="Colour" finishes={[
+                  { label: "White", css: "#f4f4f6" },
+                  { label: "Black", css: "#15181e" },
+                  { label: "Purple", css: "#6b3fa0" },
+                  { label: "Red", css: "#b0312f" },
+                  { label: "Green", css: "#2f7d4f" },
+                ]} />
+              ) : (
+                <FinishSwatches finishes={[
+                  { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
+                  { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
+                ]} />
+              )
+            ) : null}
             <Qty />
             <div className="assure">
               <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card ⓘ</div>
@@ -132,21 +143,31 @@ export default async function ProductPage(
       <WhyBuy />
 
       <div id="reviews" className="story">
-        <div className="rev-summary">
-          <div className="big">
-            <small style={{ fontSize: 13, color: "var(--muted)" }}>Overall Rating</small><br />
-            <b>{p.rating.toFixed(1)}</b>
-            <span className="stars">★★★★★</span>
-            <span>({p.reviews} reviews)</span>
+        {p.reviews > 0 ? (
+          <div className="rev-summary">
+            <div className="big">
+              <small style={{ fontSize: 13, color: "var(--muted)" }}>Overall Rating</small><br />
+              <b>{p.rating.toFixed(1)}</b>
+              <span className="stars">★★★★★</span>
+              <span>({p.reviews} reviews)</span>
+            </div>
+            <div>
+              <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>Overall Rating</div>
+              {[["★★★★★", 88, 189], ["★★★★☆", 9, 19], ["★★★☆☆", 2, 4], ["★★☆☆☆", 1, 2], ["★☆☆☆☆", 0, 0]].map(([s, w, n]) => (
+                <div className="bar-row" key={s as string}>{s}<div className="bar"><i style={{ width: `${w}%` }} /></div>{n}</div>
+              ))}
+            </div>
+            <RateInput />
           </div>
-          <div>
-            <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>Overall Rating</div>
-            {[["★★★★★", 88, 189], ["★★★★☆", 9, 19], ["★★★☆☆", 2, 4], ["★★☆☆☆", 1, 2], ["★☆☆☆☆", 0, 0]].map(([s, w, n]) => (
-              <div className="bar-row" key={s as string}>{s}<div className="bar"><i style={{ width: `${w}%` }} /></div>{n}</div>
-            ))}
+        ) : (
+          <div className="rev-summary" style={{ gridTemplateColumns: "1fr auto", alignItems: "center" }}>
+            <div>
+              <h2 className="serif" style={{ fontSize: 26, fontWeight: 600 }}>Be the first to review.</h2>
+              <p className="muted-cap">Bought this for your church? Share how it served you.</p>
+            </div>
+            <RateInput />
           </div>
-          <RateInput />
-        </div>
+        )}
 
         {isFlagship ? (
           <>
@@ -168,7 +189,7 @@ export default async function ProductPage(
             </article>
             <Helpful up={86} down={1} />
           </>
-        ) : (
+        ) : p.reviews > 0 ? (
           <>
             <article className="review">
               <div className="date">June 14, 2026</div>
@@ -179,7 +200,7 @@ export default async function ProductPage(
             </article>
             <Helpful up={42} down={0} />
           </>
-        )}
+        ) : null}
       </div>
     </main>
   );
@@ -279,7 +300,7 @@ function FlagshipStory() {
 /** Frequently-bought-together bundle for the flagship. */
 function BoughtTogether() {
   const items = ["chalice-royale", "altar-wine", "communion-hosts"]
-    .map(bySlug)
+    .map(curatedBySlug)
     .filter((p): p is NonNullable<typeof p> => Boolean(p));
   const total = items.reduce((s, p) => s + p.price, 0);
   const was = items.reduce((s, p) => s + (p.oldPrice ?? p.price), 0);

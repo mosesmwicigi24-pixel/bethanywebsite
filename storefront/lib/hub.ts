@@ -1,5 +1,5 @@
 import type { CartItem } from "./cart";
-import { bySlug, type Currency } from "./products";
+import type { Currency, Product } from "./products";
 
 /* ============================================================
    Hub integration (bethany-house Laravel backend, /api/v1)
@@ -38,7 +38,8 @@ export interface OnlineOrderDraft {
   country_code: string;
   customer: { first_name: string; last_name: string; phone: string; email?: string; church?: string };
   items: Array<{
-    slug: string;
+    slug: string;        // hub product slug the order line resolves to
+    variant_id?: number; // hub product_variants.id when a variant was chosen
     product_name: string;
     quantity: number;
     unit_price: number;
@@ -62,11 +63,11 @@ export function measurementsToNote(m: Record<string, string>): string {
 }
 
 /** Build the notes block staff see on the online order. */
-export function buildOrderNotes(items: CartItem[], church?: string): string {
+export function buildOrderNotes(items: CartItem[], resolve: (slug: string) => Product | undefined, church?: string): string {
   const lines: string[] = [];
   if (church?.trim()) lines.push(`Church/parish: ${church.trim()}`);
   for (const i of items) {
-    const p = bySlug(i.slug);
+    const p = resolve(i.slug);
     if (i.measurements) {
       lines.push(`MADE TO ORDER — ${p?.name ?? i.slug} ×${i.qty} — measurements (in): ${measurementsToNote(i.measurements)}`);
     } else if (i.size) {
@@ -86,6 +87,7 @@ export function buildOnlineOrder(
     paymentMethod: "mpesa" | "card" | "cash_on_delivery";
     address?: string;
     city?: string;
+    resolve: (slug: string) => Product | undefined;
   },
 ): OnlineOrderDraft {
   return {
@@ -94,9 +96,10 @@ export function buildOnlineOrder(
     country_code: opts.countryCode,
     customer: { first_name: opts.firstName, last_name: opts.lastName, phone: opts.phone, email: opts.email, church: opts.church },
     items: items.map((i) => {
-      const p = bySlug(i.slug);
+      const p = opts.resolve(i.slug);
       return {
-        slug: i.slug,
+        slug: p?.baseSlug ?? i.slug,
+        variant_id: p?.variantId,
         product_name: p?.name ?? i.slug,
         quantity: i.qty,
         unit_price: p ? (opts.currency === "KES" ? p.price : p.priceUsd) : 0,
@@ -109,7 +112,7 @@ export function buildOnlineOrder(
       delivery_method: opts.deliveryMethod,
       payment_method: opts.paymentMethod,
       phone: opts.phone,
-      notes: buildOrderNotes(items, opts.church),
+      notes: buildOrderNotes(items, opts.resolve, opts.church),
       country_code: opts.countryCode,
       address: opts.address,
       city: opts.city,
@@ -144,6 +147,7 @@ export async function submitOnlineOrder(draft: OnlineOrderDraft): Promise<{ orde
       notes: draft.checkout.notes || undefined,
       items: draft.items.map((i) => ({
         slug: i.slug,
+        variant_id: i.variant_id,
         quantity: i.quantity,
         measurements: i.measurements,
         size: i.size,

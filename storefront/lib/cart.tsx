@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { bySlug } from "./products";
+import { useCatalog } from "./catalogClient";
 
 export interface CartItem {
   /** unique line key — producible items with measurements get their own line */
@@ -84,6 +84,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clear = useCallback(() => setItems([]), []);
 
+  const { bySlug } = useCatalog();
   const { count, subtotal, subtotalUsd } = useMemo(() => {
     let count = 0, subtotal = 0, subtotalUsd = 0;
     for (const i of items) {
@@ -94,7 +95,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       subtotalUsd += p.priceUsd * i.qty;
     }
     return { count, subtotal, subtotalUsd };
-  }, [items]);
+  }, [items, bySlug]);
 
   return (
     <Ctx.Provider value={{ items, count, subtotal, subtotalUsd, open, hydrated, add, setQty, remove, clear, setOpen }}>

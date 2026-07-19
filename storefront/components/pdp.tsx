@@ -24,6 +24,7 @@ export function Gallery({ images, kes, usd }: { images: string[]; kes?: number; 
         <img
           src={images[active]}
           alt="Product view"
+          onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
           style={zoom ? { transform: "scale(1.7)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
         />
         <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>

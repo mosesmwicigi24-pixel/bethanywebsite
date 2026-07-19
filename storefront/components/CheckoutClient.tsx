@@ -7,7 +7,8 @@ import { Money } from "./Money";
 import { useCart, FREE_DELIVERY_AT, DELIVERY_FEE } from "@/lib/cart";
 import { countryForPhone } from "@/lib/currency";
 import { useCurrency } from "@/lib/currency";
-import { bySlug, formatMoney, type Currency } from "@/lib/products";
+import { formatMoney, type Currency } from "@/lib/products";
+import { useCatalog } from "@/lib/catalogClient";
 import { buildOnlineOrder, measurementsToNote, submitOnlineOrder } from "@/lib/hub";
 import { saveOrder } from "@/lib/orders";
 import { useRouter } from "next/navigation";
@@ -25,6 +26,7 @@ const INTL_COUNTRIES = [
 export default function CheckoutClient() {
   const { items, subtotal, subtotalUsd, clear, hydrated } = useCart();
   const { setCurrency } = useCurrency();
+  const { bySlug } = useCatalog();
   const router = useRouter();
 
   const [phone, setPhone] = useState("");
@@ -70,6 +72,7 @@ export default function CheckoutClient() {
       deliveryMethod: delivery, paymentMethod: pay,
       address: delivery === "delivery" ? address : undefined,
       city: delivery === "delivery" ? (isKE ? county : undefined) : undefined,
+      resolve: bySlug,
     });
     const live = await submitOnlineOrder(draft);
     const ref = live?.orderNumber ?? `ORD-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
