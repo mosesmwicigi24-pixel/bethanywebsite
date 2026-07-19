@@ -3,26 +3,24 @@
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
-import { Gallery } from "./pdp";
 import { Money } from "./Money";
 import type { Product, VariantOption } from "@/lib/products";
 
 /**
  * Single-page product experience for a product with saved variants — the
- * Alibaba model. One main product, its variant attributes (Size, Colour, …)
- * selected in place (no standalone variant pages): choosing a value swaps the
- * gallery, price and SKU without navigating.
+ * Alibaba model. One main product; the saved variants are selected in place
+ * (no standalone variant pages):
+ *   • the active variant's photos are a vertical thumbnail strip to the LEFT
+ *     of the main image;
+ *   • a row of VARIANT cards (photo + name) sits under the gallery — clicking
+ *     one loads that variant's photos into the main image + left strip and
+ *     updates its info in column 2 (price, SKU, attributes), no navigation;
+ *   • measurements live in column 3.
  *
- * Every made-to-order garment sells two ways, Ready-made first:
- *   • Ready-made (default) — buy the standard size/colour off the rack; no
- *     measurements, quicker to dispatch.
- *   • Made to order — only then does the measurements column appear (a right-
- *     hand column on desktop, a tap-to-open tab on phones); sewn to the
- *     customer's numbers.
- *
- * Either way the selected variant's `parent--v{id}` slug goes to the cart, so
- * the cart → hub bridge (slug + variant_id, +measurements ⇒ production order)
- * is untouched.
+ * Every made-to-order garment sells two ways, Ready-made first; the
+ * measurements column only appears once Made-to-order is chosen. Either way the
+ * selected variant's `parent--v{id}` slug goes to the cart, so the cart → hub
+ * bridge (slug + variant_id, +measurements ⇒ production order) is untouched.
  */
 export default function ProductStudio({ product, preselect, sku }: {
   product: Product;
@@ -38,6 +36,7 @@ export default function ProductStudio({ product, preselect, sku }: {
   const [active, setActive] = useState<VariantOption | undefined>(
     () => variants.find((v) => v.slug === preselect) ?? cheapest(variants) ?? variants[0],
   );
+  const [imgIdx, setImgIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [mode, setMode] = useState<"ready" | "custom">("ready"); // ready-made is the default
   const [values, setValues] = useState<Record<string, string>>({});
@@ -59,9 +58,10 @@ export default function ProductStudio({ product, preselect, sku }: {
 
   if (!active) return null;
 
-  // Some hub variants lack a KES/USD row — fall back to the parent's price.
   const kesShown = active.price > 0 ? active.price : product.price;
   const usdShown = active.priceUsd > 0 ? active.priceUsd : product.priceUsd;
+  const gallery = active.gallery.length ? active.gallery : [active.img];
+  const mainImg = gallery[Math.min(imgIdx, gallery.length - 1)] ?? active.img;
 
   const showMeasure = producible && mode === "custom";
   const missing = showMeasure
@@ -69,27 +69,17 @@ export default function ProductStudio({ product, preselect, sku }: {
     : [];
   const detailsOk = !producible || mode === "ready" || missing.length === 0;
 
-  // In made-to-order the fit comes from the measurements, so the base "Size"
-  // axis is hidden — only the design / colour axes remain.
   const shownAxes = axes.filter(([k]) => mode === "ready" || !/size/i.test(k));
+  // axes whose value actually differs between variants — used to name the cards
+  const varyingKeys = axes.filter(([, vals]) => vals.length > 1).map(([k]) => k);
+  const cardName = (v: VariantOption) =>
+    (varyingKeys.length ? varyingKeys.map((k) => v.attributes[k]).filter(Boolean).join(" · ") : "")
+    || Object.values(v.attributes).join(" · ") || v.name;
 
-  const nameOf = (v: VariantOption) => Object.values(v.attributes).join(" · ") || v.name;
-
-  const chooseValue = (axis: string, value: string) => {
-    const cands = variants.filter((v) => v.attributes[axis] === value);
-    if (!cands.length) return;
-    let best = cands[0], bestScore = -1;
-    for (const c of cands) {
-      let score = 0;
-      for (const [k, val] of Object.entries(active.attributes)) {
-        if (k !== axis && c.attributes[k] === val) score++;
-      }
-      if (score > bestScore) { bestScore = score; best = c; }
-    }
-    setActive(best);
-  };
+  const pickVariant = (v: VariantOption) => { setActive(v); setImgIdx(0); };
 
   const chooseCustom = () => { setMode("custom"); setMeasureOpen(true); };
+  const stepImg = (d: number) => setImgIdx((i) => (i + d + gallery.length) % gallery.length);
 
   const commit = (): boolean => {
     if (!detailsOk) {
@@ -106,11 +96,43 @@ export default function ProductStudio({ product, preselect, sku }: {
   const addToCart = () => { if (commit()) { setAdded(true); setTimeout(() => setAdded(false), 1600); } };
   const buyNow = () => { if (commit()) router.push("/checkout"); };
 
-  void nameOf; // (kept for future variant-name display)
-
   return (
-    <div className={`pstudio ${showMeasure ? "has-measure" : ""}`}>
-      <Gallery key={active.slug} images={active.gallery} kes={kesShown} usd={usdShown} />
+    <div className="pstudio">
+      <div className="ps-gallery-col">
+        <div className="ps-gallery">
+          {gallery.length > 1 && (
+            <div className="ps-vthumbs">
+              {gallery.map((img, i) => (
+                <button key={i} type="button" className={i === imgIdx ? "on" : ""} onClick={() => setImgIdx(i)} aria-label={`View image ${i + 1}`}>
+                  <img src={img} alt="" />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="ps-main">
+            <img src={mainImg} alt={product.name} />
+            {gallery.length > 1 && (
+              <>
+                <button className="gnav prev" aria-label="Previous image" onClick={() => stepImg(-1)}>‹</button>
+                <button className="gnav next" aria-label="Next image" onClick={() => stepImg(1)}>›</button>
+              </>
+            )}
+            <span className="price-chip">From <b><Money kes={product.price} usd={product.priceUsd} /></b></span>
+          </div>
+        </div>
+
+        {variants.length > 1 && (
+          <div className="ps-variants" role="radiogroup" aria-label="Choose a variant">
+            {variants.map((v) => (
+              <button key={v.slug} type="button" role="radio" aria-checked={v.slug === active.slug}
+                className={`ps-variant-card ${v.slug === active.slug ? "on" : ""}`} onClick={() => pickVariant(v)}>
+                <span className="im"><img src={v.img} alt="" /></span>
+                <span className="nm">{cardName(v)}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       <div className="ps-info">
         <h1>{product.name}</h1>
@@ -140,18 +162,13 @@ export default function ProductStudio({ product, preselect, sku }: {
           </div>
         )}
 
-        {shownAxes.map(([axis, vals]) => (
-          <div className="ps-axis" key={axis}>
-            <div className="ps-axis-head">{axis}: <b>{active.attributes[axis]}</b></div>
-            <div className="ps-axis-vals">
-              {vals.map((val) => (
-                <button key={val} type="button" className={active.attributes[axis] === val ? "on" : ""} onClick={() => chooseValue(axis, val)}>
-                  {val}
-                </button>
-              ))}
-            </div>
+        {shownAxes.length > 0 && (
+          <div className="ps-attrs">
+            {shownAxes.map(([axis]) => (
+              <span className="ps-attr" key={axis}><b>{axis}:</b> {active.attributes[axis]}</span>
+            ))}
           </div>
-        ))}
+        )}
 
         {producible && (
           <div className="deliver">
