@@ -836,8 +836,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
    HERO CAROUSEL — rotating campaign slides
    ============================================================ */
 .hero-car{position:relative;overflow:hidden}
-.hero-track{display:flex;transition:transform .65s var(--ease)}
-.hero-slide{flex:0 0 100%;min-width:0}
+/* Native scroll-snap: a slide can never rest half-visible (fixes the
+   partial-card issue oraimo avoids the same way). */
+.hero-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.hero-track::-webkit-scrollbar{display:none}
+.hero-slide{flex:0 0 100%;width:100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
 .hero-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:99px;background:rgba(128,128,128,.28);backdrop-filter:blur(8px);color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;z-index:6;transition:.2s}
 .hero-nav:hover{background:var(--gold);color:var(--navy-950)}
 .hero-nav.prev{left:16px}.hero-nav.next{right:16px}
@@ -1038,3 +1041,25 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 .ship-banner{display:flex;align-items:center;justify-content:space-between;gap:16px;background:radial-gradient(120% 160% at 15% 0%,#1b3050,var(--navy-950) 70%);color:#fff;border-radius:16px;padding:18px 24px;margin-bottom:16px;flex-wrap:wrap}
 .ship-banner b{display:block;font-size:15.5px;text-transform:capitalize}
 .ship-banner span{font-size:12.5px;color:#b9c4d6;display:block;margin-top:3px}
+
+/* ── Mobile hero: one clean full card per slide (oraimo-style) ──────────
+   Scroll-snap already guarantees clean horizontal snapping; here we make
+   each slide a self-contained card that fits the screen: copy on top,
+   arch centered below, marks hidden to declutter, swipe + dots (no arrows). */
+@media(max-width:640px){
+  .hero-slide{display:flex}
+  .hero-cath{width:100%;display:flex;flex-direction:column}
+  .hero-cath>.wrap{display:flex;flex-direction:column;gap:24px;padding-top:34px;padding-bottom:30px;min-height:0}
+  .hero-copy{order:1}
+  .arch{order:2;width:min(360px,84vw);align-self:center}
+  .hero-cath .marks{display:none}
+  .hero-cath h1{font-size:clamp(34px,9.5vw,46px)}
+  .hero-cath .sub{font-size:15px;margin:14px 0 22px}
+  .hero-nav{display:none}
+  .hero-dots{bottom:14px}
+  .hero-dots button.on{width:24px}
+  /* keep the price plate inside the narrower arch — never clip */
+  .arch .plate{padding:7px 12px;gap:9px;max-width:94%}
+  .arch .plate .nm,.arch .plate .pr{font-size:11.5px}
+  .arch .plate a{font-size:11px;padding:6px 12px}
+}

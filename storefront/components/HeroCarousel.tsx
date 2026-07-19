@@ -1,27 +1,44 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Money } from "./Money";
 
 const N = 3;
 const INTERVAL = 6000;
 
-/** Auto-rotating campaign hero (oraimo-style): arrows, pill dots,
-    hover-pause, touch swipe, prefers-reduced-motion aware. */
+/** Auto-rotating campaign hero, oraimo-style: native scroll-snap slides
+    (a slide can never rest half-visible), swipe on touch, arrows + pill
+    dots, hover-pause, prefers-reduced-motion aware. */
 export default function HeroCarousel() {
+  const track = useRef<HTMLDivElement>(null);
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
-  const touchX = useRef<number | null>(null);
+  const iRef = useRef(0);
+  iRef.current = i;
+
+  const go = useCallback((n: number) => {
+    const el = track.current;
+    if (!el) return;
+    const idx = ((n % N) + N) % N;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    el.scrollTo({ left: idx * el.clientWidth, behavior: reduce ? "auto" : "smooth" });
+  }, []);
+
+  // Track which slide is settled in view (native scroll → dots stay honest)
+  const onScroll = useCallback(() => {
+    const el = track.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    if (idx !== iRef.current && idx >= 0 && idx < N) setI(idx);
+  }, []);
 
   useEffect(() => {
     if (paused) return;
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => setI((v) => (v + 1) % N), INTERVAL);
+    const t = setInterval(() => go(iRef.current + 1), INTERVAL);
     return () => clearInterval(t);
-  }, [paused]);
-
-  const go = (d: number) => setI((v) => (v + d + N) % N);
+  }, [paused, go]);
 
   return (
     <section
@@ -29,21 +46,16 @@ export default function HeroCarousel() {
       aria-roledescription="carousel"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onTouchStart={(e) => { touchX.current = e.touches[0].clientX; }}
-      onTouchEnd={(e) => {
-        if (touchX.current === null) return;
-        const dx = e.changedTouches[0].clientX - touchX.current;
-        if (Math.abs(dx) > 50) go(dx < 0 ? 1 : -1);
-        touchX.current = null;
-      }}
+      onTouchStart={() => setPaused(true)}
+      onTouchEnd={() => setPaused(false)}
     >
-      <div className="hero-track" style={{ transform: `translateX(-${i * 100}%)` }}>
+      <div className="hero-track" ref={track} onScroll={onScroll}>
 
         {/* Slide 1 — cathedral */}
         <div className="hero-slide" aria-hidden={i !== 0}>
           <div className="hero-cath">
             <div className="wrap">
-              <div>
+              <div className="hero-copy">
                 <span className="eyebrow">Nairobi · Serving churches across East Africa</span>
                 <h1>Everything the <em>altar</em> calls for.</h1>
                 <p className="sub">
@@ -76,7 +88,7 @@ export default function HeroCarousel() {
         <div className="hero-slide" aria-hidden={i !== 1}>
           <div className="hero-cath light">
             <div className="wrap">
-              <div>
+              <div className="hero-copy">
                 <span className="eyebrow">Holy Week Offer</span>
                 <h1>The Lord&apos;s Table, <em>complete</em>.</h1>
                 <p className="sub">
@@ -109,7 +121,7 @@ export default function HeroCarousel() {
         <div className="hero-slide" aria-hidden={i !== 2}>
           <div className="hero-cath slate">
             <div className="wrap">
-              <div>
+              <div className="hero-copy">
                 <span className="eyebrow">Made to Measure</span>
                 <h1>Tailored for the <em>pulpit</em>.</h1>
                 <p className="sub">
@@ -139,12 +151,12 @@ export default function HeroCarousel() {
         </div>
       </div>
 
-      <button className="hero-nav prev" aria-label="Previous slide" onClick={() => go(-1)}>‹</button>
-      <button className="hero-nav next" aria-label="Next slide" onClick={() => go(1)}>›</button>
+      <button className="hero-nav prev" aria-label="Previous slide" onClick={() => go(i - 1)}>‹</button>
+      <button className="hero-nav next" aria-label="Next slide" onClick={() => go(i + 1)}>›</button>
       <div className="hero-dots" role="tablist" aria-label="Slides">
         {[0, 1, 2].map((n) => (
           <button key={n} role="tab" aria-selected={i === n} aria-label={`Slide ${n + 1}`}
-            className={i === n ? "on" : ""} onClick={() => setI(n)} />
+            className={i === n ? "on" : ""} onClick={() => go(n)} />
         ))}
       </div>
     </section>
