@@ -154,5 +154,9 @@ export function Footer() {
 }
 
 export function ChatFab() {
-  return <button className="chat-fab" aria-label="Chat">🎧</button>;
+  return (
+    <button className="chat-fab" aria-label="Chat with Bethany House">
+      <img src="/brand/mark-gold.png" alt="" />
+    </button>
+  );
 }
