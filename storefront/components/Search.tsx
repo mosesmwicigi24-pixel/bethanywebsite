@@ -14,7 +14,8 @@ export default function Search() {
   const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const { all: products } = useCatalog();
+  const { all } = useCatalog();
+  const products = all.filter((p) => !p.variantId); // parents + simples, not variants
 
   const hits = useMemo(() => {
     const t = q.trim().toLowerCase();

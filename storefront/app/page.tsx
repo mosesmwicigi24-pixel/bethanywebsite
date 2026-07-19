@@ -10,7 +10,7 @@ import type { Product } from "@/lib/products";
 export const revalidate = 300;
 
 export default async function Home() {
-  const catalog = await getCatalog();
+  const catalog = (await getCatalog()).filter((p) => !p.variantId);
   const bySlug = (s: string) => catalog.find((p) => p.slug === s);
   const pick = (...slugs: string[]) =>
     slugs.map(bySlug).filter((p): p is Product => Boolean(p));

@@ -19,7 +19,9 @@ const colours = [
 
 export default async function Shop({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
   const { category } = await searchParams;
-  const all = await getCatalog();
+  // Show parents + simple products only — variants are selected in place on
+  // the product page, not listed as their own cards.
+  const all = (await getCatalog()).filter((p) => !p.variantId);
 
   // Fold every product onto its root department, count across the whole catalog.
   const counts = new Map<RootCategory, number>();

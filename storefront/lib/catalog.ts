@@ -1,4 +1,4 @@
-import type { Product, Measurement } from "./products";
+import type { Product, Measurement, VariantOption } from "./products";
 import { curated } from "./products";
 
 /* ============================================================
@@ -120,6 +120,28 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
   };
 }
 
+/** A saved hub variant as a selectable option on its parent product. */
+function toVariantOption(hp: HubProduct, v: HubVariant): VariantOption {
+  const kes = priceOf(v.prices, "KES") ?? 0;
+  const usd = priceOf(v.prices, "USD") ?? (kes ? Math.round(kes * USD_PER_KES) : 0);
+  const vg = imagesOf(v.images);
+  const pg = imagesOf(hp.images);
+  const gallery = vg.length ? vg : (pg.length ? pg : [PLACEHOLDER]);
+  return {
+    id: v.id,
+    slug: `${hp.slug}--v${v.id}`,
+    attributes: v.attributes ?? {},
+    name: v.variant_name,
+    price: kes,
+    priceUsd: usd,
+    oldPrice: oldPriceOf(v.prices, "KES"),
+    oldPriceUsd: oldPriceOf(v.prices, "USD"),
+    img: gallery[0],
+    gallery,
+    sku: v.sku,
+  };
+}
+
 let _cache: { at: number; list: Product[] } | null = null;
 
 /** Every published product from the hub, with variants expanded to their
@@ -150,7 +172,39 @@ export async function getCatalog(): Promise<Product[]> {
   for (const hp of hubProducts) {
     const variants = variantMap.get(hp.id);
     if (hp.product_type === "variable" && variants && variants.length) {
-      for (const v of variants) out.push(toProduct(hp, v));
+      // Parent product carries its variants, selectable in place on the PDP,
+      // and shows the "from" (cheapest) price on the shop card.
+      const opts = variants.map((v) => toVariantOption(hp, v));
+      const parent = toProduct(hp);
+      const priced = opts.filter((o) => o.price > 0);
+      const cheapest = priced.length
+        ? priced.reduce((a, b) => (b.price < a.price ? b : a))
+        : opts[0];
+      // Variants of one garment cost the same; some hub rows just lack a price.
+      // Backfill from the cheapest so nothing ever renders KES 0 (PDP or cart).
+      if (cheapest) {
+        for (const o of opts) {
+          if (o.price <= 0) { o.price = cheapest.price; o.priceUsd = cheapest.priceUsd; }
+        }
+      }
+      parent.variants = opts;
+      if (cheapest) {
+        parent.price = cheapest.price;
+        parent.priceUsd = cheapest.priceUsd;
+        parent.oldPrice = cheapest.oldPrice;
+        parent.oldPriceUsd = cheapest.oldPriceUsd;
+        if (!parent.gallery?.length || parent.gallery[0] === PLACEHOLDER) {
+          parent.gallery = cheapest.gallery;
+          parent.img = cheapest.img;
+        }
+      }
+      out.push(parent);
+      // Keep each variant resolvable too (cart/bySlug lines + old deep links).
+      for (const v of variants) {
+        const vp = toProduct(hp, v);
+        if (vp.price <= 0 && cheapest) { vp.price = cheapest.price; vp.priceUsd = cheapest.priceUsd; }
+        out.push(vp);
+      }
     } else {
       out.push(toProduct(hp));
     }

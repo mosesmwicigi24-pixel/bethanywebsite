@@ -10,7 +10,7 @@ import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
 import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
-import VariantStudio from "@/components/VariantStudio";
+import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { bySlug as curatedBySlug } from "@/lib/products";
 
@@ -32,100 +32,112 @@ export default async function ProductPage(
   if (!p) notFound();
 
   const catalog = await getCatalog();
-  // related: same category first, then fill from the rest
-  const sameCat = catalog.filter((x) => x.slug !== p.slug && x.category === p.category);
-  const others = catalog.filter((x) => x.slug !== p.slug && x.category !== p.category);
+  // If we landed on a variant slug, switch to its parent (which carries the
+  // selectable .variants); otherwise `p` is already the parent / a simple product.
+  const parent = p.variants?.length
+    ? p
+    : p.variantId
+      ? catalog.find((x) => x.slug === p.baseSlug && x.variants?.length) ?? p
+      : p;
+  const isVariable = Boolean(parent.variants?.length);
+
+  // related: same category first, then fill from the rest — parents/simples only
+  const related = catalog.filter((x) => !x.variantId && x.slug !== parent.slug);
+  const sameCat = related.filter((x) => x.category === parent.category);
+  const others = related.filter((x) => x.category !== parent.category);
   const also = [...sameCat, ...others].slice(0, 8);
-  // sibling variants of the same hub product (each an independent product)
-  const siblings = catalog.filter((x) => x.baseSlug === p.baseSlug);
-  const isFlagship = p.slug === "chalice-royale";
-  const isCurated = Boolean(curatedBySlug(p.baseSlug ?? p.slug));
-  const sku = `BH-${(p.baseSlug ?? p.slug).slice(0, 3).toUpperCase()}-01`;
+  const isFlagship = parent.slug === "chalice-royale";
+  const isCurated = Boolean(curatedBySlug(parent.baseSlug ?? parent.slug));
+  const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
 
   const body = (
     <main className="pdp-page">
-      <StickyChrome name={p.short} sku={sku} kes={p.price} usd={p.priceUsd} img={p.img} slug={p.slug} />
+      {!isVariable && (
+        <StickyChrome name={parent.short} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} />
+      )}
 
       <div className="wrap">
         <Crumbs items={[
           { label: "Home", href: "/" },
           { label: "Product", href: "/shop" },
-          { label: p.category, href: "/shop" },
-          { label: p.name },
+          { label: parent.category, href: "/shop" },
+          { label: parent.name },
         ]} />
 
-        <div className="pdp">
-          <Gallery kes={p.price} usd={p.priceUsd} images={p.gallery ?? [p.img]} />
+        {isVariable ? (
+          <ProductStudio product={parent} preselect={p.slug} sku={sku} />
+        ) : (
+          <div className="pdp">
+            <Gallery kes={parent.price} usd={parent.priceUsd} images={parent.gallery ?? [parent.img]} />
 
-          <div className="buy">
-            <button className="wish" aria-label="Wishlist">♡</button>
-            <h1>{p.name}</h1>
-            <div className="rrow">
-              <span className="stars">★★★★★</span><b>({p.reviews})</b>
-              <a className="add" href="#reviews">Add your review ›</a>
-            </div>
-            {p.seller && (
-              <div><Link className="seller" href="/shop"><span className="tag tag-top"></span>&nbsp;{p.seller} ›</Link></div>
-            )}
-            <div className="pricerow">
-              <b><Price p={p} /></b>
-              <OldPrice p={p} />
-            </div>
-            {p.producible && (
-              <div style={{ margin: "2px 0 6px" }}>
-                <span className="tag tag-gold">
-                  {p.sizes ? "Ready-made sizes ✂ or made to measure" : "✂ Made to order — measurements required"}
-                </span>
+            <div className="buy">
+              <button className="wish" aria-label="Wishlist">♡</button>
+              <h1>{parent.name}</h1>
+              <div className="rrow">
+                <span className="stars">★★★★★</span><b>({parent.reviews})</b>
+                <a className="add" href="#reviews">Add your review ›</a>
               </div>
-            )}
-            {p.chips.map((c) => (
-              <div className="feat" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
-            ))}
-            {isFlagship && <div className="feat"><span className="ic">◎</span>450ml cup with fitted paten lid</div>}
-            <div className="deliver">
-              <span aria-hidden="true">🚚</span>
-              <span>{p.producible
-                ? p.sizes
-                  ? <>Ready-made sizes ship <b>today in Nairobi</b> — made to measure in <b>5–7 days</b>.</>
-                  : <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
-                : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
-            </div>
-            {siblings.length > 1 ? (
-              <VariantStudio current={p.slug} variants={siblings} template={p.measurements ?? []} sizes={p.sizes} producible={p.producible} />
-            ) : isCurated ? (
-              p.category === "Clergy Apparel" || p.category === "Prayer Wear" ? (
-                <FinishSwatches label="Colour" finishes={[
-                  { label: "White", css: "#f4f4f6" },
-                  { label: "Black", css: "#15181e" },
-                  { label: "Purple", css: "#6b3fa0" },
-                  { label: "Red", css: "#b0312f" },
-                  { label: "Green", css: "#2f7d4f" },
-                ]} />
-              ) : (
-                <FinishSwatches finishes={[
-                  { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
-                  { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
-                ]} />
-              )
-            ) : null}
-            <MeasurementForm />
-            <Qty />
-            <div className="assure">
-              <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card ⓘ</div>
-              <div className="a"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7zM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>Nationwide Delivery ⓘ</div>
-              <div className="a"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3z" /><path d="m9 12 2 2 4-4" /></svg>Quality Guarantee ⓘ</div>
+              {parent.seller && (
+                <div><Link className="seller" href="/shop"><span className="tag tag-top"></span>&nbsp;{parent.seller} ›</Link></div>
+              )}
+              <div className="pricerow">
+                <b><Price p={parent} /></b>
+                <OldPrice p={parent} />
+              </div>
+              {parent.producible && (
+                <div style={{ margin: "2px 0 6px" }}>
+                  <span className="tag tag-gold">
+                    {parent.sizes ? "Ready-made sizes ✂ or made to measure" : "✂ Made to order — measurements required"}
+                  </span>
+                </div>
+              )}
+              {parent.chips.map((c) => (
+                <div className="feat" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
+              ))}
+              {isFlagship && <div className="feat"><span className="ic">◎</span>450ml cup with fitted paten lid</div>}
+              <div className="deliver">
+                <span aria-hidden="true">🚚</span>
+                <span>{parent.producible
+                  ? parent.sizes
+                    ? <>Ready-made sizes ship <b>today in Nairobi</b> — made to measure in <b>5–7 days</b>.</>
+                    : <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
+                  : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
+              </div>
+              {isCurated && (
+                parent.category === "Clergy Apparel" || parent.category === "Prayer Wear" ? (
+                  <FinishSwatches label="Colour" finishes={[
+                    { label: "White", css: "#f4f4f6" },
+                    { label: "Black", css: "#15181e" },
+                    { label: "Purple", css: "#6b3fa0" },
+                    { label: "Red", css: "#b0312f" },
+                    { label: "Green", css: "#2f7d4f" },
+                  ]} />
+                ) : (
+                  <FinishSwatches finishes={[
+                    { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
+                    { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
+                  ]} />
+                )
+              )}
+              <MeasurementForm />
+              <Qty />
+              <div className="assure">
+                <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card ⓘ</div>
+                <div className="a"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7zM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>Nationwide Delivery ⓘ</div>
+                <div className="a"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3z" /><path d="m9 12 2 2 4-4" /></svg>Quality Guarantee ⓘ</div>
+              </div>
             </div>
           </div>
-        </div>
+        )}
 
         {isFlagship && <BoughtTogether />}
       </div>
 
       <ProductRail title="You May Also Like" products={also} small tight />
 
-      <PosterBanner p={p} />
-      {p.closerLook && p.closerLook.length > 0 && (
-        <CloserLook features={p.closerLook} fallbackImg={p.img} />
+      <PosterBanner p={parent} />
+      {parent.closerLook && parent.closerLook.length > 0 && (
+        <CloserLook features={parent.closerLook} fallbackImg={parent.img} />
       )}
 
       {isFlagship && (
@@ -143,13 +155,13 @@ export default async function ProductPage(
       <WhyBuy />
 
       <div id="reviews" className="story">
-        {p.reviews > 0 ? (
+        {parent.reviews > 0 ? (
           <div className="rev-summary">
             <div className="big">
               <small style={{ fontSize: 13, color: "var(--muted)" }}>Overall Rating</small><br />
-              <b>{p.rating.toFixed(1)}</b>
+              <b>{parent.rating.toFixed(1)}</b>
               <span className="stars">★★★★★</span>
-              <span>({p.reviews} reviews)</span>
+              <span>({parent.reviews} reviews)</span>
             </div>
             <div>
               <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>Overall Rating</div>
@@ -189,7 +201,7 @@ export default async function ProductPage(
             </article>
             <Helpful up={86} down={1} />
           </>
-        ) : p.reviews > 0 ? (
+        ) : parent.reviews > 0 ? (
           <>
             <article className="review">
               <div className="date">June 14, 2026</div>
@@ -205,8 +217,10 @@ export default async function ProductPage(
     </main>
   );
 
-  return p.producible
-    ? <MeasureProvider template={p.measurements ?? []} sizes={p.sizes}>{body}</MeasureProvider>
+  // Variable products manage their own measurement state inside ProductStudio;
+  // only the simple-product path needs the shared MeasureProvider + sticky bar.
+  return !isVariable && parent.producible
+    ? <MeasureProvider template={parent.measurements ?? []} sizes={parent.sizes}>{body}</MeasureProvider>
     : body;
 }
 

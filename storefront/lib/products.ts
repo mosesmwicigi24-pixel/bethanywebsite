@@ -11,6 +11,22 @@ export interface Measurement {
   required?: boolean;
 }
 
+/** A saved hub variant, selectable in place on the parent product page. */
+export interface VariantOption {
+  id: number;
+  slug: string;                       // "parent--v{id}" — the cart/hub key
+  attributes: Record<string, string>; // { Colour: "Red", Size: "M", … }
+  name: string;                       // variant_name
+  price: number;
+  priceUsd: number;
+  oldPrice?: number;
+  oldPriceUsd?: number;
+  img: string;
+  gallery: string[];
+  sku?: string;
+  inStock?: boolean;
+}
+
 export interface Product {
   slug: string;
   /** hub product slug this maps to (== slug for simple products) */
@@ -19,6 +35,8 @@ export interface Product {
   variantId?: number;
   /** variant attributes (Colour, Size, …) for display + selection */
   variantAttributes?: Record<string, string>;
+  /** on a PARENT product: its saved variants, selectable in place (Alibaba-style) */
+  variants?: VariantOption[];
   /** live stock signal from the hub */
   inStock?: boolean;
   name: string;
