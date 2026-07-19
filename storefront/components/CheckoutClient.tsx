@@ -245,8 +245,8 @@ export default function CheckoutClient() {
           <p className="muted-cap" style={{ marginTop: 12 }}>
             {isKE
               ? deliveryFee === 0 && delivery === "delivery"
-                ? "✓ Free Nairobi delivery unlocked."
-                : `Free Nairobi delivery on orders over ${formatMoney(FREE_DELIVERY_AT, "KES")}.`
+                ? "✓ Free Nairobi CBD delivery unlocked."
+                : `Free Nairobi CBD delivery on orders above ${formatMoney(FREE_DELIVERY_AT, "KES")}.`
               : "International order — billed in USD, shipping confirmed before dispatch."}
           </p>
         </aside>

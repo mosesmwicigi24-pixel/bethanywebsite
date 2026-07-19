@@ -144,7 +144,7 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
         <div className="wrap">
           <div className="bb-info">
             <span className="im"><img src={img} alt="" /></span>
-            <span style={{ minWidth: 0 }}><b>{name}</b><span><Money kes={kes} usd={usd} /> · Free Nairobi delivery</span></span>
+            <span style={{ minWidth: 0 }}><b>{name}</b><span><Money kes={kes} usd={usd} /> · Free Nairobi CBD delivery</span></span>
           </div>
           <div className="bb-ctas">
             <button className="pill pill-ghost" onClick={tryAdd}>Add to Cart</button>

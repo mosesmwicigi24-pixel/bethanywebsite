@@ -15,7 +15,7 @@ export function UtilityBar() {
     <div className="utility">
       <div className="wrap">
         <div className="promo">
-          Free delivery within Nairobi on orders over <b>KES 2,000</b> — we ship across East Africa
+          Free delivery in Nairobi CBD for orders above <b>KES 10,000</b> — we ship across East Africa
         </div>
         <div className="meta">
           <a href="#">{SITE.address}</a>

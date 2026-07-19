@@ -76,8 +76,8 @@ export default function CartPageClient() {
           {currency === "KES" && (
             <div className="cart-free" style={{ borderRadius: 12, marginBottom: 14 }}>
               {toFree > 0
-                ? <>Add <b>{formatKES(toFree)}</b> more for <b>free Nairobi delivery</b></>
-                : <>✓ You&apos;ve unlocked <b>free Nairobi delivery</b></>}
+                ? <>Add <b>{formatKES(toFree)}</b> more for <b>free Nairobi CBD delivery</b></>
+                : <>✓ You&apos;ve unlocked <b>free Nairobi CBD delivery</b></>}
               <div className="bar"><i style={{ width: `${pct}%` }} /></div>
             </div>
           )}

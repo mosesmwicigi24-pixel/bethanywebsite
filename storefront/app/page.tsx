@@ -29,7 +29,7 @@ export default async function Home() {
       <HeroCarousel />
       <div className="creed">
         <div className="wrap">
-          <span><i>✦</i> Free Nairobi delivery over KES 2,000</span>
+          <span><i>✦</i> Free Nairobi CBD delivery over KES 10,000</span>
           <span><i>✦</i> Sonalux Building, Moi Avenue</span>
           <span><i>✦</i> Parish &amp; diocese accounts</span>
           <span><i>✦</i> Free engraving on communion ware</span>

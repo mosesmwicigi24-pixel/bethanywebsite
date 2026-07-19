@@ -12,7 +12,7 @@ export const SITE = {
   city: "Nairobi, Kenya",
   hours: "Mon–Sat · 8:00 AM – 5:00 PM",
   deliveryPromise:
-    "Free delivery within Nairobi on orders over KES 2,000 — we ship across East Africa",
-  deliveryShort: "Free Nairobi delivery over KES 2,000",
+    "Free delivery in Nairobi CBD for orders above KES 10,000 — we ship across East Africa",
+  deliveryShort: "Free Nairobi CBD delivery over KES 10,000",
   payments: "M-Pesa · Visa · Mastercard · Cash on Delivery",
 } as const;

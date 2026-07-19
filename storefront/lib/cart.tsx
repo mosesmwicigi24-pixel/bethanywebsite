@@ -104,6 +104,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   );
 }
 
-/** Free Nairobi delivery threshold (KES). */
-export const FREE_DELIVERY_AT = 2000;
+/** Free Nairobi CBD delivery threshold (KES). */
+export const FREE_DELIVERY_AT = 10000;
 export const DELIVERY_FEE = 300;
