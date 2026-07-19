@@ -612,8 +612,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
 /* ---- ≤640: phone ---- */
 @media(max-width:640px){
   body{font-size:14.5px}
-  .utility .meta{display:none}
-  .utility .wrap{justify-content:center;text-align:center;height:auto;padding-top:7px;padding-bottom:7px}
+  .utility{display:none}
   .nav .wrap{height:58px}
   .nav .logo img{height:28px}
   .trust{flex-direction:column;gap:14px;align-items:flex-start;padding:18px 22px;margin:22px auto}
@@ -1053,7 +1052,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none}
   .hero-copy{order:1}
   .arch{order:2;width:min(360px,84vw);align-self:center}
   .hero-cath .marks{display:none}
-  .hero-cath h1{font-size:clamp(34px,9.5vw,46px)}
+  .hero-cath h1{font-size:clamp(27px,7.2vw,36px);line-height:1.08}
   .hero-cath .sub{font-size:15px;margin:14px 0 22px}
   .hero-nav{display:none}
   .hero-dots{bottom:14px}
