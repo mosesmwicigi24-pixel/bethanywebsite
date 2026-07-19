@@ -1049,12 +1049,14 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 @media(max-width:640px){
   .hero-slide{display:flex}
   .hero-cath{width:100%;display:flex;flex-direction:column}
-  .hero-cath>.wrap{display:flex;flex-direction:column;gap:24px;padding-top:34px;padding-bottom:30px;min-height:0}
+  /* compact copy so the arch image fits the iPhone screen without scrolling */
+  .hero-cath>.wrap{display:flex;flex-direction:column;gap:16px;padding-top:22px;padding-bottom:22px;min-height:0}
   .hero-copy{order:1}
-  .arch{order:2;width:min(360px,84vw);align-self:center}
+  .arch{order:2;width:min(300px,68vw);align-self:center}
   .hero-cath .marks{display:none}
-  .hero-cath h1{font-size:clamp(27px,7.2vw,36px);line-height:1.08}
-  .hero-cath .sub{font-size:15px;margin:14px 0 22px}
+  .hero-cath .eyebrow{margin-bottom:12px}
+  .hero-cath h1{font-size:clamp(26px,7vw,34px);line-height:1.08}
+  .hero-cath .sub{font-size:13.5px;line-height:1.5;margin:10px 0 16px}
   .hero-nav{display:none}
   .hero-dots{bottom:14px}
   .hero-dots button.on{width:24px}
