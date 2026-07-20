@@ -2,6 +2,9 @@
     Change a phone number or the delivery promise HERE, nowhere else. */
 export const SITE = {
   name: "Bethany House",
+  /** Canonical production origin — used for metadataBase, sitemap, robots,
+      canonical links and absolute URLs in structured data. No trailing slash. */
+  url: "https://bethanyhouse.co.ke",
   tagline:
     "The #1 supplier of Holy Communion elements, clergy apparel and Christian gifts — serving churches across East Africa.",
   phone: "+254 727 891 989",
