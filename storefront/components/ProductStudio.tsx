@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { Money } from "./Money";
+import { MeasurePhoto } from "./measure";
 import type { Product, VariantOption } from "@/lib/products";
 
 /**
@@ -210,6 +211,11 @@ export default function ProductStudio({ product, preselect, sku }: {
           </button>
           <div className="ps-measure-body">
             <p className="ps-measure-sub">Sewn to these numbers in Nairobi · 5–7 days.</p>
+            <MeasurePhoto
+              garment={product.name}
+              fields={template.map((f) => f.name)}
+              onApply={(name, value) => setValues((p) => ({ ...p, [name]: value }))}
+            />
             <div className="m-grid ps-mgrid">
               {template.map((f, i) => (
                 <label key={`${f.name}-${i}`} className="m-field">

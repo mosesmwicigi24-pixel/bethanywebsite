@@ -91,20 +91,23 @@ async function toDownscaledDataUrl(file: File, max = 1024, quality = 0.85): Prom
   }
 }
 
-/** Photo → measurement estimates. Neema prefills the form; the customer
-    confirms and edits each value before ordering (advisory §5.1). */
-function MeasurePhoto() {
-  const m = useMeasure();
+/** Photo → measurement estimates. Neema prefills the caller's fields; the
+    customer confirms and edits each value before ordering (advisory §5.1).
+    Prop-driven so both the simple form and ProductStudio can share it. */
+export function MeasurePhoto({ garment, fields, onApply }: {
+  garment?: string;
+  fields: string[];
+  onApply: (name: string, value: string) => void;
+}) {
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<"idle" | "working" | "done" | "guided" | "error">("idle");
   const [note, setNote] = useState("");
   const [count, setCount] = useState(0);
-  if (!m) return null;
 
   async function onFile(e: ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     e.target.value = ""; // allow re-picking the same file
-    if (!file || !file.type.startsWith("image/") || !m) return;
+    if (!file || !file.type.startsWith("image/")) return;
     setStatus("working");
     setNote("");
     try {
@@ -114,14 +117,14 @@ function MeasurePhoto() {
       const res = await fetch("/api/neema/measure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image, garment: m.garment, template: m.template.map((t) => t.name), sessionId: sid }),
+        body: JSON.stringify({ image, garment, template: fields, sessionId: sid }),
       });
       const data = await res.json();
       if (res.ok && data.available && Array.isArray(data.estimates) && data.estimates.length) {
         let applied = 0;
         for (const est of data.estimates as { name: string; value: string }[]) {
-          const field = m.template.find((t) => t.name.toLowerCase() === String(est.name).toLowerCase());
-          if (field && est.value) { m.set(field.name, String(est.value)); applied += 1; }
+          const field = fields.find((f) => f.toLowerCase() === String(est.name).toLowerCase());
+          if (field && est.value) { onApply(field, String(est.value)); applied += 1; }
         }
         setCount(applied);
         setNote(typeof data.notes === "string" ? data.notes : "");
@@ -198,7 +201,7 @@ export function MeasurementForm() {
             <b>✂ Made to order — your measurements</b>
             <span>Sewn to these numbers in Nairobi · 5–7 days</span>
           </div>
-          <MeasurePhoto />
+          <MeasurePhoto garment={m.garment} fields={m.template.map((t) => t.name)} onApply={(name, value) => m.set(name, value)} />
           <div className="m-grid">
             {m.template.map((f, i) => (
               <label key={`${f.name}-${i}`} className="m-field">
