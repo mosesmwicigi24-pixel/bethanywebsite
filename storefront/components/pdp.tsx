@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { useMeasure } from "./measure";
+import { withFit } from "@/lib/measureSheets";
 import { Money } from "./Money";
 
 /* Client-side pieces of the product page. */
@@ -107,8 +108,10 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
     }
     if (measure?.mode === "ready") {
       add(slug, readQty(), undefined, measure.size ?? undefined);
+    } else if (measure?.fit) {
+      add(slug, readQty(), withFit(measure.fit, measure.template, measure.values));
     } else {
-      add(slug, readQty(), measure?.values);
+      add(slug, readQty());
     }
     return true;
   };

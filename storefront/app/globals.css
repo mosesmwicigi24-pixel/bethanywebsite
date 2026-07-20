@@ -1063,6 +1063,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .size-pills button{min-width:52px;padding:11px 14px;border:1.5px solid #ddd0a8;border-radius:11px;background:#fff;font-size:14px;font-weight:700;transition:.18s}
 .size-pills button:hover{border-color:var(--gold)}
 .size-pills button.on{background:var(--navy-950);border-color:var(--navy-950);color:var(--gold-bright)}
+/* made-to-order "Who is it for?" selector */
+.fit-pick{margin-bottom:16px}
+.fit-opts{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.fit-opts button{flex:1;min-width:130px;padding:13px 16px;border:1.5px solid #ddd0a8;border-radius:12px;background:#fff;font-size:14.5px;font-weight:800;color:var(--navy-900);transition:.16s}
+.fit-opts button:hover{border-color:var(--gold)}
+.fit-opts button.on{background:var(--navy-950);border-color:var(--navy-950);color:var(--gold-bright)}
 
 /* ---- VariantStudio: swatch grid + "select variations & quantity" drawer ---- */
 .vstudio{margin-top:4px}

@@ -9,6 +9,10 @@ export interface Measurement {
   name: string;
   unit?: string;
   required?: boolean;
+  /** which fit this field belongs to. Absent = applies to both.
+      Forward-compatible: once the hub tags measurements by gender, the
+      storefront filters the made-to-order form by the chosen fit. */
+  gender?: "men" | "ladies";
 }
 
 /** A saved hub variant, selectable in place on the parent product page. */
