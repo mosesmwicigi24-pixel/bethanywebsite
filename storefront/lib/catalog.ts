@@ -18,7 +18,7 @@ import { curated } from "./products";
 
 const HUB = process.env.NEXT_PUBLIC_HUB_API; // https://hub.bethanyhouse.co.ke/api/v1
 const REVALIDATE = 300; // seconds — catalog refreshes without a rebuild
-const USD_PER_KES = 1 / 130; // display fallback when a USD price row is missing/0
+const USD_PER_KES = 1 / 100; // shop rate: USD = KES ÷ 100
 const PLACEHOLDER = "/brand/placeholder.svg";
 
 interface HubPrice { currency_code: string; regular_price: string; sale_price: string | null; product_variant_id: number | null }
@@ -151,7 +151,8 @@ export async function getCatalog(): Promise<Product[]> {
   if (_cache && Date.now() - _cache.at < REVALIDATE * 1000) return _cache.list;
 
   const res = await hubGet<{ data: HubProduct[] }>("/products?per_page=200");
-  const hubProducts = res?.data ?? [];
+  // Never surface archived products (the hub API already excludes them; explicit for safety).
+  const hubProducts = (res?.data ?? []).filter((p) => p.status !== "archived");
   if (!hubProducts.length) {
     // Hub unreachable — fall back to the curated set so the site still serves.
     return Object.values(curated) as Product[];

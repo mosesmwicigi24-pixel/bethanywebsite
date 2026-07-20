@@ -70,16 +70,23 @@ export interface Product {
 
 export const formatKES = (n: number) => `KES ${n.toLocaleString("en-KE")}`;
 
-export type Currency = "KES" | "USD";
+export type Currency = "KES" | "USD" | "ZMW";
 
-/** Hub rule (Order::resolveCurrency): Kenya -> KES, everywhere else -> USD. */
+/** KES is the base price. USD and Zambian Kwacha are derived at the shop's
+    stated rates: USD = KES ÷ 100, Kwacha = KES ÷ 5. */
+export const CURRENCY_RATE: Record<Currency, number> = { KES: 1, USD: 1 / 100, ZMW: 1 / 5 };
+
+/** A base-KES amount converted into a display currency (rounded). */
+export const convert = (kes: number, c: Currency) => Math.round(kes * CURRENCY_RATE[c]);
+
+/** Format an amount already expressed in currency c. */
 export const formatMoney = (n: number, c: Currency) =>
-  c === "KES" ? formatKES(n) : `$${n.toLocaleString("en-US")}`;
+  c === "USD" ? `$${n.toLocaleString("en-US")}`
+    : c === "ZMW" ? `K ${n.toLocaleString("en-KE")}`
+      : formatKES(n);
 
-export const priceFor = (p: Product, c: Currency) =>
-  c === "KES" ? p.price : p.priceUsd;
-export const oldPriceFor = (p: Product, c: Currency) =>
-  c === "KES" ? p.oldPrice : p.oldPriceUsd;
+export const priceFor = (p: Product, c: Currency) => convert(p.price, c);
+export const oldPriceFor = (p: Product, c: Currency) => (p.oldPrice ? convert(p.oldPrice, c) : undefined);
 
 export const badgeLabel: Record<Badge, { text: string; cls: string }> = {
   best: { text: "Best Seller", cls: "tag-gold" },

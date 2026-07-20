@@ -1,12 +1,14 @@
 "use client";
 
 import { useCurrency } from "@/lib/currency";
-import { formatMoney, oldPriceFor, priceFor, type Product } from "@/lib/products";
+import { convert, formatMoney, oldPriceFor, priceFor, type Product } from "@/lib/products";
 
-/** Renders an amount in the active display currency. */
-export function Money({ kes, usd }: { kes: number; usd: number }) {
+/** Renders a base-KES amount in the active display currency (USD = KES/100,
+    Kwacha = KES/5). The `usd` prop is accepted for call-site compatibility but
+    ignored — the value is derived from `kes`. */
+export function Money({ kes }: { kes: number; usd?: number }) {
   const { currency } = useCurrency();
-  return <>{formatMoney(currency === "KES" ? kes : usd, currency)}</>;
+  return <>{formatMoney(convert(kes, currency), currency)}</>;
 }
 
 /** Product price in the active currency. */
@@ -23,12 +25,12 @@ export function OldPrice({ p }: { p: Product }) {
   return <s>{formatMoney(v, currency)}</s>;
 }
 
-/** KES | USD segmented toggle for the nav. */
+/** KES | USD | ZMW segmented toggle for the nav. */
 export function CurrencyToggle() {
   const { currency, setCurrency } = useCurrency();
   return (
     <div className="cur-toggle" role="group" aria-label="Display currency">
-      {(["KES", "USD"] as const).map((c) => (
+      {(["KES", "USD", "ZMW"] as const).map((c) => (
         <button key={c} className={currency === c ? "on" : ""} aria-pressed={currency === c}
           onClick={() => setCurrency(c)}>{c}</button>
       ))}
