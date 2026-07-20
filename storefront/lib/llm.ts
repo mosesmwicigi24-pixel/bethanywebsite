@@ -1,8 +1,9 @@
 /* ============================================================
    Neema LLM layer — a small multi-provider abstraction.
 
-   Chat runs a fallback chain: Groq (primary, llama-3.3-70b-versatile)
-   → Anthropic (Claude) → OpenAI → Gemini. Each provider is reached through
+   Chat runs a fallback chain over the configured providers — the primary is
+   set by NEEMA_CHAT_PRIMARY (default OpenAI/GPT-4o), the rest are fallbacks
+   (Groq, Anthropic/Claude, Gemini). Each provider is reached through
    its NATIVE API — Groq, OpenAI and Gemini are OpenAI-compatible
    (chat/completions); Anthropic uses its own Messages API (never an OpenAI
    shim). The gateway drives a provider-agnostic tool loop over
@@ -85,9 +86,14 @@ const openaiCfg = (model?: string): ProviderCfg | null =>
 const geminiCfg = (model?: string): ProviderCfg | null =>
   GEMINI.key ? { name: "gemini", kind: "openai", baseUrl: GEMINI.url, key: GEMINI.key, model: model || GEMINI.model } : null;
 
-/** Chat fallback chain: Groq → Anthropic → OpenAI → Gemini (only the configured ones). */
+/** Chat chain. The primary provider (NEEMA_CHAT_PRIMARY, default "openai" for
+    the most natural conversation) answers first; the rest follow as automatic
+    fallbacks. Only providers whose key is set are included. Switch the primary
+    with one env var — no code change: groq | anthropic | openai | gemini. */
 export function chatChain(): ProviderCfg[] {
-  return [groqCfg(), anthropicCfg(), openaiCfg(), geminiCfg()].filter((c): c is ProviderCfg => c !== null);
+  const all = [groqCfg(), anthropicCfg(), openaiCfg(), geminiCfg()].filter((c): c is ProviderCfg => c !== null);
+  const primary = (process.env.NEEMA_CHAT_PRIMARY || "openai").toLowerCase();
+  return [...all.filter((c) => c.name === primary), ...all.filter((c) => c.name !== primary)];
 }
 
 /** Vision chain: Gemini → OpenAI → Anthropic (Groq/Llama-3.3 is text-only, so it's skipped). */
