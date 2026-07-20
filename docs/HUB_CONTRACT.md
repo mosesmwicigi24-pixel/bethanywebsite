@@ -174,8 +174,8 @@ International (USD):
 
 | Endpoint | Storefront function | Invoked from |
 |---|---|---|
-| `POST /storefront/leads` | `createLead()` — `storefront/lib/hub.ts` | `app/api/neema/lead/route.ts` (in-chat capture form) and the `create_lead` Grok tool in `app/api/neema/route.ts` |
-| `GET /storefront/shipping/estimate` | `estimateShipping()` — `storefront/lib/hub.ts` | `app/api/neema/lead/route.ts` (shipping capture) and the `estimate_shipping` Grok tool |
+| `POST /storefront/leads` | `createLead()` — `storefront/lib/hub.ts` | `app/api/neema/lead/route.ts` (in-chat capture form) and the `create_lead` model tool in `app/api/neema/route.ts` |
+| `GET /storefront/shipping/estimate` | `estimateShipping()` — `storefront/lib/hub.ts` | `app/api/neema/lead/route.ts` (shipping capture) and the `estimate_shipping` model tool |
 
 When these return data, Neema shows the lead reference / the estimate inline; when they return non-2xx, Neema falls back to a pre-filled WhatsApp handoff. **Both behaviours are already built and tested** — the endpoints are the only missing piece.
 

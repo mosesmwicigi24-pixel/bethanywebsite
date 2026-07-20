@@ -3,7 +3,7 @@
 **A code-grounded companion to *"AI-Powered Website Strategy & Implementation Roadmap."***
 
 Prepared for: Bethany House Creations Limited
-Systems in scope: `storefront/` (Next.js/React), Bethany Hub (`hub.bethanyhouse.co.ke/api/v1`), Neema (AI agent, Docker), Grok (xAI, Docker)
+Systems in scope: `storefront/` (Next.js/React), Bethany Hub (`hub.bethanyhouse.co.ke/api/v1`), Neema (AI agent), and the model providers behind it — a server-side fallback chain of Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → Gemini
 Date: 20 July 2026
 
 ---
@@ -54,7 +54,7 @@ Everything below is organized around closing these gaps in the order that compou
 
 The strategy document's "Critical architecture rule" is correct and worth restating in your terms:
 
-> **Do not put Grok in the browser. Every AI request goes through a server-side gateway.**
+> **Do not put model API keys in the browser. Every AI request goes through a server-side gateway.**
 
 You are perfectly positioned for this because your storefront **already runs a Node server** (`output: "standalone"`, `node server.js` in the Dockerfile). The AI gateway is not a new service to stand up — it is a **Route Handler inside the app you already deploy.**
 
@@ -64,7 +64,7 @@ Browser (ChatFab panel)
       ▼
 storefront  app/api/neema/route.ts   ← THE GATEWAY (auth, rate-limit, log, stream)
       │
-      ├──►  Neema orchestrator (Docker)  ──►  Grok (function calling)
+      ├──►  Neema orchestrator  ──►  provider chain: Groq → Anthropic → Gemini (function calling)
       │
       └──►  Tool registry (server-side):
                search_products     → getCatalog()        [lib/catalog.ts, exists]
@@ -76,7 +76,7 @@ storefront  app/api/neema/route.ts   ← THE GATEWAY (auth, rate-limit, log, str
 
 **Why this is the whole ballgame:** three of Neema's most valuable tools — product search, order status, and order creation — **already exist as tested functions in your `lib/`**. Wrapping them as tools the model can call is a day of work, not a quarter. The gateway is where you add the things the strategy rightly demands: authentication, rate limits, prompt-injection isolation, structured-output validation, caching, and an audit log. None of that belongs in React.
 
-Because Neema and Grok already run as Docker services, the gateway calls them over the internal Docker network — Grok's API key and the hub's write credentials **never reach the browser.** Note the current `NEXT_PUBLIC_HUB_API` is inlined at build time and is fine for *public reads*; any AI-*initiated write* must go through the gateway with server-only credentials.
+The gateway calls the model providers server-side (Groq/Gemini over their OpenAI-compatible endpoints, Anthropic over its Messages API) — the provider API keys and the hub's write credentials **never reach the browser.** Note the current `NEXT_PUBLIC_HUB_API` is inlined at build time and is fine for *public reads*; any AI-*initiated write* must go through the gateway with server-only credentials.
 
 ---
 
@@ -115,7 +115,7 @@ export async function POST(req: Request) {
 
   // 1. guardrails: rate-limit by sessionId, size-cap the message, strip/ignore
   //    injected instructions from any uploaded content (§7).
-  // 2. call Neema/Grok with the tool schema below; the model decides which tool.
+  // 2. call the model provider with the tool schema below; the model decides which tool.
   // 3. execute the chosen tool SERVER-SIDE using your existing lib functions.
   // 4. validate the model's reply against the Neema Response Contract (§4).
   // 5. log { sessionId, intent, tools, latency, cost, outcome } for §9 analytics.
@@ -235,7 +235,7 @@ Emit once in `layout.tsx` from `lib/site.ts` (you already have the name, phone, 
 Generic AI advice says "add a chatbot." Your business is not generic: you sell **made-to-measure sacred garments and consecrated-use items to churches across the world.** That specificity is your moat. Here are ideas that exploit it.
 
 ### 5.1 The Measurement Copilot (kills your #1 conversion killer)
-Your made-to-order flow (`MeasurementForm`, the `MEASURE_ORDER` in `lib/hub.ts`) asks customers for Neck, Shoulders, Sleeves, Chest… Most customers do not know how to measure a cassock, so they abandon. Let Grok's **vision** turn a phone photo (person against a door, holding a reference card) into a measurement estimate, then have Neema confirm each value with the customer before it ever reaches production. This directly attacks the biggest drop-off in your funnel and is something no competitor in your category offers.
+Your made-to-order flow (`MeasurementForm`, the `MEASURE_ORDER` in `lib/hub.ts`) asks customers for Neck, Shoulders, Sleeves, Chest… Most customers do not know how to measure a cassock, so they abandon. Let a **vision** model (Gemini → Anthropic — the primary Groq/Llama model is text-only) turn a phone photo (person against a door, holding a reference card) into a measurement estimate, then have Neema confirm each value with the customer before it ever reaches production. This directly attacks the biggest drop-off in your funnel and is something no competitor in your category offers.
 
 ### 5.2 The Liturgical Concierge (proactive, seasonal, denomination-aware)
 Vestment colors follow the church calendar — purple in Advent and Lent, white at Easter, red at Pentecost, green in Ordinary Time. Neema should **know the season** and merchandise to it: in November, surface purple stoles and Advent sets; before an ordination season, surface the ordination range you already photograph (`live-ORDINATION2.png`, `live-ORDINATION6.png`). This is "proactive-not-intrusive selling" grounded in something real and useful, not a popup.
@@ -250,7 +250,7 @@ The next frontier past Google ranking is being **the source AI assistants quote.
 You already sell on WhatsApp and your `submitOnlineOrder` supports guest details. Give web-Neema and WhatsApp-Neema **one brain and one memory keyed to phone number** (with consent). A customer who asks about a chasuble on the website and continues on WhatsApp should not repeat themselves. This is the strategy's "One customer, one context" — and it's realistic because both channels already point at the same hub.
 
 ### 5.6 Visual "find this vestment" search
-Let a visitor upload a photo of a vestment they admired at a service; Grok vision classifies it (chasuble? cope? color? orphrey style?) and Neema links the closest catalogue matches. Your product imagery is already rich and consistently named — good training/matching material.
+Let a visitor upload a photo of a vestment they admired at a service; a vision model (Gemini or Anthropic — the same multimodal chain the measurement copilot already uses) classifies it (chasuble? cope? color? orphrey style?) and Neema links the closest catalogue matches. Your product imagery is already rich and consistently named — good training/matching material.
 
 ### 5.7 Parish & Diocese bulk-quote agent
 Churches buy in sets and in bulk (40-cup communion trays, robes for a whole choir, ordination classes). A Neema workflow that captures "we're robing 12 servers, here are the sizes" and produces a **structured draft quotation** for staff approval (the strategy's `create_quote_draft`) is a high-value B2B lane your consumer flow doesn't serve today.
@@ -258,8 +258,8 @@ Churches buy in sets and in bulk (40-cup communion trays, robes for a whole choi
 ### 5.8 Trust engine from *real* orders (see §7)
 Replace the fabricated testimonials with a proof engine that surfaces **verified, consented** signals from the hub: "shipped to 14 countries," "312 chalices delivered," real reviews tied to real `order_number`s. For international buyers spending on sacred items sight-unseen, verifiable trust is the conversion lever — and it's honest.
 
-### 5.9 Grok Live Search → content radar
-Use Grok's live-search capability internally (never auto-publishing) to spot rising demand — a new ordination season, a diocese's jubilee, a trending liturgical topic — and generate **content briefs** for human editors. Demand intelligence feeding the content engine, exactly as the strategy's §7 "SEO command centre" describes.
+### 5.9 Live-search → content radar
+Use a live-search-capable model or search API internally (never auto-publishing) to spot rising demand — a new ordination season, a diocese's jubilee, a trending liturgical topic — and generate **content briefs** for human editors. Demand intelligence feeding the content engine, exactly as the strategy's §7 "SEO command centre" describes.
 
 ### 5.10 Abandoned-quote recovery, consented and gentle
 When a customer builds a measurement/quote and leaves (your `buildOnlineOrder` already assembles the full draft), save it and — with consent — let Neema follow up on WhatsApp with the exact saved configuration. Recovering made-to-order intent is worth far more than recovering a cart of stock items.
@@ -332,7 +332,7 @@ The strategy's §8 is sound. Three items are urgent because they touch code that
 1. **Where does the gateway live?** Recommended: inside the storefront app (`app/api/neema`) — you already ship a Node server, so it's free. Alternative: a separate Docker service if you want it shared with WhatsApp from day one.
 2. **What may Neema execute vs. only prepare?** Pick the starting autonomy level (§7). Recommend starting at **2 (Prepare)** — draft everything, commit nothing — until evaluations are green.
 3. **Reviews:** real-and-verified, or clearly-labeled-samples with no rating schema? (Blocks safe Product JSON-LD.)
-4. **Which model, when?** The gateway makes this a routing policy, not an architecture decision — start with Grok for everything, add fallback later.
+4. **Which model, when?** The gateway makes this a routing policy, not an architecture decision. The storefront now ships a fallback chain — Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → Gemini — with vision routed to Gemini → Anthropic; tune the order, models and per-intent routing as you learn.
 5. **Consent & identity:** how web and WhatsApp identities reconcile (phone-number keyed, opt-in) — needed before §5.5 and §5.10.
 
 ---
