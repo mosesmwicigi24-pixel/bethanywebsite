@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { Money } from "./Money";
 import type { Product, VariantOption } from "@/lib/products";
+import { type Fit, FITS, FIT_LABEL, isGendered, sheetFor, withFit } from "@/lib/measureSheets";
 
 /**
  * Single-page product experience for a product with saved variants — the
@@ -31,7 +32,7 @@ export default function ProductStudio({ product, preselect, sku }: {
   const router = useRouter();
   const variants = useMemo(() => product.variants ?? [], [product.variants]);
   const producible = Boolean(product.producible);
-  const template = product.measurements ?? [];
+  const gendered = isGendered(product);
 
   const [active, setActive] = useState<VariantOption | undefined>(
     () => variants.find((v) => v.slug === preselect) ?? cheapest(variants) ?? variants[0],
@@ -39,6 +40,7 @@ export default function ProductStudio({ product, preselect, sku }: {
   const [imgIdx, setImgIdx] = useState(0);
   const [qty, setQty] = useState(1);
   const [mode, setMode] = useState<"ready" | "custom">("ready"); // ready-made is the default
+  const [fit, setFit] = useState<Fit | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState(false);
   const [measureOpen, setMeasureOpen] = useState(false);
@@ -63,11 +65,12 @@ export default function ProductStudio({ product, preselect, sku }: {
   const gallery = active.gallery.length ? active.gallery : [active.img];
   const mainImg = gallery[Math.min(imgIdx, gallery.length - 1)] ?? active.img;
 
+  const template = sheetFor(product, fit);
   const showMeasure = producible && mode === "custom";
   const missing = showMeasure
     ? template.filter((f) => f.required && !values[f.name]?.trim()).map((f) => f.name)
     : [];
-  const detailsOk = !producible || mode === "ready" || missing.length === 0;
+  const detailsOk = !producible || mode === "ready" || ((!gendered || fit !== null) && missing.length === 0);
 
   const shownAxes = axes.filter(([k]) => mode === "ready" || !/size/i.test(k));
   // axes whose value actually differs between variants — used to name the cards
@@ -88,7 +91,7 @@ export default function ProductStudio({ product, preselect, sku }: {
       document.getElementById("ps-measure")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return false;
     }
-    if (showMeasure) add(active.slug, qty, values);
+    if (showMeasure) add(active.slug, qty, fit ? withFit(fit, template, values) : values);
     else add(active.slug, qty);
     return true;
   };
@@ -209,20 +212,43 @@ export default function ProductStudio({ product, preselect, sku }: {
             <i className="chev" aria-hidden="true">⌄</i>
           </button>
           <div className="ps-measure-body">
-            <p className="ps-measure-sub">Sewn to these numbers in Nairobi · 5–7 days.</p>
-            <div className="m-grid ps-mgrid">
-              {template.map((f, i) => (
-                <label key={`${f.name}-${i}`} className="m-field">
-                  <span>{f.name}{f.required && <i aria-hidden="true"> *</i>}{f.unit && <em> ({f.unit})</em>}</span>
-                  <input inputMode="decimal" placeholder="e.g. 42" value={values[f.name] ?? ""}
-                    onChange={(e) => setValues((p) => ({ ...p, [f.name]: e.target.value }))} />
-                </label>
-              ))}
-            </div>
-            {touched && !detailsOk && (
-              <p className="m-warn">Fill the required measurements: {missing.join(", ")}.</p>
+            {gendered && (
+              <div className="fit-pick" role="radiogroup" aria-label="Who is it for?">
+                <div className="m-head">
+                  <b>Who is it for?</b>
+                  <span>Men and ladies are measured differently</span>
+                </div>
+                <div className="fit-opts">
+                  {FITS.map((f) => (
+                    <button key={f} type="button" role="radio" aria-checked={fit === f}
+                      className={fit === f ? "on" : ""} onClick={() => setFit(f)}>
+                      {FIT_LABEL[f]}
+                    </button>
+                  ))}
+                </div>
+              </div>
             )}
-            <p className="m-note">Not sure how to measure? Call +254 727 891 989 — or visit us on Moi Avenue and we&apos;ll take them for you.</p>
+
+            {!gendered || fit ? (
+              <>
+                <p className="ps-measure-sub">✂ {fit ? `${FIT_LABEL[fit]} — ` : ""}sewn to these numbers in Nairobi · 5–7 days.</p>
+                <div className="m-grid ps-mgrid">
+                  {template.map((f, i) => (
+                    <label key={`${f.name}-${i}`} className="m-field">
+                      <span>{f.name}{f.required && <i aria-hidden="true"> *</i>}{f.unit && <em> ({f.unit})</em>}</span>
+                      <input inputMode="decimal" placeholder="e.g. 42" value={values[f.name] ?? ""}
+                        onChange={(e) => setValues((p) => ({ ...p, [f.name]: e.target.value }))} />
+                    </label>
+                  ))}
+                </div>
+                {touched && !detailsOk && (
+                  <p className="m-warn">Fill the required measurements: {missing.join(", ")}.</p>
+                )}
+                <p className="m-note">Not sure how to measure? Call +254 727 891 989 — or visit us on Moi Avenue and we&apos;ll take them for you.</p>
+              </>
+            ) : (
+              touched && !detailsOk && <p className="m-warn">Please choose Men or Ladies to see the measurements.</p>
+            )}
           </div>
         </aside>
       )}

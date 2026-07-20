@@ -220,7 +220,7 @@ export default async function ProductPage(
   // Variable products manage their own measurement state inside ProductStudio;
   // only the simple-product path needs the shared MeasureProvider + sticky bar.
   return !isVariable && parent.producible
-    ? <MeasureProvider template={parent.measurements ?? []} sizes={parent.sizes}>{body}</MeasureProvider>
+    ? <MeasureProvider product={parent}>{body}</MeasureProvider>
     : body;
 }
 
