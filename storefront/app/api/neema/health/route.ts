@@ -11,11 +11,20 @@ import { providerStatus } from "@/lib/llm";
 
    NEVER returns API keys or base URLs — only provider names, model names and
    presence flags. Forced dynamic so it reflects the live runtime env rather
-   than a build-time snapshot. Server-side only. */
+   than a build-time snapshot. Server-side only.
+
+   Optional token gate: set NEEMA_HEALTH_TOKEN (server-only) and the endpoint
+   requires ?token=<that value>, returning 401 otherwise — so the provider
+   list stays private. Unset = open (handy for local dev). */
 
 export const dynamic = "force-dynamic";
 
-export function GET(): Response {
+export function GET(request: Request): Response {
+  const required = process.env.NEEMA_HEALTH_TOKEN;
+  if (required && new URL(request.url).searchParams.get("token") !== required) {
+    return Response.json({ ok: false, error: "Unauthorized" }, { status: 401 });
+  }
+
   const status = providerStatus();
   return Response.json({
     ok: true,

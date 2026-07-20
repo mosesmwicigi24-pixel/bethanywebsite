@@ -32,7 +32,8 @@ With no key set, the grounded fallback runs — useful for local dev and demos.
 
 `GET /api/neema/health` reports which providers are wired (a boolean each, plus the
 effective chat/vision chain order and model names — never the keys), so you can confirm
-an env change took effect after a deploy/restart.
+an env change took effect after a deploy/restart. Set `NEEMA_HEALTH_TOKEN` to require
+`?token=<value>` on the endpoint (401 otherwise); leave it unset to keep the check open.
 
 See `docs/AI_INTEGRATION_ADVISORY.md` for the wider plan.
 
