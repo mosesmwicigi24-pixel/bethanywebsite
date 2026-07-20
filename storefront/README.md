@@ -1,23 +1,23 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Naema AI gateway
+## Neema AI gateway
 
 The customer-facing AI assistant (the gold chat launcher, bottom-right) is wired
 through a single server route — the browser never talks to Grok or the Hub directly.
 
-- **Entry** — `components/Naema.tsx` (the launcher + chat panel), mounted site-wide via
+- **Entry** — `components/Neema.tsx` (the launcher + chat panel), mounted site-wide via
   `ChatFab` in `components/chrome.tsx`.
-- **Gateway** — `app/api/naema/route.ts`. Enforces guardrails (size caps, per-session
-  rate limit), runs Naema on Grok with function-calling tools when configured, and
+- **Gateway** — `app/api/neema/route.ts`. Enforces guardrails (size caps, per-session
+  rate limit), runs Neema on Grok with function-calling tools when configured, and
   otherwise falls back to a deterministic, catalog-grounded orchestrator so the chat
-  always works. Returns a validated `NaemaReply` the panel renders as product cards,
+  always works. Returns a validated `NeemaReply` the panel renders as product cards,
   quick replies and actions.
 - **Tools** — `search_products` and `get_order_status` reuse the existing
-  `lib/catalog.ts` and `lib/hub.ts` functions; `lib/naema.ts` holds the shared contract
+  `lib/catalog.ts` and `lib/hub.ts` functions; `lib/neema.ts` holds the shared contract
   and catalog-grounding helpers.
 
-Configure the model via server-only env (see `.env.example`): `NAEMA_API_KEY`,
-`NAEMA_API_URL` (default `https://api.x.ai/v1`), `NAEMA_MODEL` (default `grok-4`).
+Configure the model via server-only env (see `.env.example`): `NEEMA_API_KEY`,
+`NEEMA_API_URL` (default `https://api.x.ai/v1`), `NEEMA_MODEL` (default `grok-4`).
 With no key set, the grounded fallback runs — useful for local dev and demos.
 
 See `docs/AI_INTEGRATION_ADVISORY.md` for the wider plan.

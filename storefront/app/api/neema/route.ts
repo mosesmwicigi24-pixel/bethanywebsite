@@ -6,38 +6,38 @@ import {
   leadCaptureFor,
   scoreProducts,
   type ChatMessage,
-  type NaemaAction,
-  type NaemaCapture,
-  type NaemaIntent,
-  type NaemaReply,
-  type NaemaRequest,
+  type NeemaAction,
+  type NeemaCapture,
+  type NeemaIntent,
+  type NeemaReply,
+  type NeemaRequest,
   type PageContext,
-} from "@/lib/naema";
+} from "@/lib/neema";
 import type { Product } from "@/lib/products";
 
 /* ============================================================
-   Naema AI gateway — the single server-side entry for every AI
+   Neema AI gateway — the single server-side entry for every AI
    request (advisory §2–3). The browser never talks to Grok or holds
    Hub write-credentials; it POSTs here, and this route:
 
      • enforces guardrails (size caps, per-session rate limit)
-     • runs Naema on Grok with function-calling tools when configured
-       (NAEMA_API_KEY set), grounding answers in the live catalog
+     • runs Neema on Grok with function-calling tools when configured
+       (NEEMA_API_KEY set), grounding answers in the live catalog
      • falls back to a deterministic, catalog-grounded orchestrator
        when Grok isn't configured or errors — so the widget always
        works (mirrors lib/hub.ts / lib/lookup.ts "demo mode")
-     • returns a validated NaemaReply the frontend renders as UI
+     • returns a validated NeemaReply the frontend renders as UI
      • logs one structured line per turn for observability (§9)
 
    Configure the model (all server-only, never NEXT_PUBLIC_):
-     NAEMA_API_KEY   — bearer token for the OpenAI-compatible endpoint
-     NAEMA_API_URL   — base URL (default https://api.x.ai/v1)
-     NAEMA_MODEL     — model id (default grok-4)
+     NEEMA_API_KEY   — bearer token for the OpenAI-compatible endpoint
+     NEEMA_API_URL   — base URL (default https://api.x.ai/v1)
+     NEEMA_MODEL     — model id (default grok-4)
    ============================================================ */
 
-const AI_KEY = process.env.NAEMA_API_KEY;
-const AI_URL = process.env.NAEMA_API_URL || "https://api.x.ai/v1";
-const AI_MODEL = process.env.NAEMA_MODEL || "grok-4";
+const AI_KEY = process.env.NEEMA_API_KEY;
+const AI_URL = process.env.NEEMA_API_URL || "https://api.x.ai/v1";
+const AI_MODEL = process.env.NEEMA_MODEL || "grok-4";
 
 const MAX_MSG_CHARS = 2000;
 const MAX_HISTORY = 12;
@@ -96,7 +96,7 @@ async function execGetOrderStatus(paymentToken: string) {
   return { found: true, ...status };
 }
 
-async function execCreateLead(args: Record<string, unknown>, req: NaemaRequest) {
+async function execCreateLead(args: Record<string, unknown>, req: NeemaRequest) {
   const phone = String(args.phone ?? "").trim();
   if (!phone) return { created: false, note: "Ask the customer for a phone/WhatsApp number first." };
   const lead = await createLead({
@@ -177,7 +177,7 @@ const TOOLS = [
 function systemPrompt(ctx: PageContext | undefined, locale: string | undefined): string {
   const here = ctx?.productSlug ? `The customer is viewing product "${ctx.productSlug}". ` : ctx?.category ? `The customer is browsing "${ctx.category}". ` : "";
   return [
-    `You are Naema, the sales & service agent for ${SITE.name} — ${SITE.tagline}`,
+    `You are Neema, the sales & service agent for ${SITE.name} — ${SITE.tagline}`,
     `Shop: ${SITE.address}, ${SITE.city}. Hours: ${SITE.hours}. Phone/WhatsApp: ${SITE.phone}. Payments: ${SITE.payments}. ${SITE.deliveryPromise}. We ship worldwide.`,
     here + (locale ? `Customer locale: ${locale}. ` : ""),
     "Rules:",
@@ -206,13 +206,13 @@ async function grokChat(messages: GrokMessage[], useTools: boolean) {
   return data.choices?.[0]?.message as GrokMessage;
 }
 
-async function runWithGrok(req: NaemaRequest, toolsUsed: string[]): Promise<NaemaReply> {
+async function runWithGrok(req: NeemaRequest, toolsUsed: string[]): Promise<NeemaReply> {
   const history: GrokMessage[] = [
     { role: "system", content: systemPrompt(req.pageContext, req.locale) },
     ...req.messages.map((m) => ({ role: m.role, content: m.content } as GrokMessage)),
   ];
 
-  // Retrieval loop — let Naema call tools until it has what it needs.
+  // Retrieval loop — let Neema call tools until it has what it needs.
   for (let i = 0; i < 4; i++) {
     const msg = await grokChat(history, true);
     if (!msg.tool_calls?.length) {
@@ -247,8 +247,8 @@ async function runWithGrok(req: NaemaRequest, toolsUsed: string[]): Promise<Naem
 
 /* ---------------- deterministic fallback (always works) ---------------- */
 
-function actionsFor(intent: NaemaIntent, products: Product[], ctx?: PageContext): NaemaAction[] {
-  const out: NaemaAction[] = [];
+function actionsFor(intent: NeemaIntent, products: Product[], ctx?: PageContext): NeemaAction[] {
+  const out: NeemaAction[] = [];
   if (products[0]) out.push({ type: "view_product", label: `View ${products[0].short || products[0].name}`, value: products[0].slug });
   if (intent === "order_support") out.push({ type: "find_orders", label: "Find my orders", value: "/orders" });
   if (intent === "quote") out.push({ type: "request_quote", label: "Request a quote on WhatsApp", value: waLink("Hello Bethany House, I'd like a quotation for our church.") });
@@ -260,12 +260,12 @@ function actionsFor(intent: NaemaIntent, products: Product[], ctx?: PageContext)
 // visitor asking "how do I ship this?" isn't forced into product_inquiry)
 const classifyMatch = (t: string) => classifyIntent(t) !== "product_inquiry";
 
-function shapeText(intent: NaemaIntent, q: string, ctx?: PageContext) {
+function shapeText(intent: NeemaIntent, q: string, ctx?: PageContext) {
   switch (intent) {
     case "greeting":
       return {
         intent, confidence: 0.9,
-        message: `Hello! I'm Naema, here to help you find the right communion elements, clergy apparel or church gifts — and get them to your church anywhere in the world. What are you looking for today?`,
+        message: `Hello! I'm Neema, here to help you find the right communion elements, clergy apparel or church gifts — and get them to your church anywhere in the world. What are you looking for today?`,
         questions: [{ id: "cat_communion", label: "Communion elements" }, { id: "cat_clergy", label: "Clergy apparel" }, { id: "cat_gifts", label: "Gifts & accessories" }],
         query: "", readiness: "low" as const, handoff: { required: false },
       };
@@ -298,7 +298,7 @@ function shapeText(intent: NaemaIntent, q: string, ctx?: PageContext) {
       };
     default:
       return {
-        intent: "product_inquiry" as NaemaIntent, confidence: 0.6,
+        intent: "product_inquiry" as NeemaIntent, confidence: 0.6,
         message: `Here's what I'd recommend from our catalogue. Tap any item for details and pricing, or tell me more about the occasion, denomination or budget and I'll narrow it down.`,
         questions: [{ id: "budget", label: "Set a budget?" }, { id: "occasion", label: "For an occasion?" }],
         query: q || ctx?.category || "", readiness: "medium" as const, handoff: { required: false },
@@ -306,9 +306,9 @@ function shapeText(intent: NaemaIntent, q: string, ctx?: PageContext) {
   }
 }
 
-async function runFallback(req: NaemaRequest, toolsUsed: string[]): Promise<NaemaReply> {
+async function runFallback(req: NeemaRequest, toolsUsed: string[]): Promise<NeemaReply> {
   const lastUser = [...req.messages].reverse().find((m) => m.role === "user")?.content ?? "";
-  const intent: NaemaIntent = req.pageContext?.productSlug && !classifyMatch(lastUser) ? "product_inquiry" : classifyIntent(lastUser);
+  const intent: NeemaIntent = req.pageContext?.productSlug && !classifyMatch(lastUser) ? "product_inquiry" : classifyIntent(lastUser);
   const shaped = shapeText(intent, lastUser, req.pageContext);
 
   // Ground product recommendations in the live catalog.
@@ -359,15 +359,15 @@ function safeJson(text: string): Record<string, unknown> | null {
   }
 }
 
-const INTENTS: NaemaIntent[] = ["greeting", "product_inquiry", "quote", "shipping", "order_support", "measurement", "other"];
+const INTENTS: NeemaIntent[] = ["greeting", "product_inquiry", "quote", "shipping", "order_support", "measurement", "other"];
 
-function isCapture(v: unknown): v is NaemaCapture {
-  return Boolean(v && typeof v === "object" && Array.isArray((v as NaemaCapture).fields) && (v as NaemaCapture).fields.length > 0);
+function isCapture(v: unknown): v is NeemaCapture {
+  return Boolean(v && typeof v === "object" && Array.isArray((v as NeemaCapture).fields) && (v as NeemaCapture).fields.length > 0);
 }
 
-function normalize(raw: Record<string, unknown>, grounded: boolean): NaemaReply {
+function normalize(raw: Record<string, unknown>, grounded: boolean): NeemaReply {
   const asArr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
-  const intent = INTENTS.includes(raw.intent as NaemaIntent) ? (raw.intent as NaemaIntent) : "other";
+  const intent = INTENTS.includes(raw.intent as NeemaIntent) ? (raw.intent as NeemaIntent) : "other";
   const readiness = ["low", "medium", "high"].includes(raw.readiness as string) ? (raw.readiness as "low" | "medium" | "high") : "low";
   const handoff = (raw.handoff && typeof raw.handoff === "object" ? raw.handoff : {}) as { required?: unknown; reason?: unknown };
   return {
@@ -382,7 +382,7 @@ function normalize(raw: Record<string, unknown>, grounded: boolean): NaemaReply 
       .filter((q) => q?.label)
       .slice(0, 4)
       .map((q, i) => ({ id: q.id ? String(q.id) : `q${i}`, label: String(q.label).slice(0, 60) })),
-    actions: asArr<NaemaAction>(raw.actions)
+    actions: asArr<NeemaAction>(raw.actions)
       .filter((a) => a?.type && a?.label)
       .slice(0, 4)
       .map((a) => ({ type: a.type, label: String(a.label).slice(0, 40), value: a.value ? String(a.value) : undefined })),
@@ -391,7 +391,7 @@ function normalize(raw: Record<string, unknown>, grounded: boolean): NaemaReply 
       .filter((s) => s?.recordId)
       .map((s) => ({ type: s.type === "hub" ? "hub" : "catalog", recordId: String(s.recordId) })),
     analytics: { readiness, stage: intent === "quote" || intent === "order_support" ? "conversion" : "consideration" },
-    capture: isCapture(raw.capture) ? (raw.capture as unknown as NaemaCapture) : undefined,
+    capture: isCapture(raw.capture) ? (raw.capture as unknown as NeemaCapture) : undefined,
     grounded,
   };
 }
@@ -400,9 +400,9 @@ function normalize(raw: Record<string, unknown>, grounded: boolean): NaemaReply 
 
 export async function POST(request: Request): Promise<Response> {
   const started = Date.now();
-  let body: NaemaRequest;
+  let body: NeemaRequest;
   try {
-    body = (await request.json()) as NaemaRequest;
+    body = (await request.json()) as NeemaRequest;
   } catch {
     return Response.json({ error: "Invalid request" }, { status: 400 });
   }
@@ -416,9 +416,9 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Too many messages — please wait a moment." }, { status: 429 });
   }
 
-  const req: NaemaRequest = { messages, sessionId, locale: body.locale, pageContext: body.pageContext };
+  const req: NeemaRequest = { messages, sessionId, locale: body.locale, pageContext: body.pageContext };
   const toolsUsed: string[] = [];
-  let reply: NaemaReply;
+  let reply: NeemaReply;
   let mode = AI_KEY ? "grok" : "fallback";
 
   try {
@@ -426,13 +426,13 @@ export async function POST(request: Request): Promise<Response> {
   } catch (err) {
     // Grok unreachable / errored → never fail the customer; ground a real answer.
     mode = "fallback";
-    console.error("[naema] grok failed, using fallback:", err instanceof Error ? err.message : err);
+    console.error("[neema] grok failed, using fallback:", err instanceof Error ? err.message : err);
     reply = await runFallback(req, toolsUsed);
   }
 
   console.log(
     JSON.stringify({
-      t: "naema", mode, sessionId, intent: reply.intent, grounded: reply.grounded,
+      t: "neema", mode, sessionId, intent: reply.intent, grounded: reply.grounded,
       tools: toolsUsed, products: reply.products.length, handoff: reply.handoff.required,
       ms: Date.now() - started,
     }),

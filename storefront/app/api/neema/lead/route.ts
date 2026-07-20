@@ -1,7 +1,7 @@
 import { createLead } from "@/lib/hub";
 import { SITE } from "@/lib/site";
 
-/* Lead submission for Naema's in-chat capture form (advisory §3, §6).
+/* Lead submission for Neema's in-chat capture form (advisory §3, §6).
    Writes go through the hub server-side; if the hub lead endpoint isn't
    live yet, we never drop the lead — we return a WhatsApp deep link with
    the enquiry pre-filled so the customer reaches staff either way. */
@@ -71,7 +71,7 @@ export async function POST(request: Request): Promise<Response> {
     .join("\n");
   const whatsapp = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(summary)}`;
 
-  console.log(JSON.stringify({ t: "naema_lead", sessionId, captured: Boolean(lead), leadId: lead?.leadId, intent: body.intent }));
+  console.log(JSON.stringify({ t: "neema_lead", sessionId, captured: Boolean(lead), leadId: lead?.leadId, intent: body.intent }));
 
   return Response.json({
     ok: true,

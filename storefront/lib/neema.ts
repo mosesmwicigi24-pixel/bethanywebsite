@@ -1,11 +1,11 @@
 import type { Product } from "./products";
 
 /* ============================================================
-   Naema — shared contract + grounding helpers.
+   Neema — shared contract + grounding helpers.
 
    This file is client-safe (types + pure functions only, no server
-   imports). The gateway (app/api/naema/route.ts) uses the helpers to
-   ground answers in the live catalog; the widget (components/Naema.tsx)
+   imports). The gateway (app/api/neema/route.ts) uses the helpers to
+   ground answers in the live catalog; the widget (components/Neema.tsx)
    uses the types to render structured replies as real UI.
 
    The response contract lets the frontend render product cards, quick
@@ -13,7 +13,7 @@ import type { Product } from "./products";
    (see docs/AI_INTEGRATION_ADVISORY.md §3–4, Appendix A).
    ============================================================ */
 
-export type NaemaIntent =
+export type NeemaIntent =
   | "greeting"
   | "product_inquiry"
   | "quote"
@@ -34,7 +34,7 @@ export interface PageContext {
   category?: string;
 }
 
-export interface NaemaRequest {
+export interface NeemaRequest {
   messages: ChatMessage[];
   sessionId: string;
   locale?: string;
@@ -43,31 +43,31 @@ export interface NaemaRequest {
 
 /** A recommended product — `slug` resolves through the client catalog
     (useCatalog().bySlug) to render the same card the rest of the site uses. */
-export interface NaemaProductRef {
+export interface NeemaProductRef {
   slug: string;
   reason?: string;
 }
 
 /** A follow-up the customer can answer with one tap. */
-export interface NaemaQuestion {
+export interface NeemaQuestion {
   id: string;
   label: string;
 }
 
-export interface NaemaAction {
+export interface NeemaAction {
   type: "view_product" | "whatsapp" | "request_quote" | "find_orders" | "shop";
   label: string;
   value?: string; // e.g. a slug for view_product
 }
 
 /** Grounding proof — which record backed a factual claim. */
-export interface NaemaSource {
+export interface NeemaSource {
   type: "hub" | "catalog";
   recordId: string;
 }
 
 /** A single field in an in-chat lead-capture form. */
-export interface NaemaCaptureField {
+export interface NeemaCaptureField {
   id: string;
   label: string;
   type: "text" | "tel" | "email" | "select" | "textarea";
@@ -76,36 +76,36 @@ export interface NaemaCaptureField {
   options?: string[];
 }
 
-/** A short structured form Naema shows to capture a qualified lead — the
-    guided-quotation moment (advisory §3, §6). Submitted to /api/naema/lead. */
-export interface NaemaCapture {
+/** A short structured form Neema shows to capture a qualified lead — the
+    guided-quotation moment (advisory §3, §6). Submitted to /api/neema/lead. */
+export interface NeemaCapture {
   title: string;
-  fields: NaemaCaptureField[];
+  fields: NeemaCaptureField[];
   submitLabel: string;
   intent: string;
 }
 
-export interface NaemaReply {
-  intent: NaemaIntent;
+export interface NeemaReply {
+  intent: NeemaIntent;
   message: string;
   confidence: number; // 0..1 — below threshold ⇒ offer handoff
-  products: NaemaProductRef[];
-  questions: NaemaQuestion[];
-  actions: NaemaAction[];
+  products: NeemaProductRef[];
+  questions: NeemaQuestion[];
+  actions: NeemaAction[];
   handoff: { required: boolean; reason?: string };
-  sources: NaemaSource[];
+  sources: NeemaSource[];
   analytics: { readiness: "low" | "medium" | "high"; stage: string };
-  /** present when Naema wants to capture the customer's details next. */
-  capture?: NaemaCapture;
+  /** present when Neema wants to capture the customer's details next. */
+  capture?: NeemaCapture;
   /** true when Grok + tools produced it; false = deterministic fallback. */
   grounded: boolean;
 }
 
 /** The standard lead form. Kept deliberately short — ask only what staff
     need to follow up: who, how to reach them, where, and (for quotes) how many. */
-export function leadCaptureFor(intent: NaemaIntent): NaemaCapture {
+export function leadCaptureFor(intent: NeemaIntent): NeemaCapture {
   const isQuote = intent === "quote";
-  const fields: NaemaCaptureField[] = [
+  const fields: NeemaCaptureField[] = [
     { id: "name", label: "Your name", type: "text", placeholder: "Rev. / Ms. / Mr." },
     { id: "phone", label: "WhatsApp or phone", type: "tel", required: true, placeholder: "+254 7…" },
     { id: "city", label: "City", type: "text", placeholder: "Nairobi" },
@@ -123,7 +123,7 @@ export function leadCaptureFor(intent: NaemaIntent): NaemaCapture {
 
 /* ---------------- Intent classification (keyword, deterministic) ---------------- */
 
-const INTENT_RULES: [NaemaIntent, RegExp][] = [
+const INTENT_RULES: [NeemaIntent, RegExp][] = [
   ["order_support", /\b(order|track(ing)?|delivery status|where.*(my|is).*(order|parcel)|receipt|refund|dispatch|shipped)\b/i],
   ["shipping", /\b(ship(ping)?|deliver(y|ed)?|courier|export|customs|international|abroad|overseas|worldwide|how long|arrive|country)\b/i],
   ["measurement", /\b(measure(ment)?s?|size|sizing|fit|neck|chest|shoulders|sleeve|length|how.*measure)\b/i],
@@ -134,7 +134,7 @@ const INTENT_RULES: [NaemaIntent, RegExp][] = [
   ["greeting", /^\s*(hi|hey|hello|habari|sasa|good (morning|afternoon|evening)|greetings)\b/i],
 ];
 
-export function classifyIntent(text: string): NaemaIntent {
+export function classifyIntent(text: string): NeemaIntent {
   for (const [intent, re] of INTENT_RULES) if (re.test(text)) return intent;
   return "product_inquiry";
 }

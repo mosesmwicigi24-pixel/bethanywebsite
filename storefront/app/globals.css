@@ -1296,71 +1296,71 @@ body:has(.cart-veil.open) .chat-fab{visibility:hidden}
 .vpick-item:hover{outline-color:var(--gold)}
 .vpick-item.on{outline:2px solid var(--navy-900);outline-offset:1px}
 
-/* ============ Naema chat widget ============ */
-.naema{position:fixed;right:26px;bottom:160px;z-index:126;width:380px;max-width:calc(100vw - 32px);
+/* ============ Neema chat widget ============ */
+.neema{position:fixed;right:26px;bottom:160px;z-index:126;width:380px;max-width:calc(100vw - 32px);
   height:min(564px,calc(100vh - 210px));background:var(--paper);border:1px solid var(--line);
   border-radius:18px;box-shadow:var(--shadow-lift);display:flex;flex-direction:column;overflow:hidden;
-  font-family:var(--font);animation:naemaIn .22s var(--ease)}
-.naema-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;
+  font-family:var(--font);animation:neemaIn .22s var(--ease)}
+.neema-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 15px;
   background:linear-gradient(135deg,var(--navy-900),var(--navy-700));color:#fff}
-.naema-id{display:flex;align-items:center;gap:10px}
-.naema-avatar{width:34px;height:34px;border-radius:50%;background:var(--navy-950);border:1.5px solid var(--gold);
+.neema-id{display:flex;align-items:center;gap:10px}
+.neema-avatar{width:34px;height:34px;border-radius:50%;background:var(--navy-950);border:1.5px solid var(--gold);
   display:flex;align-items:center;justify-content:center;overflow:hidden;flex:none}
-.naema-avatar img{width:20px;height:20px;object-fit:contain}
-.naema-id b{display:block;font-size:15px;line-height:1.15;font-family:var(--serif)}
-.naema-sub{font-size:11px;color:var(--gold-soft);opacity:.85}
-.naema-x{background:transparent;border:0;color:#fff;font-size:24px;line-height:1;cursor:pointer;width:32px;height:32px;border-radius:8px}
-.naema-x:hover{background:rgba(255,255,255,.14)}
-.naema-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--tile)}
-.naema-turn{display:flex;flex-direction:column;gap:8px;max-width:100%}
-.naema-turn.user{align-items:flex-end}
-.naema-turn.assistant{align-items:flex-start}
-.naema-bubble{max-width:86%;padding:10px 13px;border-radius:15px;font-size:14px;line-height:1.5;word-break:break-word}
-.naema-turn.assistant .naema-bubble{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:5px}
-.naema-turn.user .naema-bubble{background:var(--navy-900);color:#fff;border-bottom-right-radius:5px}
-.naema-prod{display:flex;align-items:center;gap:10px;width:86%;max-width:300px;background:var(--paper);
+.neema-avatar img{width:20px;height:20px;object-fit:contain}
+.neema-id b{display:block;font-size:15px;line-height:1.15;font-family:var(--serif)}
+.neema-sub{font-size:11px;color:var(--gold-soft);opacity:.85}
+.neema-x{background:transparent;border:0;color:#fff;font-size:24px;line-height:1;cursor:pointer;width:32px;height:32px;border-radius:8px}
+.neema-x:hover{background:rgba(255,255,255,.14)}
+.neema-log{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:14px;background:var(--tile)}
+.neema-turn{display:flex;flex-direction:column;gap:8px;max-width:100%}
+.neema-turn.user{align-items:flex-end}
+.neema-turn.assistant{align-items:flex-start}
+.neema-bubble{max-width:86%;padding:10px 13px;border-radius:15px;font-size:14px;line-height:1.5;word-break:break-word}
+.neema-turn.assistant .neema-bubble{background:var(--paper);color:var(--ink);border:1px solid var(--line);border-bottom-left-radius:5px}
+.neema-turn.user .neema-bubble{background:var(--navy-900);color:#fff;border-bottom-right-radius:5px}
+.neema-prod{display:flex;align-items:center;gap:10px;width:86%;max-width:300px;background:var(--paper);
   border:1px solid var(--line);border-radius:12px;padding:8px;text-decoration:none;color:var(--ink);transition:.15s}
-.naema-prod:hover{border-color:var(--gold);transform:translateY(-1px)}
-.naema-prod-img{width:52px;height:52px;border-radius:8px;overflow:hidden;flex:none;background:var(--tile)}
-.naema-prod-img img{width:100%;height:100%;object-fit:cover}
-.naema-prod-body{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
-.naema-prod-body b{font-size:13px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;
+.neema-prod:hover{border-color:var(--gold);transform:translateY(-1px)}
+.neema-prod-img{width:52px;height:52px;border-radius:8px;overflow:hidden;flex:none;background:var(--tile)}
+.neema-prod-img img{width:100%;height:100%;object-fit:cover}
+.neema-prod-body{display:flex;flex-direction:column;gap:2px;min-width:0;flex:1}
+.neema-prod-body b{font-size:13px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;
   display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.naema-prod-price{font-size:13px;font-weight:700;color:var(--navy-800)}
-.naema-prod-go{color:var(--muted);font-size:20px;flex:none;align-self:center}
-.naema-chips,.naema-actions{display:flex;flex-wrap:wrap;gap:7px}
-.naema-chip{background:var(--paper);border:1px solid var(--gold);color:var(--navy-800);border-radius:99px;
+.neema-prod-price{font-size:13px;font-weight:700;color:var(--navy-800)}
+.neema-prod-go{color:var(--muted);font-size:20px;flex:none;align-self:center}
+.neema-chips,.neema-actions{display:flex;flex-wrap:wrap;gap:7px}
+.neema-chip{background:var(--paper);border:1px solid var(--gold);color:var(--navy-800);border-radius:99px;
   padding:7px 12px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .15s}
-.naema-chip:hover{background:var(--gold-soft)}
-.naema-action{background:var(--navy-900);color:#fff;border-radius:10px;padding:8px 13px;font-size:12.5px;
+.neema-chip:hover{background:var(--gold-soft)}
+.neema-action{background:var(--navy-900);color:#fff;border-radius:10px;padding:8px 13px;font-size:12.5px;
   font-weight:600;text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
-.naema-action:hover{background:var(--navy-800)}
-.naema-typing{display:flex;gap:4px;align-items:center}
-.naema-typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:naemaBlink 1.2s infinite}
-.naema-typing i:nth-child(2){animation-delay:.2s}
-.naema-typing i:nth-child(3){animation-delay:.4s}
-.naema-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--paper)}
-.naema-input input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
+.neema-action:hover{background:var(--navy-800)}
+.neema-typing{display:flex;gap:4px;align-items:center}
+.neema-typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:neemaBlink 1.2s infinite}
+.neema-typing i:nth-child(2){animation-delay:.2s}
+.neema-typing i:nth-child(3){animation-delay:.4s}
+.neema-input{display:flex;gap:8px;padding:12px;border-top:1px solid var(--line);background:var(--paper)}
+.neema-input input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:10px 12px;
   font-size:14px;font-family:inherit;background:var(--tile);color:var(--ink)}
-.naema-input input:focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
-.naema-input button{width:42px;flex:none;border:0;border-radius:10px;background:var(--navy-900);color:var(--gold);
+.neema-input input:focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
+.neema-input button{width:42px;flex:none;border:0;border-radius:10px;background:var(--navy-900);color:var(--gold);
   display:flex;align-items:center;justify-content:center;cursor:pointer}
-.naema-input button:disabled{opacity:.5;cursor:default}
-.naema-foot{font-size:10.5px;color:var(--muted);text-align:center;padding:0 12px 10px;background:var(--paper)}
-.naema-capture{display:flex;flex-direction:column;gap:7px;width:86%;max-width:300px;background:var(--paper);
+.neema-input button:disabled{opacity:.5;cursor:default}
+.neema-foot{font-size:10.5px;color:var(--muted);text-align:center;padding:0 12px 10px;background:var(--paper)}
+.neema-capture{display:flex;flex-direction:column;gap:7px;width:86%;max-width:300px;background:var(--paper);
   border:1px solid var(--line);border-radius:12px;padding:12px}
-.naema-capture-title{font-size:13px;font-weight:700;color:var(--navy-900);font-family:var(--serif)}
-.naema-capture input,.naema-capture textarea,.naema-capture select{border:1px solid var(--line);border-radius:8px;
+.neema-capture-title{font-size:13px;font-weight:700;color:var(--navy-900);font-family:var(--serif)}
+.neema-capture input,.neema-capture textarea,.neema-capture select{border:1px solid var(--line);border-radius:8px;
   padding:8px 10px;font-size:13px;font-family:inherit;background:var(--tile);color:var(--ink);width:100%}
-.naema-capture :is(input,textarea,select):focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
-.naema-capture textarea{resize:vertical;min-height:38px}
-.naema-capture button{margin-top:2px;border:0;border-radius:9px;background:var(--navy-900);color:var(--gold);font-weight:700;font-size:13px;padding:9px;cursor:pointer}
-.naema-capture button:disabled{opacity:.6;cursor:default}
-.naema-capture-done{font-size:12px;font-weight:600;color:var(--green)}
-@keyframes naemaBlink{0%,60%,100%{opacity:.3}30%{opacity:1}}
-@keyframes naemaIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.neema-capture :is(input,textarea,select):focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
+.neema-capture textarea{resize:vertical;min-height:38px}
+.neema-capture button{margin-top:2px;border:0;border-radius:9px;background:var(--navy-900);color:var(--gold);font-weight:700;font-size:13px;padding:9px;cursor:pointer}
+.neema-capture button:disabled{opacity:.6;cursor:default}
+.neema-capture-done{font-size:12px;font-weight:600;color:var(--green)}
+@keyframes neemaBlink{0%,60%,100%{opacity:.3}30%{opacity:1}}
+@keyframes neemaIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (max-width:560px){
-  .naema{right:0;left:0;bottom:0;width:100%;max-width:100%;height:86dvh;border-radius:18px 18px 0 0}
-  body:has(.naema) .chat-fab{display:none}
+  .neema{right:0;left:0;bottom:0;width:100%;max-width:100%;height:86dvh;border-radius:18px 18px 0 0}
+  body:has(.neema) .chat-fab{display:none}
 }
-@media (prefers-reduced-motion:reduce){.naema{animation:none}.naema-typing i{animation:none}}
+@media (prefers-reduced-motion:reduce){.neema{animation:none}.neema-typing i{animation:none}}

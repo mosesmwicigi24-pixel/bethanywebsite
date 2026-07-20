@@ -198,7 +198,7 @@ export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderSt
 }
 
 /* ============================================================
-   Naema lead capture (Bethany Hub — endpoint to be added).
+   Neema lead capture (Bethany Hub — endpoint to be added).
 
    Proposed contract, mirroring the guest-checkout bridge above:
 
@@ -216,7 +216,7 @@ export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderSt
      → { lead: { id } }
 
    Until the hub ships this endpoint, createLead() returns null and the
-   gateway falls back to a WhatsApp handoff (see app/api/naema/lead) — so
+   gateway falls back to a WhatsApp handoff (see app/api/neema/lead) — so
    no qualified lead is ever dropped. Writes are server-side only (called
    from the AI gateway with least-privilege), never from the browser.
    ============================================================ */
