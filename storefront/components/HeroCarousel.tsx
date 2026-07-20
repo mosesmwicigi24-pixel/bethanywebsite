@@ -7,38 +7,40 @@ import { Money } from "./Money";
 const N = 3;
 const INTERVAL = 6000;
 
-/** Auto-rotating campaign hero, oraimo-style: native scroll-snap slides
-    (a slide can never rest half-visible), swipe on touch, arrows + pill
-    dots, hover-pause, prefers-reduced-motion aware. */
+/** Auto-rotating campaign hero, oraimo-style: transform-driven slides
+    (never a scroll container, so vertical page scroll is never swallowed —
+    on touch or wheel), swipe on touch, arrows + pill dots, hover-pause,
+    prefers-reduced-motion aware. */
 export default function HeroCarousel() {
-  const track = useRef<HTMLDivElement>(null);
   const [i, setI] = useState(0);
   const [paused, setPaused] = useState(false);
-  const iRef = useRef(0);
-  iRef.current = i;
+  const touch = useRef<{ x: number; y: number } | null>(null);
 
-  const go = useCallback((n: number) => {
-    const el = track.current;
-    if (!el) return;
-    const idx = ((n % N) + N) % N;
-    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    el.scrollTo({ left: idx * el.clientWidth, behavior: reduce ? "auto" : "smooth" });
-  }, []);
-
-  // Track which slide is settled in view (native scroll → dots stay honest)
-  const onScroll = useCallback(() => {
-    const el = track.current;
-    if (!el) return;
-    const idx = Math.round(el.scrollLeft / el.clientWidth);
-    if (idx !== iRef.current && idx >= 0 && idx < N) setI(idx);
-  }, []);
+  const go = useCallback((n: number) => setI(((n % N) + N) % N), []);
 
   useEffect(() => {
     if (paused) return;
     if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => go(iRef.current + 1), INTERVAL);
+    const t = setInterval(() => setI((prev) => (prev + 1) % N), INTERVAL);
     return () => clearInterval(t);
-  }, [paused, go]);
+  }, [paused]);
+
+  // Horizontal swipe changes slides; vertical is left entirely to the page
+  // (we never preventDefault), so scrolling works with a finger on the hero.
+  const onTouchStart = (e: React.TouchEvent) => {
+    setPaused(true);
+    const t = e.touches[0];
+    touch.current = { x: t.clientX, y: t.clientY };
+  };
+  const onTouchEnd = (e: React.TouchEvent) => {
+    setPaused(false);
+    const s = touch.current;
+    touch.current = null;
+    if (!s) return;
+    const t = e.changedTouches[0];
+    const dx = t.clientX - s.x, dy = t.clientY - s.y;
+    if (Math.abs(dx) > 44 && Math.abs(dx) > Math.abs(dy)) go(i + (dx < 0 ? 1 : -1));
+  };
 
   return (
     <section
@@ -46,10 +48,10 @@ export default function HeroCarousel() {
       aria-roledescription="carousel"
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
-      onTouchStart={() => setPaused(true)}
-      onTouchEnd={() => setPaused(false)}
+      onTouchStart={onTouchStart}
+      onTouchEnd={onTouchEnd}
     >
-      <div className="hero-track" ref={track} onScroll={onScroll}>
+      <div className="hero-track" style={{ transform: `translate3d(-${i * 100}%,0,0)` }}>
 
         {/* Slide 1 — cathedral */}
         <div className="hero-slide" aria-hidden={i !== 0}>

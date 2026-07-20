@@ -844,12 +844,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 /* ============================================================
    HERO CAROUSEL — rotating campaign slides
    ============================================================ */
-.hero-car{position:relative;overflow:hidden}
-/* Native scroll-snap: a slide can never rest half-visible (fixes the
-   partial-card issue oraimo avoids the same way). */
-.hero-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.hero-track::-webkit-scrollbar{display:none}
-.hero-slide{flex:0 0 100%;width:100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
+.hero-car{position:relative;overflow:hidden;touch-action:pan-y}
+/* Transform-driven track (NOT a scroll container) so a vertical swipe or
+   wheel over the hero scrolls the page instead of being swallowed. */
+.hero-track{display:flex;transition:transform .6s var(--ease);will-change:transform}
+.hero-slide{flex:0 0 100%;width:100%;min-width:0}
 .hero-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:99px;background:rgba(128,128,128,.28);backdrop-filter:blur(8px);color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;z-index:6;transition:.2s}
 .hero-nav:hover{background:var(--gold);color:var(--navy-950)}
 .hero-nav.prev{left:16px}.hero-nav.next{right:16px}
