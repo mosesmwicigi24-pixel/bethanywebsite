@@ -196,3 +196,78 @@ export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderSt
     return null;
   }
 }
+
+/* ============================================================
+   Naema lead capture (Bethany Hub — endpoint to be added).
+
+   Proposed contract, mirroring the guest-checkout bridge above:
+
+     POST /api/v1/storefront/leads
+     {
+       client_request_id,            // idempotency for retries
+       intent,                       // "quote" | "product_inquiry" | ...
+       readiness,                    // "low" | "medium" | "high"
+       customer: { name, phone, email?, church? },
+       location: { country_code?, city? },
+       products: ["slug", ...],      // catalogue interest
+       quantity?, message?,          // free text / summary
+       source_path?                  // page the enquiry came from
+     }
+     → { lead: { id } }
+
+   Until the hub ships this endpoint, createLead() returns null and the
+   gateway falls back to a WhatsApp handoff (see app/api/naema/lead) — so
+   no qualified lead is ever dropped. Writes are server-side only (called
+   from the AI gateway with least-privilege), never from the browser.
+   ============================================================ */
+
+export interface LeadDraft {
+  intent: string;
+  readiness?: "low" | "medium" | "high";
+  name?: string;
+  phone: string;
+  email?: string;
+  church?: string;
+  countryCode?: string;
+  city?: string;
+  products?: string[];
+  quantity?: string;
+  message?: string;
+  sourcePath?: string;
+}
+
+/** Best-effort lead submission to the hub. Returns the created lead id when
+    configured and reachable; null means the hub isn't ready (or the call
+    failed) and the caller should hand off to staff instead. */
+export async function createLead(draft: LeadDraft): Promise<{ leadId: string } | null> {
+  if (!HUB) return null;
+  try {
+    const body = {
+      client_request_id: crypto.randomUUID(),
+      intent: draft.intent,
+      readiness: draft.readiness,
+      customer: {
+        name: draft.name || undefined,
+        phone: draft.phone,
+        email: draft.email || undefined,
+        church: draft.church || undefined,
+      },
+      location: { country_code: draft.countryCode || undefined, city: draft.city || undefined },
+      products: draft.products?.length ? draft.products : undefined,
+      quantity: draft.quantity || undefined,
+      message: draft.message || undefined,
+      source_path: draft.sourcePath || undefined,
+    };
+    const r = await fetch(`${HUB}/storefront/leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) return null;
+    const data = await r.json().catch(() => ({}));
+    const leadId = data.lead?.id ?? data.id;
+    return leadId ? { leadId: String(leadId) } : null;
+  } catch {
+    return null;
+  }
+}

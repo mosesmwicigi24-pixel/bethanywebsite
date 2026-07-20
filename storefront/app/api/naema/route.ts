@@ -1,11 +1,13 @@
 import { getCatalog } from "@/lib/catalog";
-import { fetchOrderStatus } from "@/lib/hub";
+import { fetchOrderStatus, createLead } from "@/lib/hub";
 import { SITE } from "@/lib/site";
 import {
   classifyIntent,
+  leadCaptureFor,
   scoreProducts,
   type ChatMessage,
   type NaemaAction,
+  type NaemaCapture,
   type NaemaIntent,
   type NaemaReply,
   type NaemaRequest,
@@ -94,6 +96,26 @@ async function execGetOrderStatus(paymentToken: string) {
   return { found: true, ...status };
 }
 
+async function execCreateLead(args: Record<string, unknown>, req: NaemaRequest) {
+  const phone = String(args.phone ?? "").trim();
+  if (!phone) return { created: false, note: "Ask the customer for a phone/WhatsApp number first." };
+  const lead = await createLead({
+    intent: "quote",
+    readiness: (args.readiness as "low" | "medium" | "high") || "high",
+    name: args.name ? String(args.name) : undefined,
+    phone,
+    city: args.city ? String(args.city) : undefined,
+    countryCode: args.country ? String(args.country) : undefined,
+    products: Array.isArray(args.products) ? (args.products as string[]) : undefined,
+    quantity: args.quantity ? String(args.quantity) : undefined,
+    message: args.message ? String(args.message) : undefined,
+    sourcePath: req.pageContext?.path,
+  });
+  return lead
+    ? { created: true, lead_id: lead.leadId }
+    : { created: false, note: "Hub lead endpoint not ready — tell the customer our team will follow up on WhatsApp." };
+}
+
 /* ---------------- Grok path (OpenAI-compatible function calling) ---------------- */
 
 interface GrokToolCall { id: string; type: "function"; function: { name: string; arguments: string } }
@@ -126,6 +148,27 @@ const TOOLS = [
         type: "object",
         properties: { payment_token: { type: "string" } },
         required: ["payment_token"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "create_lead",
+      description: "Capture a qualified lead once the customer wants a quotation, a bulk/parish order, or asks the team to follow up. Requires at least a phone/WhatsApp number; gather it first.",
+      parameters: {
+        type: "object",
+        properties: {
+          phone: { type: "string", description: "WhatsApp or phone — required" },
+          name: { type: "string" },
+          city: { type: "string" },
+          country: { type: "string" },
+          quantity: { type: "string" },
+          products: { type: "array", items: { type: "string" }, description: "product slugs of interest" },
+          message: { type: "string" },
+          readiness: { type: "string", enum: ["low", "medium", "high"] },
+        },
+        required: ["phone"],
       },
     },
   },
@@ -184,6 +227,7 @@ async function runWithGrok(req: NaemaRequest, toolsUsed: string[]): Promise<Naem
         const args = JSON.parse(call.function.arguments || "{}");
         if (call.function.name === "search_products") result = await execSearchProducts(String(args.query ?? ""));
         else if (call.function.name === "get_order_status") result = await execGetOrderStatus(String(args.payment_token ?? ""));
+        else if (call.function.name === "create_lead") result = await execCreateLead(args, req);
       } catch {
         result = { error: "tool failed" };
       }
@@ -282,7 +326,7 @@ async function runFallback(req: NaemaRequest, toolsUsed: string[]): Promise<Naem
     }
   }
 
-  return normalize(
+  const reply = normalize(
     {
       intent: shaped.intent,
       message: shaped.message,
@@ -296,6 +340,11 @@ async function runFallback(req: NaemaRequest, toolsUsed: string[]): Promise<Naem
     },
     false,
   );
+
+  // The lead moment: on a quote (or any forced handoff), collect details in
+  // chat instead of bouncing straight to WhatsApp.
+  if (shaped.intent === "quote" || shaped.handoff.required) reply.capture = leadCaptureFor(shaped.intent);
+  return reply;
 }
 
 /* ---------------- normalize / validate the contract ---------------- */
@@ -311,6 +360,10 @@ function safeJson(text: string): Record<string, unknown> | null {
 }
 
 const INTENTS: NaemaIntent[] = ["greeting", "product_inquiry", "quote", "shipping", "order_support", "measurement", "other"];
+
+function isCapture(v: unknown): v is NaemaCapture {
+  return Boolean(v && typeof v === "object" && Array.isArray((v as NaemaCapture).fields) && (v as NaemaCapture).fields.length > 0);
+}
 
 function normalize(raw: Record<string, unknown>, grounded: boolean): NaemaReply {
   const asArr = <T,>(v: unknown): T[] => (Array.isArray(v) ? (v as T[]) : []);
@@ -338,6 +391,7 @@ function normalize(raw: Record<string, unknown>, grounded: boolean): NaemaReply 
       .filter((s) => s?.recordId)
       .map((s) => ({ type: s.type === "hub" ? "hub" : "catalog", recordId: String(s.recordId) })),
     analytics: { readiness, stage: intent === "quote" || intent === "order_support" ? "conversion" : "consideration" },
+    capture: isCapture(raw.capture) ? (raw.capture as unknown as NaemaCapture) : undefined,
     grounded,
   };
 }

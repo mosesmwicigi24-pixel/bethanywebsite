@@ -21,6 +21,12 @@ interface Msg {
   synthetic?: boolean; // welcome/error bubbles — not sent back as history
 }
 
+/** A minimal reply for synthetic bubbles (confirmations, errors). */
+const blankReply = (actions: NaemaReply["actions"] = []): NaemaReply => ({
+  intent: "other", message: "", confidence: 0, products: [], questions: [], actions,
+  handoff: { required: false }, sources: [], analytics: { readiness: "low", stage: "support" }, grounded: false,
+});
+
 const WELCOME: Msg = {
   role: "assistant",
   synthetic: true,
@@ -44,6 +50,9 @@ export default function Naema() {
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [forms, setForms] = useState<Record<number, Record<string, string>>>({});
+  const [doneForms, setDoneForms] = useState<Record<number, boolean>>({});
+  const [sending, setSending] = useState<number | null>(null);
   const sid = useRef<string>("");
   const scroller = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -103,11 +112,7 @@ export default function Naema() {
           {
             role: "assistant", synthetic: true,
             content: "I'm having trouble reaching our system right now — our team can help you directly on WhatsApp.",
-            reply: {
-              intent: "other", message: "", confidence: 0, products: [], questions: [],
-              actions: [{ type: "whatsapp", label: "Chat on WhatsApp", value: "https://wa.me/254727891989" }],
-              handoff: { required: true }, sources: [], analytics: { readiness: "low", stage: "support" }, grounded: false,
-            },
+            reply: blankReply([{ type: "whatsapp", label: "Chat on WhatsApp", value: "https://wa.me/254727891989" }]),
           },
         ]);
       } finally {
@@ -115,6 +120,47 @@ export default function Naema() {
       }
     },
     [messages, loading, pageContext],
+  );
+
+  const setField = useCallback((i: number, id: string, val: string) => {
+    setForms((f) => ({ ...f, [i]: { ...(f[i] || {}), [id]: val } }));
+  }, []);
+
+  const submitLead = useCallback(
+    async (i: number, intent: string, productSlugs: string[]) => {
+      const vals = forms[i] || {};
+      if (!vals.phone?.trim() || sending !== null) return;
+      setSending(i);
+      try {
+        const res = await fetch("/api/naema/lead", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sessionId: sid.current || "anon", intent, fields: vals, products: productSlugs, pageContext }),
+        });
+        const data = await res.json();
+        setDoneForms((d) => ({ ...d, [i]: true }));
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant", synthetic: true,
+            content: data.message || "Thank you — our team will follow up shortly.",
+            reply: blankReply(!data.captured && data.whatsapp ? [{ type: "whatsapp", label: "Send on WhatsApp", value: data.whatsapp }] : []),
+          },
+        ]);
+      } catch {
+        setMessages((m) => [
+          ...m,
+          {
+            role: "assistant", synthetic: true,
+            content: "Sorry, I couldn't send that just now — please reach us on WhatsApp.",
+            reply: blankReply([{ type: "whatsapp", label: "Chat on WhatsApp", value: "https://wa.me/254727891989" }]),
+          },
+        ]);
+      } finally {
+        setSending(null);
+      }
+    },
+    [forms, sending, pageContext],
   );
 
   return (
@@ -184,6 +230,32 @@ export default function Naema() {
                     })}
                   </div>
                 )}
+
+                {m.reply?.capture && !doneForms[i] && (
+                  <form
+                    className="naema-capture"
+                    onSubmit={(e) => { e.preventDefault(); submitLead(i, m.reply!.capture!.intent, (m.reply!.products ?? []).map((p) => p.slug)); }}
+                  >
+                    <div className="naema-capture-title">{m.reply.capture.title}</div>
+                    {m.reply.capture.fields.map((fld) =>
+                      fld.type === "textarea" ? (
+                        <textarea key={fld.id} rows={2} placeholder={fld.placeholder || fld.label} aria-label={fld.label}
+                          value={forms[i]?.[fld.id] ?? ""} onChange={(e) => setField(i, fld.id, e.target.value)} />
+                      ) : fld.type === "select" ? (
+                        <select key={fld.id} aria-label={fld.label} value={forms[i]?.[fld.id] ?? ""} onChange={(e) => setField(i, fld.id, e.target.value)}>
+                          <option value="">{fld.label}</option>
+                          {(fld.options ?? []).map((o) => <option key={o} value={o}>{o}</option>)}
+                        </select>
+                      ) : (
+                        <input key={fld.id} type={fld.type === "tel" ? "tel" : fld.type === "email" ? "email" : "text"}
+                          required={fld.required} placeholder={fld.placeholder || fld.label} aria-label={fld.label}
+                          value={forms[i]?.[fld.id] ?? ""} onChange={(e) => setField(i, fld.id, e.target.value)} />
+                      ),
+                    )}
+                    <button type="submit" disabled={sending === i}>{sending === i ? "Sending…" : m.reply.capture.submitLabel}</button>
+                  </form>
+                )}
+                {m.reply?.capture && doneForms[i] && <div className="naema-capture-done">✓ Sent to our team</div>}
               </div>
             ))}
 

@@ -1347,6 +1347,16 @@ body:has(.cart-veil.open) .chat-fab{visibility:hidden}
   display:flex;align-items:center;justify-content:center;cursor:pointer}
 .naema-input button:disabled{opacity:.5;cursor:default}
 .naema-foot{font-size:10.5px;color:var(--muted);text-align:center;padding:0 12px 10px;background:var(--paper)}
+.naema-capture{display:flex;flex-direction:column;gap:7px;width:86%;max-width:300px;background:var(--paper);
+  border:1px solid var(--line);border-radius:12px;padding:12px}
+.naema-capture-title{font-size:13px;font-weight:700;color:var(--navy-900);font-family:var(--serif)}
+.naema-capture input,.naema-capture textarea,.naema-capture select{border:1px solid var(--line);border-radius:8px;
+  padding:8px 10px;font-size:13px;font-family:inherit;background:var(--tile);color:var(--ink);width:100%}
+.naema-capture :is(input,textarea,select):focus{outline:2px solid var(--gold);outline-offset:0;border-color:transparent}
+.naema-capture textarea{resize:vertical;min-height:38px}
+.naema-capture button{margin-top:2px;border:0;border-radius:9px;background:var(--navy-900);color:var(--gold);font-weight:700;font-size:13px;padding:9px;cursor:pointer}
+.naema-capture button:disabled{opacity:.6;cursor:default}
+.naema-capture-done{font-size:12px;font-weight:600;color:var(--green)}
 @keyframes naemaBlink{0%,60%,100%{opacity:.3}30%{opacity:1}}
 @keyframes naemaIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
 @media (max-width:560px){

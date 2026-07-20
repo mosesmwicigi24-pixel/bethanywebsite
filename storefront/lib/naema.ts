@@ -66,6 +66,25 @@ export interface NaemaSource {
   recordId: string;
 }
 
+/** A single field in an in-chat lead-capture form. */
+export interface NaemaCaptureField {
+  id: string;
+  label: string;
+  type: "text" | "tel" | "email" | "select" | "textarea";
+  required?: boolean;
+  placeholder?: string;
+  options?: string[];
+}
+
+/** A short structured form Naema shows to capture a qualified lead — the
+    guided-quotation moment (advisory §3, §6). Submitted to /api/naema/lead. */
+export interface NaemaCapture {
+  title: string;
+  fields: NaemaCaptureField[];
+  submitLabel: string;
+  intent: string;
+}
+
 export interface NaemaReply {
   intent: NaemaIntent;
   message: string;
@@ -76,8 +95,30 @@ export interface NaemaReply {
   handoff: { required: boolean; reason?: string };
   sources: NaemaSource[];
   analytics: { readiness: "low" | "medium" | "high"; stage: string };
+  /** present when Naema wants to capture the customer's details next. */
+  capture?: NaemaCapture;
   /** true when Grok + tools produced it; false = deterministic fallback. */
   grounded: boolean;
+}
+
+/** The standard lead form. Kept deliberately short — ask only what staff
+    need to follow up: who, how to reach them, where, and (for quotes) how many. */
+export function leadCaptureFor(intent: NaemaIntent): NaemaCapture {
+  const isQuote = intent === "quote";
+  const fields: NaemaCaptureField[] = [
+    { id: "name", label: "Your name", type: "text", placeholder: "Rev. / Ms. / Mr." },
+    { id: "phone", label: "WhatsApp or phone", type: "tel", required: true, placeholder: "+254 7…" },
+    { id: "city", label: "City", type: "text", placeholder: "Nairobi" },
+    { id: "country", label: "Country", type: "text", placeholder: "Kenya" },
+  ];
+  if (isQuote) fields.push({ id: "quantity", label: "Quantity", type: "text", placeholder: "e.g. 12" });
+  fields.push({ id: "note", label: "Anything else?", type: "textarea", placeholder: "Occasion, colours, sizes…" });
+  return {
+    title: isQuote ? "Start your quotation" : "Have our team follow up",
+    fields,
+    submitLabel: isQuote ? "Request quotation" : "Send my details",
+    intent,
+  };
 }
 
 /* ---------------- Intent classification (keyword, deterministic) ---------------- */
