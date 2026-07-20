@@ -221,6 +221,9 @@ export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderSt
    ============================================================ */
 
 export interface LeadDraft {
+  /** Stable idempotency key for this submission — reused across retries so a
+      double-submit dedupes to one lead at the hub. Defaults to a fresh UUID. */
+  clientRequestId?: string;
   intent: string;
   readiness?: "low" | "medium" | "high";
   name?: string;
@@ -242,7 +245,7 @@ export async function createLead(draft: LeadDraft): Promise<{ leadId: string } |
   if (!HUB) return null;
   try {
     const body = {
-      client_request_id: crypto.randomUUID(),
+      client_request_id: draft.clientRequestId || crypto.randomUUID(),
       intent: draft.intent,
       readiness: draft.readiness,
       customer: {

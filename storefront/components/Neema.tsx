@@ -45,6 +45,12 @@ const WELCOME: Msg = {
   },
 };
 
+// Stable idempotency key (crypto.randomUUID with a graceful fallback for
+// older/insecure contexts — the live site is https, so the try path is used).
+const newId = (): string => {
+  try { return crypto.randomUUID(); } catch { return Math.random().toString(36).slice(2); }
+};
+
 export default function Neema() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
@@ -56,6 +62,7 @@ export default function Neema() {
   const sid = useRef<string>("");
   const scroller = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const reqIds = useRef<Record<number, string>>({}); // one idempotency key per capture form
 
   const pathname = usePathname();
   const { bySlug } = useCatalog();
@@ -130,12 +137,15 @@ export default function Neema() {
     async (i: number, intent: string, productSlugs: string[]) => {
       const vals = forms[i] || {};
       if (!vals.phone?.trim() || sending !== null) return;
+      // One stable idempotency key per form instance — reused on any retry so
+      // the hub dedupes a double-submit to a single lead.
+      const clientRequestId = reqIds.current[i] || (reqIds.current[i] = newId());
       setSending(i);
       try {
         const res = await fetch("/api/neema/lead", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ sessionId: sid.current || "anon", intent, fields: vals, products: productSlugs, pageContext }),
+          body: JSON.stringify({ sessionId: sid.current || "anon", intent, fields: vals, products: productSlugs, pageContext, clientRequestId }),
         });
         const data = await res.json();
         setDoneForms((d) => ({ ...d, [i]: true }));

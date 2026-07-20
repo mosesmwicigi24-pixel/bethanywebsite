@@ -14,6 +14,7 @@ interface LeadBody {
   fields?: Record<string, string>;
   products?: string[];
   pageContext?: { path?: string };
+  clientRequestId?: string; // client-generated idempotency key (one per capture form)
 }
 
 // Light per-session limiter (see the main route for the caveat).
@@ -47,6 +48,7 @@ export async function POST(request: Request): Promise<Response> {
   const intent = (body.intent || "quote").toLowerCase();
 
   const lead = await createLead({
+    clientRequestId: typeof body.clientRequestId === "string" ? body.clientRequestId.slice(0, 100) : undefined,
     intent,
     readiness: "high",
     name: f.name,
