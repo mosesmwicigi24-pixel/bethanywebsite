@@ -1,19 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useCart } from "@/lib/cart";
-import { CartIcon } from "./icons";
 
-/** Hover quick-actions on product cards: wishlist + instant add-to-cart. */
+/** A single, low-noise wishlist control on the product tile.
+    The tile itself taps through to the PDP, where add-to-cart lives. */
 export default function QuickActions({ slug }: { slug: string }) {
   const [wished, setWished] = useState(false);
-  const { add } = useCart();
-
-  const addToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    add(slug);
-  };
 
   const wish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -22,13 +14,13 @@ export default function QuickActions({ slug }: { slug: string }) {
   };
 
   return (
-    <span className="quick">
-      <button aria-label="Add to wishlist" aria-pressed={wished} onClick={wish}
-        style={wished ? { background: "var(--gold)", color: "var(--navy-950)" } : undefined}>
+    <span className="wish" data-slug={slug}>
+      <button
+        aria-label={wished ? "Saved to wishlist" : "Save to wishlist"}
+        aria-pressed={wished}
+        onClick={wish}
+      >
         {wished ? "♥" : "♡"}
-      </button>
-      <button aria-label="Quick add to cart" onClick={addToCart}>
-        <CartIcon />
       </button>
     </span>
   );

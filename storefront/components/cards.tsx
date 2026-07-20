@@ -17,37 +17,44 @@ const BadgeTag = ({ p }: { p: Product }) =>
     <span className={`tag ${badgeLabel[p.badge].cls}`}>{badgeLabel[p.badge].text}</span>
   ) : null;
 
-/** Full oraimo-style catalog card. */
+/** Calm browse card: photo → title → one subtitle → rating·stock → price.
+    Feature detail, seller rank and add-to-cart live on the PDP, not the tile. */
 export function ProductCard({ p }: { p: Product }) {
   const href = `/product/${p.slug}`;
+  const sub = p.chips.map((c) => c.text).join(" · ");
+  const off =
+    p.oldPrice && p.oldPrice > p.price
+      ? Math.round((1 - p.price / p.oldPrice) * 100)
+      : 0;
+  const mto = !!p.producible && !p.sizes;
+  const avail = !p.producible
+    ? "In stock"
+    : mto
+      ? "Made to order"
+      : "Ready-made & tailored";
   return (
     <article className="pcard">
-      <Link className="ph" href={href}>
+      <Link className="ph" href={href} aria-label={p.name}>
         <BadgeTag p={p} />
         <Img src={p.img} alt={p.name} />
-        {p.reviews > 0 && <span className="rating"><Stars p={p} /></span>}
       </Link>
       <QuickActions slug={p.slug} />
-      <h3>{p.name}</h3>
-      <div className="chips">
-        {p.chips.map((c) => (
-          <div className="chip" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
-        ))}
+      <h3><Link href={href}>{p.name}</Link></h3>
+      {sub && <p className="sub">{sub}</p>}
+      <div className="meta">
+        {p.reviews > 0 && (
+          <span className="stars">
+            <span className="star">★</span> {p.rating.toFixed(1)}
+            <span className="cnt"> ({p.reviews.toLocaleString("en-KE")})</span>
+          </span>
+        )}
+        <span className={`stk ${mto ? "mto" : ""}`}>{avail}</span>
       </div>
       <div className="price">
         <b><Price p={p} /></b>
         <OldPrice p={p} />
+        {off > 0 && <span className="off">−{off}%</span>}
       </div>
-      <div className={`avail ${p.producible && !p.sizes ? "mto" : ""}`}>
-        {p.producible
-          ? p.sizes ? "Ready-made & made to measure" : "Made to order · 5–7 days"
-          : "In stock · ships today"}
-      </div>
-      {p.seller && (
-        <div className="seller">
-          <Link href={href}><span className="tag tag-top"></span> {p.seller} ›</Link>
-        </div>
-      )}
     </article>
   );
 }
