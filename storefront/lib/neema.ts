@@ -230,3 +230,22 @@ export function scoreProducts(all: Product[], query: string, limit = 4): Product
   }
   return scored.slice(0, limit).map((x) => x.p);
 }
+
+/* ---------------- Measurement copilot (vision) ----------------
+   Neema estimates garment measurements from a customer photo, keyed to the
+   product's own measurement template, so the customer reviews and confirms
+   each value before it reaches production (advisory §5.1). Estimates, never
+   commitments — the confirm step is the customer editing the prefilled form. */
+
+export interface MeasurementEstimate {
+  name: string; // must match a template field name (Neck, Chest, …)
+  value: string; // numeric string, inches
+  confidence?: "low" | "medium" | "high";
+}
+
+export interface MeasureResult {
+  available: boolean; // false when vision isn't configured or the photo was unusable
+  estimates: MeasurementEstimate[];
+  notes?: string; // caveats to show with the estimates
+  guidance?: string; // self-measure help shown when available === false
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, createContext, useContext, useMemo, useState } from "react";
+import { ChangeEvent, ReactNode, createContext, useContext, useMemo, useRef, useState } from "react";
 import type { Measurement } from "@/lib/products";
 
 /* Producible items are sold TWO ways (mirroring the shop floor):
@@ -16,6 +16,7 @@ export type BuyMode = "ready" | "custom";
 export interface MeasureCtx {
   template: Measurement[];
   sizes: string[];
+  garment?: string;
   mode: BuyMode;
   setMode: (m: BuyMode) => void;
   size: string | null;
@@ -32,9 +33,10 @@ const Ctx = createContext<MeasureCtx | null>(null);
 /** Null on non-producible products — callers must handle both. */
 export const useMeasure = () => useContext(Ctx);
 
-export function MeasureProvider({ template, sizes = [], children }: {
+export function MeasureProvider({ template, sizes = [], garment, children }: {
   template: Measurement[];
   sizes?: string[];
+  garment?: string;
   children: ReactNode;
 }) {
   const hasReady = sizes.length > 0;
@@ -51,7 +53,7 @@ export function MeasureProvider({ template, sizes = [], children }: {
   const valid = mode === "ready" ? size !== null : missing.length === 0;
 
   const ctx: MeasureCtx = {
-    template, sizes, mode,
+    template, sizes, garment, mode,
     setMode: (m) => { setMode(m); setTouched(false); },
     size, setSize,
     values,
@@ -61,6 +63,93 @@ export function MeasureProvider({ template, sizes = [], children }: {
   };
 
   return <Ctx.Provider value={ctx}>{children}</Ctx.Provider>;
+}
+
+/** Downscale a chosen photo to a small JPEG data URL before upload — keeps
+    the request light and the vision cost low. Falls back to the raw file. */
+async function toDownscaledDataUrl(file: File, max = 1024, quality = 0.85): Promise<string> {
+  try {
+    const bitmap = await createImageBitmap(file);
+    const scale = Math.min(1, max / Math.max(bitmap.width, bitmap.height));
+    const w = Math.max(1, Math.round(bitmap.width * scale));
+    const h = Math.max(1, Math.round(bitmap.height * scale));
+    const canvas = document.createElement("canvas");
+    canvas.width = w;
+    canvas.height = h;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) throw new Error("no canvas context");
+    ctx.drawImage(bitmap, 0, 0, w, h);
+    bitmap.close?.();
+    return canvas.toDataURL("image/jpeg", quality);
+  } catch {
+    return await new Promise<string>((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(String(fr.result));
+      fr.onerror = () => reject(new Error("read failed"));
+      fr.readAsDataURL(file);
+    });
+  }
+}
+
+/** Photo → measurement estimates. Neema prefills the form; the customer
+    confirms and edits each value before ordering (advisory §5.1). */
+function MeasurePhoto() {
+  const m = useMeasure();
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [status, setStatus] = useState<"idle" | "working" | "done" | "guided" | "error">("idle");
+  const [note, setNote] = useState("");
+  const [count, setCount] = useState(0);
+  if (!m) return null;
+
+  async function onFile(e: ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-picking the same file
+    if (!file || !file.type.startsWith("image/") || !m) return;
+    setStatus("working");
+    setNote("");
+    try {
+      const image = await toDownscaledDataUrl(file);
+      let sid = "anon";
+      try { sid = localStorage.getItem("bh-neema-sid") || "anon"; } catch { /* ignore */ }
+      const res = await fetch("/api/neema/measure", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image, garment: m.garment, template: m.template.map((t) => t.name), sessionId: sid }),
+      });
+      const data = await res.json();
+      if (res.ok && data.available && Array.isArray(data.estimates) && data.estimates.length) {
+        let applied = 0;
+        for (const est of data.estimates as { name: string; value: string }[]) {
+          const field = m.template.find((t) => t.name.toLowerCase() === String(est.name).toLowerCase());
+          if (field && est.value) { m.set(field.name, String(est.value)); applied += 1; }
+        }
+        setCount(applied);
+        setNote(typeof data.notes === "string" ? data.notes : "");
+        setStatus(applied ? "done" : "guided");
+        if (!applied) setNote(data.notes || data.guidance || "I couldn't match those to the fields — please enter them below.");
+      } else {
+        setNote(data.notes || data.guidance || "Please enter your measurements below.");
+        setStatus("guided");
+      }
+    } catch {
+      setNote("I couldn't process that photo — please enter your measurements below.");
+      setStatus("error");
+    }
+  }
+
+  return (
+    <div className="m-photo">
+      <input ref={inputRef} type="file" accept="image/*" capture="environment" hidden onChange={onFile} />
+      <button type="button" className="m-photo-btn" onClick={() => inputRef.current?.click()} disabled={status === "working"}>
+        {status === "working" ? "Reading your photo…" : "📷 Estimate from a photo"}
+      </button>
+      <span className="m-photo-hint">Neema estimates your size from a full-length photo — you confirm each number before ordering.</span>
+      {status === "done" && (
+        <p className="m-photo-ok">✓ Estimated {count} measurement{count === 1 ? "" : "s"} — please check each number below.{note ? ` ${note}` : ""}</p>
+      )}
+      {(status === "guided" || status === "error") && <p className="m-photo-note">{note}</p>}
+    </div>
+  );
 }
 
 /** The buy-mode selector + measurement form on producible product pages. */
@@ -109,6 +198,7 @@ export function MeasurementForm() {
             <b>✂ Made to order — your measurements</b>
             <span>Sewn to these numbers in Nairobi · 5–7 days</span>
           </div>
+          <MeasurePhoto />
           <div className="m-grid">
             {m.template.map((f, i) => (
               <label key={`${f.name}-${i}`} className="m-field">
