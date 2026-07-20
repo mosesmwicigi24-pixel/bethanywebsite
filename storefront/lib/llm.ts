@@ -99,6 +99,32 @@ export function visionChain(): ProviderCfg[] {
   ].filter((c): c is ProviderCfg => c !== null);
 }
 
+export interface ProviderStatus {
+  ready: boolean; // true once at least one chat provider is configured
+  configured: { groq: boolean; anthropic: boolean; openai: boolean; gemini: boolean };
+  chat: { name: string; model: string }[]; // effective chat chain, in order
+  vision: { name: string; model: string }[]; // effective vision chain, in order
+}
+
+/** Key-free summary of provider configuration for a health check — which
+    providers have a key set, and the effective chat/vision chain order with
+    model names. NEVER returns keys or base URLs. */
+export function providerStatus(): ProviderStatus {
+  const safe = (c: ProviderCfg) => ({ name: c.name, model: c.model });
+  const chat = chatChain().map(safe);
+  return {
+    ready: chat.length > 0,
+    configured: {
+      groq: groqCfg() !== null,
+      anthropic: anthropicCfg() !== null,
+      openai: openaiCfg() !== null,
+      gemini: geminiCfg() !== null,
+    },
+    chat,
+    vision: visionChain().map(safe),
+  };
+}
+
 /* ---------------- shared HTTP helpers ---------------- */
 
 const safeParse = (s: string): unknown => {
