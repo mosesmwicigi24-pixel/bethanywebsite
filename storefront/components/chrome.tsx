@@ -5,6 +5,7 @@ import NavCart from "./NavCart";
 import { CurrencyToggle } from "./Money";
 import { SITE } from "@/lib/site";
 import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
+import Naema from "./Naema";
 
 /* Shared site chrome: utility bar, nav (CSS-hover mega menu), footer, chat fab.
    All server components — interactivity is pure CSS.
@@ -153,10 +154,7 @@ export function Footer() {
   );
 }
 
+/** Floating launcher + Naema chat panel (client widget). */
 export function ChatFab() {
-  return (
-    <button className="chat-fab" aria-label="Chat with Bethany House">
-      <img src="/brand/mark-gold.png" alt="" />
-    </button>
-  );
+  return <Naema />;
 }
