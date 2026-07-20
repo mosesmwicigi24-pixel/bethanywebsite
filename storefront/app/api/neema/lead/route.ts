@@ -1,4 +1,4 @@
-import { createLead } from "@/lib/hub";
+import { createLead, estimateShipping } from "@/lib/hub";
 import { SITE } from "@/lib/site";
 
 /* Lead submission for Neema's in-chat capture form (advisory §3, §6).
@@ -44,8 +44,10 @@ export async function POST(request: Request): Promise<Response> {
   const sessionId = String(body.sessionId ?? "anon").slice(0, 80);
   if (limited(sessionId)) return Response.json({ ok: false, error: "Please wait a moment before sending again." }, { status: 429 });
 
+  const intent = (body.intent || "quote").toLowerCase();
+
   const lead = await createLead({
-    intent: body.intent || "quote",
+    intent,
     readiness: "high",
     name: f.name,
     phone,
@@ -56,6 +58,12 @@ export async function POST(request: Request): Promise<Response> {
     products: body.products?.slice(0, 10),
     sourcePath: body.pageContext?.path,
   });
+
+  // For a shipping enquiry, try a live estimate (null until the hub ships
+  // the endpoint — then we simply add it to the reply).
+  const estimate = intent === "shipping"
+    ? await estimateShipping({ country: f.country, city: f.city, items: body.products })
+    : null;
 
   // Pre-filled WhatsApp summary — the always-available path to staff.
   const summary = [
@@ -71,15 +79,15 @@ export async function POST(request: Request): Promise<Response> {
     .join("\n");
   const whatsapp = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(summary)}`;
 
-  console.log(JSON.stringify({ t: "neema_lead", sessionId, captured: Boolean(lead), leadId: lead?.leadId, intent: body.intent }));
+  let message = lead
+    ? `Thank you — our team has your details and will follow up shortly. Reference ${lead.leadId}.`
+    : "Thank you — I've prepared your enquiry. Tap below to send it to our team on WhatsApp and we'll take it from there.";
+  if (estimate) {
+    const opts = estimate.options.map((o) => `${o.service}: ${o.range}${o.cost ? ` (${o.cost})` : ""}`).join(" · ");
+    message = `Estimated shipping to ${estimate.destination} — ${opts}. ${estimate.note ?? "Our team confirms the final rate on WhatsApp."}`;
+  }
 
-  return Response.json({
-    ok: true,
-    captured: Boolean(lead),
-    leadId: lead?.leadId,
-    whatsapp,
-    message: lead
-      ? `Thank you — our team has your details and will follow up shortly. Reference ${lead.leadId}.`
-      : "Thank you — I've prepared your enquiry. Tap below to send it to our team on WhatsApp and we'll take it from there.",
-  });
+  console.log(JSON.stringify({ t: "neema_lead", sessionId, captured: Boolean(lead), leadId: lead?.leadId, intent, estimate: Boolean(estimate) }));
+
+  return Response.json({ ok: true, captured: Boolean(lead), leadId: lead?.leadId, estimate, whatsapp, message });
 }

@@ -1,5 +1,5 @@
 import { getCatalog } from "@/lib/catalog";
-import { fetchOrderStatus, createLead } from "@/lib/hub";
+import { fetchOrderStatus, createLead, estimateShipping } from "@/lib/hub";
 import { SITE } from "@/lib/site";
 import {
   classifyIntent,
@@ -116,6 +116,21 @@ async function execCreateLead(args: Record<string, unknown>, req: NeemaRequest) 
     : { created: false, note: "Hub lead endpoint not ready — tell the customer our team will follow up on WhatsApp." };
 }
 
+async function execEstimateShipping(args: Record<string, unknown>) {
+  const est = await estimateShipping({
+    country: args.country ? String(args.country) : undefined,
+    countryCode: args.country_code ? String(args.country_code) : undefined,
+    city: args.city ? String(args.city) : undefined,
+    items: Array.isArray(args.items) ? (args.items as string[]) : undefined,
+  });
+  return (
+    est ?? {
+      available: false,
+      note: "No live rate yet — we ship worldwide from Nairobi; capture the destination and staff finalise the precise quote on WhatsApp.",
+    }
+  );
+}
+
 /* ---------------- Grok path (OpenAI-compatible function calling) ---------------- */
 
 interface GrokToolCall { id: string; type: "function"; function: { name: string; arguments: string } }
@@ -169,6 +184,22 @@ const TOOLS = [
           readiness: { type: "string", enum: ["low", "medium", "high"] },
         },
         required: ["phone"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "estimate_shipping",
+      description: "Estimate international shipping to a destination once the customer names a country (and city if known). Bethany House ships worldwide from Nairobi.",
+      parameters: {
+        type: "object",
+        properties: {
+          country: { type: "string" },
+          city: { type: "string" },
+          items: { type: "array", items: { type: "string" }, description: "product slugs to ship" },
+        },
+        required: ["country"],
       },
     },
   },
@@ -228,6 +259,7 @@ async function runWithGrok(req: NeemaRequest, toolsUsed: string[]): Promise<Neem
         if (call.function.name === "search_products") result = await execSearchProducts(String(args.query ?? ""));
         else if (call.function.name === "get_order_status") result = await execGetOrderStatus(String(args.payment_token ?? ""));
         else if (call.function.name === "create_lead") result = await execCreateLead(args, req);
+        else if (call.function.name === "estimate_shipping") result = await execEstimateShipping(args);
       } catch {
         result = { error: "tool failed" };
       }
@@ -341,9 +373,12 @@ async function runFallback(req: NeemaRequest, toolsUsed: string[]): Promise<Neem
     false,
   );
 
-  // The lead moment: on a quote (or any forced handoff), collect details in
-  // chat instead of bouncing straight to WhatsApp.
-  if (shaped.intent === "quote" || shaped.handoff.required) reply.capture = leadCaptureFor(shaped.intent);
+  // The lead moment: on a quote, a shipping enquiry, or any forced handoff,
+  // collect details in chat instead of bouncing straight to WhatsApp. The
+  // shipping form captures the destination staff need to quote a rate.
+  if (shaped.intent === "quote" || shaped.intent === "shipping" || shaped.handoff.required) {
+    reply.capture = leadCaptureFor(shaped.intent);
+  }
   return reply;
 }
 

@@ -105,18 +105,24 @@ export interface NeemaReply {
     need to follow up: who, how to reach them, where, and (for quotes) how many. */
 export function leadCaptureFor(intent: NeemaIntent): NeemaCapture {
   const isQuote = intent === "quote";
+  const isShipping = intent === "shipping";
   const fields: NeemaCaptureField[] = [
     { id: "name", label: "Your name", type: "text", placeholder: "Rev. / Ms. / Mr." },
     { id: "phone", label: "WhatsApp or phone", type: "tel", required: true, placeholder: "+254 7…" },
-    { id: "city", label: "City", type: "text", placeholder: "Nairobi" },
-    { id: "country", label: "Country", type: "text", placeholder: "Kenya" },
+    { id: "country", label: "Country", type: "text", required: isShipping, placeholder: isShipping ? "Uganda" : "Kenya" },
+    { id: "city", label: "City", type: "text", placeholder: isShipping ? "Kampala" : "Nairobi" },
   ];
   if (isQuote) fields.push({ id: "quantity", label: "Quantity", type: "text", placeholder: "e.g. 12" });
-  fields.push({ id: "note", label: "Anything else?", type: "textarea", placeholder: "Occasion, colours, sizes…" });
+  fields.push({
+    id: "note",
+    label: isShipping ? "What would you like shipped?" : "Anything else?",
+    type: "textarea",
+    placeholder: isShipping ? "Items, quantity, timing…" : "Occasion, colours, sizes…",
+  });
   return {
-    title: isQuote ? "Start your quotation" : "Have our team follow up",
+    title: isShipping ? "Get a shipping estimate" : isQuote ? "Start your quotation" : "Have our team follow up",
     fields,
-    submitLabel: isQuote ? "Request quotation" : "Send my details",
+    submitLabel: isShipping ? "Request estimate" : isQuote ? "Request quotation" : "Send my details",
     intent,
   };
 }

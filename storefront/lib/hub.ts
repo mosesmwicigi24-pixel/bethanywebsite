@@ -271,3 +271,58 @@ export async function createLead(draft: LeadDraft): Promise<{ leadId: string } |
     return null;
   }
 }
+
+/* ============================================================
+   Shipping estimate (Bethany Hub — endpoint to be added).
+
+   Proposed contract:
+
+     GET /api/v1/storefront/shipping/estimate
+       ?country_code=UG&city=Kampala&items=slug1,slug2
+     → {
+         destination: "Kampala, Uganda",
+         options: [{ service, range, cost? }, ...],   // e.g. "Express", "5–8 days", "USD 45"
+         note?: string
+       }
+
+   The hub owns real rates/zones; the storefront just relays. Until the
+   endpoint exists estimateShipping() returns null and Neema explains
+   worldwide shipping and captures the destination for a staff quote
+   instead — so the customer always gets a next step (advisory §3, §5.5).
+   ============================================================ */
+
+export interface ShippingQuery {
+  countryCode?: string;
+  country?: string;
+  city?: string;
+  items?: string[];
+}
+
+export interface ShippingEstimate {
+  destination: string;
+  options: { service: string; range: string; cost?: string }[];
+  note?: string;
+}
+
+/** Best-effort international shipping estimate. Null when the hub isn't
+    ready (or the call failed) — the gateway then captures the destination
+    and hands off to staff for a precise quote. */
+export async function estimateShipping(q: ShippingQuery): Promise<ShippingEstimate | null> {
+  if (!HUB) return null;
+  try {
+    const params = new URLSearchParams();
+    if (q.countryCode) params.set("country_code", q.countryCode);
+    if (q.country) params.set("country", q.country);
+    if (q.city) params.set("city", q.city);
+    if (q.items?.length) params.set("items", q.items.join(","));
+    const r = await fetch(`${HUB}/storefront/shipping/estimate?${params.toString()}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const data = (await r.json()) as ShippingEstimate;
+    return data && Array.isArray(data.options) ? data : null;
+  } catch {
+    return null;
+  }
+}
