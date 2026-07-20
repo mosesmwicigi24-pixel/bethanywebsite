@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { Money } from "./Money";
 import type { Product, VariantOption } from "@/lib/products";
-import { type Fit, FITS, FIT_LABEL, sheetFor, withFit } from "@/lib/measureSheets";
+import { type Fit, FITS, FIT_LABEL, isGendered, sheetFor, withFit } from "@/lib/measureSheets";
 
 /**
  * Single-page product experience for a product with saved variants — the
@@ -32,6 +32,7 @@ export default function ProductStudio({ product, preselect, sku }: {
   const router = useRouter();
   const variants = useMemo(() => product.variants ?? [], [product.variants]);
   const producible = Boolean(product.producible);
+  const gendered = isGendered(product);
 
   const [active, setActive] = useState<VariantOption | undefined>(
     () => variants.find((v) => v.slug === preselect) ?? cheapest(variants) ?? variants[0],
@@ -64,12 +65,12 @@ export default function ProductStudio({ product, preselect, sku }: {
   const gallery = active.gallery.length ? active.gallery : [active.img];
   const mainImg = gallery[Math.min(imgIdx, gallery.length - 1)] ?? active.img;
 
-  const template = fit ? sheetFor(product, fit) : [];
+  const template = sheetFor(product, fit);
   const showMeasure = producible && mode === "custom";
   const missing = showMeasure
     ? template.filter((f) => f.required && !values[f.name]?.trim()).map((f) => f.name)
     : [];
-  const detailsOk = !producible || mode === "ready" || (fit !== null && missing.length === 0);
+  const detailsOk = !producible || mode === "ready" || ((!gendered || fit !== null) && missing.length === 0);
 
   const shownAxes = axes.filter(([k]) => mode === "ready" || !/size/i.test(k));
   // axes whose value actually differs between variants — used to name the cards
@@ -90,7 +91,7 @@ export default function ProductStudio({ product, preselect, sku }: {
       document.getElementById("ps-measure")?.scrollIntoView({ behavior: "smooth", block: "center" });
       return false;
     }
-    if (showMeasure && fit) add(active.slug, qty, withFit(fit, template, values));
+    if (showMeasure) add(active.slug, qty, fit ? withFit(fit, template, values) : values);
     else add(active.slug, qty);
     return true;
   };
@@ -211,24 +212,26 @@ export default function ProductStudio({ product, preselect, sku }: {
             <i className="chev" aria-hidden="true">⌄</i>
           </button>
           <div className="ps-measure-body">
-            <div className="fit-pick" role="radiogroup" aria-label="Who is it for?">
-              <div className="m-head">
-                <b>Who is it for?</b>
-                <span>Men and ladies are measured differently</span>
+            {gendered && (
+              <div className="fit-pick" role="radiogroup" aria-label="Who is it for?">
+                <div className="m-head">
+                  <b>Who is it for?</b>
+                  <span>Men and ladies are measured differently</span>
+                </div>
+                <div className="fit-opts">
+                  {FITS.map((f) => (
+                    <button key={f} type="button" role="radio" aria-checked={fit === f}
+                      className={fit === f ? "on" : ""} onClick={() => setFit(f)}>
+                      {FIT_LABEL[f]}
+                    </button>
+                  ))}
+                </div>
               </div>
-              <div className="fit-opts">
-                {FITS.map((f) => (
-                  <button key={f} type="button" role="radio" aria-checked={fit === f}
-                    className={fit === f ? "on" : ""} onClick={() => setFit(f)}>
-                    {FIT_LABEL[f]}
-                  </button>
-                ))}
-              </div>
-            </div>
+            )}
 
-            {fit ? (
+            {!gendered || fit ? (
               <>
-                <p className="ps-measure-sub">✂ {FIT_LABEL[fit]} — sewn to these numbers in Nairobi · 5–7 days.</p>
+                <p className="ps-measure-sub">✂ {fit ? `${FIT_LABEL[fit]} — ` : ""}sewn to these numbers in Nairobi · 5–7 days.</p>
                 <div className="m-grid ps-mgrid">
                   {template.map((f, i) => (
                     <label key={`${f.name}-${i}`} className="m-field">

@@ -108,8 +108,8 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
     }
     if (measure?.mode === "ready") {
       add(slug, readQty(), undefined, measure.size ?? undefined);
-    } else if (measure?.fit) {
-      add(slug, readQty(), withFit(measure.fit, measure.template, measure.values));
+    } else if (measure) {
+      add(slug, readQty(), measure.fit ? withFit(measure.fit, measure.template, measure.values) : measure.values);
     } else {
       add(slug, readQty());
     }

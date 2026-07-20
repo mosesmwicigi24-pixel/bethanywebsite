@@ -2,7 +2,7 @@
 
 import { ReactNode, createContext, useContext, useMemo, useState } from "react";
 import type { Measurement, Product } from "@/lib/products";
-import { type Fit, FITS, FIT_LABEL, sheetFor } from "@/lib/measureSheets";
+import { type Fit, FITS, FIT_LABEL, isGendered, sheetFor } from "@/lib/measureSheets";
 
 /* Producible items are sold TWO ways (mirroring the shop floor):
      • Ready-made — standard sizes on the rack, ships today (stocked line)
@@ -21,6 +21,7 @@ export interface MeasureCtx {
   setMode: (m: BuyMode) => void;
   size: string | null;
   setSize: (s: string) => void;
+  gendered: boolean;
   fit: Fit | null;
   setFit: (f: Fit) => void;
   values: Record<string, string>;
@@ -41,26 +42,30 @@ export function MeasureProvider({ product, children }: {
 }) {
   const sizes = product.sizes ?? [];
   const hasReady = sizes.length > 0;
+  const gendered = isGendered(product);
   const [mode, setMode] = useState<BuyMode>(hasReady ? "ready" : "custom");
   const [fit, setFitState] = useState<Fit | null>(null);
   const [size, setSize] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
   const [touched, setTouched] = useState(false);
 
-  // Which fields to ask depends on the chosen fit — empty until one is picked.
-  const template = useMemo(() => (fit ? sheetFor(product, fit) : []), [product, fit]);
+  // Fields come straight from the hub; a gendered product filters by fit.
+  const template = useMemo(() => sheetFor(product, fit), [product, fit]);
 
   const missing = useMemo(
     () => template.filter((m) => m.required && !values[m.name]?.trim()).map((m) => m.name),
     [template, values],
   );
 
-  const valid = mode === "ready" ? size !== null : fit !== null && missing.length === 0;
+  const valid = mode === "ready"
+    ? size !== null
+    : (!gendered || fit !== null) && missing.length === 0;
 
   const ctx: MeasureCtx = {
     template, sizes, mode,
     setMode: (m) => { setMode(m); setTouched(false); },
     size, setSize,
+    gendered,
     fit,
     setFit: (f) => { setFitState(f); setTouched(false); },
     values,
@@ -114,25 +119,27 @@ export function MeasurementForm() {
         </div>
       ) : (
         <>
-          <div className="fit-pick" role="radiogroup" aria-label="Who is it for?">
-            <div className="m-head">
-              <b>Who is it for?</b>
-              <span>Men and ladies are measured differently</span>
+          {m.gendered && (
+            <div className="fit-pick" role="radiogroup" aria-label="Who is it for?">
+              <div className="m-head">
+                <b>Who is it for?</b>
+                <span>Men and ladies are measured differently</span>
+              </div>
+              <div className="fit-opts">
+                {FITS.map((f) => (
+                  <button key={f} type="button" role="radio" aria-checked={m.fit === f}
+                    className={m.fit === f ? "on" : ""} onClick={() => m.setFit(f)}>
+                    {FIT_LABEL[f]}
+                  </button>
+                ))}
+              </div>
             </div>
-            <div className="fit-opts">
-              {FITS.map((f) => (
-                <button key={f} type="button" role="radio" aria-checked={m.fit === f}
-                  className={m.fit === f ? "on" : ""} onClick={() => m.setFit(f)}>
-                  {FIT_LABEL[f]}
-                </button>
-              ))}
-            </div>
-          </div>
+          )}
 
-          {m.fit ? (
+          {!m.gendered || m.fit ? (
             <>
               <div className="m-head">
-                <b>✂ {FIT_LABEL[m.fit]} — your measurements</b>
+                <b>✂ {m.fit ? `${FIT_LABEL[m.fit]} — ` : ""}your measurements</b>
                 <span>Sewn to these numbers in Nairobi · 5–7 days</span>
               </div>
               <div className="m-grid">

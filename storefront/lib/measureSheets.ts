@@ -1,55 +1,60 @@
 import type { Measurement, Product } from "./products";
 
 /* ============================================================
-   Made-to-order fit + measurement sheets
+   Made-to-order fit — fully hub-driven
 
-   The hub serves ONE flat measurement list per product with no gender.
-   Men and ladies are measured differently, so the made-to-order form
-   asks "Who is it for?" first, then shows the right requirements.
+   Men and ladies are measured differently. Rather than invent sheets in
+   the storefront, we read the requirements straight from the hub: each
+   measurement may carry an optional `gender` ("men" | "ladies"); absent
+   means the field applies to both.
 
-   Source of the two field sets, in priority order:
-     1. If the hub tags any of the product's measurements with a `gender`,
-        we honour that (fields for the chosen fit + untagged/"both" fields).
-        → this path lights up automatically once the hub adds gendered data.
-     2. Otherwise we use the house STANDARD_SHEETS below — mirrored from the
-        hub's "Men set" / "Ladies set" quick-add templates — while still
-        including the product's own REQUIRED fields, so the hub's per-product
-        measurement validation on checkout keeps passing.
+     • A product whose measurements are tagged for BOTH men and ladies
+       shows a "Who is it for?" selector, and the fields filter to the
+       chosen fit (+ any untagged "both" fields).
+     • A product with no gendered tags (today's data) shows its plain
+       measurement list, exactly as before — the selector simply doesn't
+       appear until the hub tags that product.
+
+   Because every field we submit comes from the product's own hub
+   template, the hub's per-product measurement validation keeps passing.
    ============================================================ */
 
 export type Fit = "men" | "ladies";
 export const FITS: Fit[] = ["men", "ladies"];
 export const FIT_LABEL: Record<Fit, string> = { men: "Men", ladies: "Ladies" };
 
-/** Key under which the chosen fit is attached to the submitted measurements,
-    so it rides along to the hub production order + the staff notes. */
+/** Key under which the chosen fit is recorded on the order (structured
+    measurements + the staff notes line). */
 export const FIT_KEY = "Who it's for";
 
-const req = (name: string): Measurement => ({ name, unit: "in", required: true });
-
-/** House standard sheets — mirror the hub's "Men set" (10-field) and
-    "Ladies set" (11-field) quick-add templates. Edit here to retune. */
-export const STANDARD_SHEETS: Record<Fit, Measurement[]> = {
-  men: ["Neck", "Shoulders", "Sleeves", "Wrist", "Arm Hole", "Upper Arm", "Chest", "Stomach", "Shirt Length", "Height"].map(req),
-  ladies: ["Neck", "Shoulders", "Sleeves", "Wrist", "Arm Hole", "Upper Arm", "Bodice", "Waist", "Hips", "Blouse Length", "Full Length"].map(req),
-};
-
-/** The measurement fields to show for a product given the chosen fit. */
-export function sheetFor(product: Product, fit: Fit): Measurement[] {
-  const own = product.measurements ?? [];
-
-  // 1) Hub already tags fields by gender — honour it (auto-upgrade path):
-  //    fields for this fit, plus any untagged/"both" fields.
-  if (own.some((m) => m.gender === "men" || m.gender === "ladies")) {
-    return own.filter((m) => !m.gender || m.gender === fit);
+/** The fits the hub has actually defined fields for on this product. */
+export function fitsFor(product: Product): Fit[] {
+  const set = new Set<Fit>();
+  for (const m of product.measurements ?? []) {
+    if (m.gender === "men" || m.gender === "ladies") set.add(m.gender);
   }
-
-  // 2) No gendered data yet — use the house standard sheet for the fit.
-  return STANDARD_SHEETS[fit];
+  return FITS.filter((f) => set.has(f));
 }
 
-/** Measurements to submit: the chosen fit + only the values for the
-    fields currently shown (drops anything left over from a prior fit). */
+/** True when the customer must choose a fit — the hub tagged this
+    product's measurements for BOTH men and ladies. */
+export function isGendered(product: Product): boolean {
+  return fitsFor(product).length >= 2;
+}
+
+/** Fields to show, straight from the hub, for the chosen fit:
+      • not gendered            → the product's full list, as-is
+      • gendered, no fit yet     → empty (prompt for a fit first)
+      • gendered + fit           → fields for this fit + untagged ("both") */
+export function sheetFor(product: Product, fit: Fit | null): Measurement[] {
+  const own = product.measurements ?? [];
+  if (!isGendered(product)) return own;
+  if (!fit) return [];
+  return own.filter((m) => !m.gender || m.gender === fit);
+}
+
+/** Measurements to submit: the shown fields' values, plus the chosen fit
+    recorded under FIT_KEY. */
 export function withFit(
   fit: Fit,
   template: Measurement[],
