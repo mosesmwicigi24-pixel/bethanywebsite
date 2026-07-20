@@ -177,11 +177,12 @@ export default function Neema() {
     <>
       <button
         className="chat-fab"
-        aria-label={open ? "Close Neema chat" : "Ask Neema"}
+        aria-label={open ? "Close Neema chat" : "Chat with Neema"}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
       >
-        <img src="/brand/mark-gold.png" alt="" />
+        <span className="chat-fab-mark"><img src="/brand/mark-gold.png" alt="" /></span>
+        <span className="chat-fab-label">Chat with Neema</span>
       </button>
 
       {open && (
