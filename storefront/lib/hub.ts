@@ -196,3 +196,135 @@ export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderSt
     return null;
   }
 }
+
+/* ============================================================
+   Neema lead capture — Bethany Hub (LIVE on hub.bethanyhouse.co.ke).
+
+     POST /api/v1/storefront/leads
+     {
+       client_request_id,            // idempotency (any string; replays return the same lead)
+       intent,                       // "quote" | "product_inquiry" | ... (unknown -> stored as "other")
+       readiness,                    // "low" | "medium" | "high" (quote/high notifies hub owners)
+       customer: { name, phone, email?, church? },   // phone is the only required field
+       location: { country_code?, city? },
+       products: ["slug", ...],      // catalogue interest
+       quantity?, message?,          // free text / summary
+       source_path?                  // page the enquiry came from
+     }
+     → { lead: { id } }              // 201, or 200 on idempotent replay
+
+   On any error (or before NEXT_PUBLIC_HUB_API is set) createLead() returns
+   null and the gateway falls back to a WhatsApp handoff (see
+   app/api/neema/lead) — so no qualified lead is ever dropped. Writes are
+   server-side only (called from the AI gateway with least-privilege), never
+   from the browser.
+   ============================================================ */
+
+export interface LeadDraft {
+  /** Stable idempotency key for this submission — reused across retries so a
+      double-submit dedupes to one lead at the hub. Defaults to a fresh UUID. */
+  clientRequestId?: string;
+  intent: string;
+  readiness?: "low" | "medium" | "high";
+  name?: string;
+  phone: string;
+  email?: string;
+  church?: string;
+  countryCode?: string;
+  city?: string;
+  products?: string[];
+  quantity?: string;
+  message?: string;
+  sourcePath?: string;
+}
+
+/** Best-effort lead submission to the hub. Returns the created lead id when
+    configured and reachable; null means the hub isn't ready (or the call
+    failed) and the caller should hand off to staff instead. */
+export async function createLead(draft: LeadDraft): Promise<{ leadId: string } | null> {
+  if (!HUB) return null;
+  try {
+    const body = {
+      client_request_id: draft.clientRequestId || crypto.randomUUID(),
+      intent: draft.intent,
+      readiness: draft.readiness,
+      customer: {
+        name: draft.name || undefined,
+        phone: draft.phone,
+        email: draft.email || undefined,
+        church: draft.church || undefined,
+      },
+      location: { country_code: draft.countryCode || undefined, city: draft.city || undefined },
+      products: draft.products?.length ? draft.products : undefined,
+      quantity: draft.quantity || undefined,
+      message: draft.message || undefined,
+      source_path: draft.sourcePath || undefined,
+    };
+    const r = await fetch(`${HUB}/storefront/leads`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify(body),
+    });
+    if (!r.ok) return null;
+    const data = await r.json().catch(() => ({}));
+    const leadId = data.lead?.id ?? data.id;
+    return leadId ? { leadId: String(leadId) } : null;
+  } catch {
+    return null;
+  }
+}
+
+/* ============================================================
+   Shipping estimate — Bethany Hub (LIVE on hub.bethanyhouse.co.ke).
+
+     GET /api/v1/storefront/shipping/estimate
+       ?country_code=UG&city=Kampala&items=slug1,slug2
+     → {
+         destination: "Kampala, Uganda",
+         options: [{ service, range, cost? }, ...],   // always an array; KES for Kenya, USD elsewhere
+         note?: string                                // customs/duties note internationally
+       }
+
+   Driven from the hub's real country shipping data. Unknown / unrated /
+   shipping-disabled destinations return options: [] with a note, so we still
+   show the destination and route to staff. On any error (or before
+   NEXT_PUBLIC_HUB_API is set) estimateShipping() returns null and Neema
+   explains worldwide shipping and captures the destination for a staff quote
+   instead — so the customer always gets a next step (advisory §3, §5.5).
+   ============================================================ */
+
+export interface ShippingQuery {
+  countryCode?: string;
+  country?: string;
+  city?: string;
+  items?: string[];
+}
+
+export interface ShippingEstimate {
+  destination: string;
+  options: { service: string; range: string; cost?: string }[];
+  note?: string;
+}
+
+/** Best-effort international shipping estimate. Null when the hub isn't
+    ready (or the call failed) — the gateway then captures the destination
+    and hands off to staff for a precise quote. */
+export async function estimateShipping(q: ShippingQuery): Promise<ShippingEstimate | null> {
+  if (!HUB) return null;
+  try {
+    const params = new URLSearchParams();
+    if (q.countryCode) params.set("country_code", q.countryCode);
+    if (q.country) params.set("country", q.country);
+    if (q.city) params.set("city", q.city);
+    if (q.items?.length) params.set("items", q.items.join(","));
+    const r = await fetch(`${HUB}/storefront/shipping/estimate?${params.toString()}`, {
+      headers: { Accept: "application/json" },
+      cache: "no-store",
+    });
+    if (!r.ok) return null;
+    const data = (await r.json()) as ShippingEstimate;
+    return data && Array.isArray(data.options) ? data : null;
+  } catch {
+    return null;
+  }
+}

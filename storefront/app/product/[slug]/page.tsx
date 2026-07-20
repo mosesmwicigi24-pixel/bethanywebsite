@@ -13,6 +13,9 @@ import { Money, Price, OldPrice } from "@/components/Money";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { bySlug as curatedBySlug } from "@/lib/products";
+import { SITE } from "@/lib/site";
+import { productJsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import JsonLd from "@/components/JsonLd";
 
 export const revalidate = 300; // ISR — pages rebuild as the hub catalog changes
 
@@ -21,7 +24,28 @@ export async function generateMetadata(
 ): Promise<Metadata> {
   const { slug } = await params;
   const p = await getProductBySlug(slug);
-  return { title: p ? p.name : "Product" };
+  if (!p) return { title: "Product" };
+
+  // Variant deep-links canonicalise to their parent so variant, filter and
+  // campaign URLs don't dilute the primary product page.
+  const canonicalSlug = p.variantId ? (p.baseSlug ?? p.slug) : p.slug;
+  const path = `/product/${canonicalSlug}`;
+  const description = (p.tagline || p.short || `${p.name} from ${SITE.name}. ${SITE.tagline}`).slice(0, 160);
+  const images = (p.gallery?.length ? p.gallery : [p.img]).filter(Boolean);
+
+  return {
+    title: p.name,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      title: p.name,
+      description,
+      url: path,
+      images,
+    },
+    twitter: { card: "summary_large_image", title: p.name, description, images },
+  };
 }
 
 export default async function ProductPage(
@@ -52,6 +76,13 @@ export default async function ProductPage(
 
   const body = (
     <main className="pdp-page">
+      <JsonLd data={productJsonLd(parent, { sku, path: `/product/${parent.slug}` })} />
+      <JsonLd data={breadcrumbJsonLd([
+        { name: "Home", path: "/" },
+        { name: "Shop", path: "/shop" },
+        { name: parent.category, path: "/shop" },
+        { name: parent.name },
+      ])} />
       {!isVariable && (
         <StickyChrome name={parent.short} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} />
       )}
@@ -220,7 +251,7 @@ export default async function ProductPage(
   // Variable products manage their own measurement state inside ProductStudio;
   // only the simple-product path needs the shared MeasureProvider + sticky bar.
   return !isVariable && parent.producible
-    ? <MeasureProvider template={parent.measurements ?? []} sizes={parent.sizes}>{body}</MeasureProvider>
+    ? <MeasureProvider template={parent.measurements ?? []} sizes={parent.sizes} garment={parent.name}>{body}</MeasureProvider>
     : body;
 }
 
