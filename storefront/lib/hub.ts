@@ -198,27 +198,26 @@ export async function fetchOrderStatus(paymentToken: string): Promise<HubOrderSt
 }
 
 /* ============================================================
-   Neema lead capture (Bethany Hub — endpoint to be added).
-
-   Proposed contract, mirroring the guest-checkout bridge above:
+   Neema lead capture — Bethany Hub (LIVE on hub.bethanyhouse.co.ke).
 
      POST /api/v1/storefront/leads
      {
-       client_request_id,            // idempotency for retries
-       intent,                       // "quote" | "product_inquiry" | ...
-       readiness,                    // "low" | "medium" | "high"
-       customer: { name, phone, email?, church? },
+       client_request_id,            // idempotency (any string; replays return the same lead)
+       intent,                       // "quote" | "product_inquiry" | ... (unknown -> stored as "other")
+       readiness,                    // "low" | "medium" | "high" (quote/high notifies hub owners)
+       customer: { name, phone, email?, church? },   // phone is the only required field
        location: { country_code?, city? },
        products: ["slug", ...],      // catalogue interest
        quantity?, message?,          // free text / summary
        source_path?                  // page the enquiry came from
      }
-     → { lead: { id } }
+     → { lead: { id } }              // 201, or 200 on idempotent replay
 
-   Until the hub ships this endpoint, createLead() returns null and the
-   gateway falls back to a WhatsApp handoff (see app/api/neema/lead) — so
-   no qualified lead is ever dropped. Writes are server-side only (called
-   from the AI gateway with least-privilege), never from the browser.
+   On any error (or before NEXT_PUBLIC_HUB_API is set) createLead() returns
+   null and the gateway falls back to a WhatsApp handoff (see
+   app/api/neema/lead) — so no qualified lead is ever dropped. Writes are
+   server-side only (called from the AI gateway with least-privilege), never
+   from the browser.
    ============================================================ */
 
 export interface LeadDraft {
@@ -273,21 +272,21 @@ export async function createLead(draft: LeadDraft): Promise<{ leadId: string } |
 }
 
 /* ============================================================
-   Shipping estimate (Bethany Hub — endpoint to be added).
-
-   Proposed contract:
+   Shipping estimate — Bethany Hub (LIVE on hub.bethanyhouse.co.ke).
 
      GET /api/v1/storefront/shipping/estimate
        ?country_code=UG&city=Kampala&items=slug1,slug2
      → {
          destination: "Kampala, Uganda",
-         options: [{ service, range, cost? }, ...],   // e.g. "Express", "5–8 days", "USD 45"
-         note?: string
+         options: [{ service, range, cost? }, ...],   // always an array; KES for Kenya, USD elsewhere
+         note?: string                                // customs/duties note internationally
        }
 
-   The hub owns real rates/zones; the storefront just relays. Until the
-   endpoint exists estimateShipping() returns null and Neema explains
-   worldwide shipping and captures the destination for a staff quote
+   Driven from the hub's real country shipping data. Unknown / unrated /
+   shipping-disabled destinations return options: [] with a note, so we still
+   show the destination and route to staff. On any error (or before
+   NEXT_PUBLIC_HUB_API is set) estimateShipping() returns null and Neema
+   explains worldwide shipping and captures the destination for a staff quote
    instead — so the customer always gets a next step (advisory §3, §5.5).
    ============================================================ */
 

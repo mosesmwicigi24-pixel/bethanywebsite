@@ -2,8 +2,8 @@ import { createLead, estimateShipping } from "@/lib/hub";
 import { SITE } from "@/lib/site";
 
 /* Lead submission for Neema's in-chat capture form (advisory §3, §6).
-   Writes go through the hub server-side; if the hub lead endpoint isn't
-   live yet, we never drop the lead — we return a WhatsApp deep link with
+   Writes go through the hub server-side (POST /storefront/leads, now live);
+   on any error we never drop the lead — we return a WhatsApp deep link with
    the enquiry pre-filled so the customer reaches staff either way. */
 
 const WA_NUMBER = SITE.phone.replace(/[^\d]/g, "");
@@ -59,8 +59,8 @@ export async function POST(request: Request): Promise<Response> {
     sourcePath: body.pageContext?.path,
   });
 
-  // For a shipping enquiry, try a live estimate (null until the hub ships
-  // the endpoint — then we simply add it to the reply).
+  // For a shipping enquiry, add a live estimate to the reply (null only on a
+  // Hub error — then we fall back to the WhatsApp handoff below).
   const estimate = intent === "shipping"
     ? await estimateShipping({ country: f.country, city: f.city, items: body.products })
     : null;

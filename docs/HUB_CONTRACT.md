@@ -1,13 +1,14 @@
 # Bethany Hub — Storefront API contract (Neema lead + shipping)
 
-**For the `bethany-house` (Hub) team.** Two endpoints the storefront's Neema
-assistant already calls. Build them to this spec and lead capture + shipping
-estimates start persisting — no storefront change required (except the optional
-auth header in §6).
+**Status: ✅ LIVE (2026-07).** Both endpoints are built, tested and deployed on
+`hub.bethanyhouse.co.ke`. Lead capture and shipping estimates now persist in the
+Hub instead of falling back to WhatsApp; the storefront needed no change. This
+doc stays as the reference contract between the two repos. The optional auth
+gate (§6) is wired on the Hub but dormant — see §6 to lock it down.
 
 - **Consumer:** the storefront's Neema gateway, **server-side only** — `storefront/lib/hub.ts` (`createLead()`, `estimateShipping()`), invoked from `storefront/app/api/neema/route.ts` and `storefront/app/api/neema/lead/route.ts`. The browser never calls these.
 - **Base URL:** `https://hub.bethanyhouse.co.ke/api/v1` (the storefront's `NEXT_PUBLIC_HUB_API`).
-- **Today, without these endpoints:** both client functions return `null` and Neema falls back to a WhatsApp handoff with the enquiry pre-filled — so **nothing is lost**; these endpoints simply upgrade "handoff" to "persisted in the Hub."
+- **Fallback (on any Hub error, or before `NEXT_PUBLIC_HUB_API` is set):** both client functions return `null` and Neema falls back to a WhatsApp handoff with the enquiry pre-filled — so **nothing is lost**. Now that the endpoints are live, this is the *error* path, not the default.
 
 These mirror the existing guest-checkout bridge (`POST /storefront/orders`, `bethany-house` PR #141) — same base path, same JSON style, same idempotency approach.
 
@@ -18,7 +19,7 @@ These mirror the existing guest-checkout bridge (`POST /storefront/orders`, `bet
 | Concern | Rule |
 |---|---|
 | Content type | Requests and responses are `application/json`. |
-| Idempotency | Writes carry `client_request_id` (a UUID). Dedupe on it — a retry with the same id must return the **same** lead, not a duplicate (as the orders bridge does). |
+| Idempotency | Writes carry `client_request_id` (any string — not only UUIDs). Dedupe on it — a retry with the same id returns the **same** lead, not a duplicate (as the orders bridge does). |
 | Currency | Follow the orders rule (`Order::resolveCurrency`): country `KE` → **KES**, everything else → **USD**. Applies to any `cost` string in the shipping response. |
 | Auth | See §6. Recommended: a shared secret header on the write endpoint. The storefront sends these calls server-side, so a secret is safe. |
 | Errors | The storefront treats **any non-2xx as "not available"** and falls back to WhatsApp — it never surfaces a Hub error to the customer. Still, return correct status codes (below) for observability. |
@@ -181,15 +182,15 @@ When these return data, Neema shows the lead reference / the estimate inline; wh
 
 ---
 
-## 4. Acceptance checklist
+## 4. Acceptance checklist — ✅ verified live (2026-07)
 
-- [ ] `POST /storefront/leads` persists a lead and returns `{ "lead": { "id": … } }`.
-- [ ] Re-POST with the same `client_request_id` returns the **same** lead (no duplicate).
-- [ ] `customer.phone` is the only required customer field; missing `name`/`email` is accepted.
-- [ ] Unknown `intent` is stored (or mapped to `other`), not rejected.
-- [ ] `GET /storefront/shipping/estimate?country_code=UG` returns `{ destination, options: [...] }` with `options` an **array**.
-- [ ] A Kenyan destination returns KES costs; a non-Kenyan destination returns USD costs.
-- [ ] Both endpoints respond within a sensible timeout (the storefront calls them inline during a chat turn — aim < 2s).
+- [x] `POST /storefront/leads` persists a lead and returns `{ "lead": { "id": … } }` (201, or 200 on replay).
+- [x] Re-POST with the same `client_request_id` returns the **same** lead (no duplicate) — any string, not just UUIDs.
+- [x] `customer.phone` is the only required customer field; missing `name`/`email` is accepted.
+- [x] Unknown `intent` is stored as `other`, not rejected.
+- [x] `GET /storefront/shipping/estimate?country_code=UG` returns `{ destination, options: [...] }` with `options` an **array** (`[]` + `note` for unknown/unrated/disabled).
+- [x] A Kenyan destination returns KES costs; a non-Kenyan destination returns USD costs; international carries a customs/duties note.
+- [ ] Both endpoints respond within a sensible timeout (the storefront calls them inline during a chat turn — aim < 2s). *(latency not reported; confirm under load)*
 
 ---
 
@@ -202,13 +203,13 @@ When these return data, Neema shows the lead reference / the estimate inline; wh
 
 ## 6. Auth (one small storefront change when you're ready)
 
-Today the storefront calls both endpoints **without** an auth header. When you add protection, use a shared secret the storefront sends server-side:
+Today the storefront calls both endpoints **without** an auth header, and the Hub's `X-Storefront-Key` gate is **wired but dormant** (both sides open). When you're ready to lock it down, use a shared secret the storefront sends server-side:
 
 ```
 X-Storefront-Key: <secret>
 ```
 
-Then the storefront adds one line in `lib/hub.ts` (read the secret from a new **server-only** env, e.g. `HUB_STOREFRONT_KEY`, and set the header in `createLead()` / `estimateShipping()`). Ping the storefront side (this repo) with the header name you choose and it'll be wired the same day. Until then, both endpoints work unauthenticated.
+To activate: (1) set the secret in a Hub env and enable the gate; (2) the storefront reads the same value from a new **server-only** env, `HUB_STOREFRONT_KEY`, and sends the header in `createLead()` / `estimateShipping()` — a one-line change per call, already staged for when the value is agreed. Pick the value, set it on the Hub, and tell the storefront side; both flip together. A header (not a query token) is the right choice here — this is a server-to-server call, so the secret never appears in a browser or in query-string logs. Until then, both endpoints work unauthenticated.
 
 ---
 
