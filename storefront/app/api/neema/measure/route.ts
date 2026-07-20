@@ -1,19 +1,17 @@
 import type { MeasureResult, MeasurementEstimate } from "@/lib/neema";
+import { visionChain, providerVision } from "@/lib/llm";
 
 /* Neema measurement copilot (advisory §5.1). A customer uploads a photo;
-   Grok vision estimates garment measurements keyed to the product's own
+   a vision model estimates garment measurements keyed to the product's own
    template, which prefill the measurement form for the customer to CONFIRM
    and edit before ordering — estimates, never commitments.
 
-   Server-side only. When vision isn't configured (no NEEMA_API_KEY) or the
-   photo is unusable, returns available:false with self-measure guidance, so
-   the made-to-order flow still works. Vision model is configurable and
-   defaults to the chat model (grok-4 is multimodal):
-     NEEMA_VISION_MODEL (falls back to NEEMA_MODEL, then "grok-4"). */
-
-const AI_KEY = process.env.NEEMA_API_KEY;
-const AI_URL = process.env.NEEMA_API_URL || "https://api.x.ai/v1";
-const VISION_MODEL = process.env.NEEMA_VISION_MODEL || process.env.NEEMA_MODEL || "grok-4";
+   Vision runs Gemini → Anthropic (visionChain) — the primary chat model,
+   Groq's llama-3.3-70b, is text-only and can't see images. When no vision
+   provider is configured, or the photo is unusable, returns available:false
+   with self-measure guidance so the made-to-order flow still works. Set a
+   dedicated vision model with GEMINI_VISION_MODEL / ANTHROPIC_VISION_MODEL
+   (each defaults to that provider's main model). Server-side only. */
 
 const MAX_IMAGE_CHARS = 3_000_000; // ~2.2MB image as a base64 data URL (client downscales first)
 const RATE_LIMIT = 6; // vision calls
@@ -57,28 +55,18 @@ async function estimateFromPhoto(image: string, garment: string, template: strin
     `Return ONLY JSON: {"estimates":[{"name":"<exactly one of the listed names>","value":"<number in inches>","confidence":"low|medium|high"}],"notes":"<short caveat, or why the photo can't be used>"}. ` +
     `Use the exact names given; omit any you cannot infer. Do not invent precision — round to the nearest half inch.`;
 
-  const r = await fetch(`${AI_URL}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${AI_KEY}` },
-    body: JSON.stringify({
-      model: VISION_MODEL,
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-      messages: [
-        { role: "system", content: system },
-        {
-          role: "user",
-          content: [
-            { type: "text", text: instruction },
-            { type: "image_url", image_url: { url: image } },
-          ],
-        },
-      ],
-    }),
-  });
-  if (!r.ok) throw new Error(`vision ${r.status}`);
-  const data = await r.json();
-  const raw = data.choices?.[0]?.message?.content ?? "";
+  // Try each vision provider (Gemini → Anthropic) until one answers.
+  let raw = "";
+  for (const cfg of visionChain()) {
+    try {
+      raw = await providerVision(cfg, system, instruction, image);
+      if (raw.trim()) break;
+    } catch (err) {
+      console.error(`[neema:measure] ${cfg.name} vision failed:`, err instanceof Error ? err.message : err);
+    }
+  }
+  if (!raw.trim()) return fallback(SELF_MEASURE_GUIDE, "I couldn't read that photo just now — please enter your measurements below.");
+
   let parsed: { estimates?: unknown; notes?: unknown };
   try {
     parsed = JSON.parse(String(raw).trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim());
@@ -119,10 +107,11 @@ export async function POST(request: Request): Promise<Response> {
 
   const template = Array.isArray(body.template) ? body.template.filter((t) => typeof t === "string").slice(0, 20) : [];
 
+  const canVision = visionChain().length > 0;
   let result: MeasureResult;
-  let mode = AI_KEY ? "vision" : "fallback";
+  let mode = canVision ? "vision" : "fallback";
   try {
-    result = AI_KEY ? await estimateFromPhoto(image, String(body.garment ?? ""), template) : fallback();
+    result = canVision ? await estimateFromPhoto(image, String(body.garment ?? ""), template) : fallback();
   } catch (err) {
     mode = "fallback";
     console.error("[neema:measure] vision failed:", err instanceof Error ? err.message : err);

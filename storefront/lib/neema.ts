@@ -97,7 +97,7 @@ export interface NeemaReply {
   analytics: { readiness: "low" | "medium" | "high"; stage: string };
   /** present when Neema wants to capture the customer's details next. */
   capture?: NeemaCapture;
-  /** true when Grok + tools produced it; false = deterministic fallback. */
+  /** true when a model provider + tools produced it; false = deterministic fallback. */
   grounded: boolean;
 }
 
@@ -146,7 +146,7 @@ export function classifyIntent(text: string): NeemaIntent {
 }
 
 /* ---------------- Catalog search (grounds product recommendations) ----------------
-   Backs both the deterministic fallback and Grok's search_products tool, so the
+   Backs both the deterministic fallback and the provider search_products tool, so the
    two paths recommend from the same source of truth. A light synonym layer maps
    the many names customers use for the same item — a first cut at the
    denomination-vocabulary idea in the advisory (§5.3). */

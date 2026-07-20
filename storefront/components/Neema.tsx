@@ -11,7 +11,7 @@ import type { NeemaReply } from "@/lib/neema";
 /* Neema — the customer-facing chat widget (advisory §3.1).
    Renders Neema's structured replies as real UI: product cards, one-tap
    questions and actions — not plain chat text. Talks only to /api/neema;
-   never to Grok or the Hub directly. Reuses the site's Img + Price (so
+   never to a model or the Hub directly. Reuses the site's Img + Price (so
    currency + imagery match everywhere) and the shared client catalog. */
 
 interface Msg {

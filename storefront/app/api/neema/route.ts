@@ -14,30 +14,28 @@ import {
   type PageContext,
 } from "@/lib/neema";
 import type { Product } from "@/lib/products";
+import { chatChain, providerChat, type LlmMessage, type LlmTool, type ProviderCfg } from "@/lib/llm";
 
 /* ============================================================
    Neema AI gateway — the single server-side entry for every AI
-   request (advisory §2–3). The browser never talks to Grok or holds
-   Hub write-credentials; it POSTs here, and this route:
+   request (advisory §2–3). The browser never talks to the models or
+   holds Hub write-credentials; it POSTs here, and this route:
 
      • enforces guardrails (size caps, per-session rate limit)
-     • runs Neema on Grok with function-calling tools when configured
-       (NEEMA_API_KEY set), grounding answers in the live catalog
+     • runs Neema through a provider fallback chain — Groq (primary,
+       llama-3.3-70b-versatile) → Anthropic → Gemini — with
+       function-calling tools grounding answers in the live catalog
      • falls back to a deterministic, catalog-grounded orchestrator
-       when Grok isn't configured or errors — so the widget always
-       works (mirrors lib/hub.ts / lib/lookup.ts "demo mode")
+       when no provider is configured or all error — so the widget
+       always works (mirrors lib/hub.ts / lib/lookup.ts "demo mode")
      • returns a validated NeemaReply the frontend renders as UI
      • logs one structured line per turn for observability (§9)
 
-   Configure the model (all server-only, never NEXT_PUBLIC_):
-     NEEMA_API_KEY   — bearer token for the OpenAI-compatible endpoint
-     NEEMA_API_URL   — base URL (default https://api.x.ai/v1)
-     NEEMA_MODEL     — model id (default grok-4)
+   Model providers are configured via server-only env (see lib/llm.ts):
+     GROQ_API_KEY / GROQ_MODEL / GROQ_API_URL
+     ANTHROPIC_API_KEY / ANTHROPIC_MODEL / ANTHROPIC_API_URL
+     GEMINI_API_KEY / GEMINI_MODEL / GEMINI_API_URL
    ============================================================ */
-
-const AI_KEY = process.env.NEEMA_API_KEY;
-const AI_URL = process.env.NEEMA_API_URL || "https://api.x.ai/v1";
-const AI_MODEL = process.env.NEEMA_MODEL || "grok-4";
 
 const MAX_MSG_CHARS = 2000;
 const MAX_HISTORY = 12;
@@ -131,76 +129,56 @@ async function execEstimateShipping(args: Record<string, unknown>) {
   );
 }
 
-/* ---------------- Grok path (OpenAI-compatible function calling) ---------------- */
+/* ---------------- tool registry (provider-agnostic) ---------------- */
 
-interface GrokToolCall { id: string; type: "function"; function: { name: string; arguments: string } }
-interface GrokMessage {
-  role: "system" | "user" | "assistant" | "tool";
-  content: string | null;
-  tool_calls?: GrokToolCall[];
-  tool_call_id?: string;
-}
-
-const TOOLS = [
+const TOOLS: LlmTool[] = [
   {
-    type: "function",
-    function: {
-      name: "search_products",
-      description: "Search the live Bethany House catalog. Use for any product question. Returns canonical slugs, prices (KES/USD), category and stock. Only recommend products this returns, by their exact slug.",
-      parameters: {
-        type: "object",
-        properties: { query: { type: "string", description: "What the customer is looking for, in their own words." } },
-        required: ["query"],
-      },
+    name: "search_products",
+    description: "Search the live Bethany House catalog. Use for any product question. Returns canonical slugs, prices (KES/USD), category and stock. Only recommend products this returns, by their exact slug.",
+    parameters: {
+      type: "object",
+      properties: { query: { type: "string", description: "What the customer is looking for, in their own words." } },
+      required: ["query"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "get_order_status",
-      description: "Look up a live order by its payment token. If you don't have a token, do NOT guess — return the find_orders action instead.",
-      parameters: {
-        type: "object",
-        properties: { payment_token: { type: "string" } },
-        required: ["payment_token"],
-      },
+    name: "get_order_status",
+    description: "Look up a live order by its payment token. If you don't have a token, do NOT guess — return the find_orders action instead.",
+    parameters: {
+      type: "object",
+      properties: { payment_token: { type: "string" } },
+      required: ["payment_token"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "create_lead",
-      description: "Capture a qualified lead once the customer wants a quotation, a bulk/parish order, or asks the team to follow up. Requires at least a phone/WhatsApp number; gather it first.",
-      parameters: {
-        type: "object",
-        properties: {
-          phone: { type: "string", description: "WhatsApp or phone — required" },
-          name: { type: "string" },
-          city: { type: "string" },
-          country: { type: "string" },
-          quantity: { type: "string" },
-          products: { type: "array", items: { type: "string" }, description: "product slugs of interest" },
-          message: { type: "string" },
-          readiness: { type: "string", enum: ["low", "medium", "high"] },
-        },
-        required: ["phone"],
+    name: "create_lead",
+    description: "Capture a qualified lead once the customer wants a quotation, a bulk/parish order, or asks the team to follow up. Requires at least a phone/WhatsApp number; gather it first.",
+    parameters: {
+      type: "object",
+      properties: {
+        phone: { type: "string", description: "WhatsApp or phone — required" },
+        name: { type: "string" },
+        city: { type: "string" },
+        country: { type: "string" },
+        quantity: { type: "string" },
+        products: { type: "array", items: { type: "string" }, description: "product slugs of interest" },
+        message: { type: "string" },
+        readiness: { type: "string", enum: ["low", "medium", "high"] },
       },
+      required: ["phone"],
     },
   },
   {
-    type: "function",
-    function: {
-      name: "estimate_shipping",
-      description: "Estimate international shipping to a destination once the customer names a country (and city if known). Bethany House ships worldwide from Nairobi.",
-      parameters: {
-        type: "object",
-        properties: {
-          country: { type: "string" },
-          city: { type: "string" },
-          items: { type: "array", items: { type: "string" }, description: "product slugs to ship" },
-        },
-        required: ["country"],
+    name: "estimate_shipping",
+    description: "Estimate international shipping to a destination once the customer names a country (and city if known). Bethany House ships worldwide from Nairobi.",
+    parameters: {
+      type: "object",
+      properties: {
+        country: { type: "string" },
+        city: { type: "string" },
+        items: { type: "array", items: { type: "string" }, description: "product slugs to ship" },
       },
+      required: ["country"],
     },
   },
 ];
@@ -221,60 +199,60 @@ function systemPrompt(ctx: PageContext | undefined, locale: string | undefined):
   ].join("\n");
 }
 
-async function grokChat(messages: GrokMessage[], useTools: boolean) {
-  const r = await fetch(`${AI_URL}/chat/completions`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${AI_KEY}` },
-    body: JSON.stringify({
-      model: AI_MODEL,
-      messages,
-      temperature: 0.4,
-      ...(useTools ? { tools: TOOLS, tool_choice: "auto" } : { response_format: { type: "json_object" } }),
-    }),
-  });
-  if (!r.ok) throw new Error(`grok ${r.status}`);
-  const data = await r.json();
-  return data.choices?.[0]?.message as GrokMessage;
-}
+/* ---------------- provider chain (Groq → Anthropic → Gemini) ---------------- */
 
-async function runWithGrok(req: NeemaRequest, toolsUsed: string[]): Promise<NeemaReply> {
-  const history: GrokMessage[] = [
+async function runToolLoop(cfg: ProviderCfg, req: NeemaRequest, toolsUsed: string[]): Promise<NeemaReply> {
+  const history: LlmMessage[] = [
     { role: "system", content: systemPrompt(req.pageContext, req.locale) },
-    ...req.messages.map((m) => ({ role: m.role, content: m.content } as GrokMessage)),
+    ...req.messages.map((m) => ({ role: m.role, content: m.content } as LlmMessage)),
   ];
 
   // Retrieval loop — let Neema call tools until it has what it needs.
   for (let i = 0; i < 4; i++) {
-    const msg = await grokChat(history, true);
-    if (!msg.tool_calls?.length) {
-      history.push(msg);
+    const msg = await providerChat(cfg, history, TOOLS, false);
+    if (!msg.toolCalls.length) {
+      history.push({ role: "assistant", content: msg.content });
       break;
     }
-    history.push(msg);
-    for (const call of msg.tool_calls) {
-      toolsUsed.push(call.function.name);
+    history.push({ role: "assistant", content: msg.content || null, toolCalls: msg.toolCalls });
+    for (const call of msg.toolCalls) {
+      toolsUsed.push(call.name);
       let result: unknown = {};
       try {
-        const args = JSON.parse(call.function.arguments || "{}");
-        if (call.function.name === "search_products") result = await execSearchProducts(String(args.query ?? ""));
-        else if (call.function.name === "get_order_status") result = await execGetOrderStatus(String(args.payment_token ?? ""));
-        else if (call.function.name === "create_lead") result = await execCreateLead(args, req);
-        else if (call.function.name === "estimate_shipping") result = await execEstimateShipping(args);
+        const args = JSON.parse(call.arguments || "{}");
+        if (call.name === "search_products") result = await execSearchProducts(String(args.query ?? ""));
+        else if (call.name === "get_order_status") result = await execGetOrderStatus(String(args.payment_token ?? ""));
+        else if (call.name === "create_lead") result = await execCreateLead(args, req);
+        else if (call.name === "estimate_shipping") result = await execEstimateShipping(args);
       } catch {
         result = { error: "tool failed" };
       }
-      history.push({ role: "tool", tool_call_id: call.id, content: JSON.stringify(result) });
+      history.push({ role: "tool", toolCallId: call.id, content: JSON.stringify(result) });
     }
   }
 
   // Compose the final structured answer (JSON mode, no tools).
-  const finalMsg = await grokChat(
-    [...history, { role: "user", content: "Now return ONLY the JSON reply object." }],
-    false,
-  );
-  const parsed = safeJson(finalMsg?.content ?? "");
-  if (!parsed) return runFallback(req, toolsUsed); // model spoke but not JSON — ground a real answer
+  const finalMsg = await providerChat(cfg, [...history, { role: "user", content: "Now return ONLY the JSON reply object." }], null, true);
+  const parsed = safeJson(finalMsg.content);
+  if (!parsed) throw new Error("non-JSON final"); // let the chain try the next provider
   return normalize(parsed, true);
+}
+
+/** Try each configured provider in order (Groq → Anthropic → Gemini); on error
+    move to the next. Returns the provider that answered, or "fallback" when all
+    fail or none are configured. */
+async function runChain(req: NeemaRequest, toolsUsed: string[]): Promise<{ reply: NeemaReply; mode: string }> {
+  for (const cfg of chatChain()) {
+    const used: string[] = [];
+    try {
+      const reply = await runToolLoop(cfg, req, used);
+      toolsUsed.push(...used);
+      return { reply, mode: cfg.name };
+    } catch (err) {
+      console.error(`[neema] provider ${cfg.name} failed:`, err instanceof Error ? err.message : err);
+    }
+  }
+  return { reply: await runFallback(req, toolsUsed), mode: "fallback" };
 }
 
 /* ---------------- deterministic fallback (always works) ---------------- */
@@ -454,15 +432,23 @@ export async function POST(request: Request): Promise<Response> {
   const req: NeemaRequest = { messages, sessionId, locale: body.locale, pageContext: body.pageContext };
   const toolsUsed: string[] = [];
   let reply: NeemaReply;
-  let mode = AI_KEY ? "grok" : "fallback";
+  let mode: string;
 
   try {
-    reply = AI_KEY ? await runWithGrok(req, toolsUsed) : await runFallback(req, toolsUsed);
+    const res = await runChain(req, toolsUsed);
+    reply = res.reply;
+    mode = res.mode;
   } catch (err) {
-    // Grok unreachable / errored → never fail the customer; ground a real answer.
-    mode = "fallback";
-    console.error("[neema] grok failed, using fallback:", err instanceof Error ? err.message : err);
-    reply = await runFallback(req, toolsUsed);
+    // Even the deterministic fallback failed — never 500 the customer.
+    console.error("[neema] chain failed hard:", err instanceof Error ? err.message : err);
+    mode = "error";
+    reply = normalize(
+      {
+        message: "I'm having a little trouble right now — reach us on WhatsApp and we'll help straight away.",
+        actions: [{ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") }],
+      },
+      false,
+    );
   }
 
   console.log(
