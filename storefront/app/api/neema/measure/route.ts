@@ -6,12 +6,13 @@ import { visionChain, providerVision } from "@/lib/llm";
    template, which prefill the measurement form for the customer to CONFIRM
    and edit before ordering — estimates, never commitments.
 
-   Vision runs Gemini → Anthropic (visionChain) — the primary chat model,
-   Groq's llama-3.3-70b, is text-only and can't see images. When no vision
-   provider is configured, or the photo is unusable, returns available:false
-   with self-measure guidance so the made-to-order flow still works. Set a
-   dedicated vision model with GEMINI_VISION_MODEL / ANTHROPIC_VISION_MODEL
-   (each defaults to that provider's main model). Server-side only. */
+   Vision runs Gemini → OpenAI → Anthropic (visionChain) — the primary chat
+   model, Groq's llama-3.3-70b, is text-only and can't see images. When no
+   vision provider is configured, or the photo is unusable, returns
+   available:false with self-measure guidance so the made-to-order flow still
+   works. Set a dedicated vision model with GEMINI_VISION_MODEL /
+   OPENAI_VISION_MODEL / ANTHROPIC_VISION_MODEL (each defaults to that
+   provider's main model). Server-side only. */
 
 const MAX_IMAGE_CHARS = 3_000_000; // ~2.2MB image as a base64 data URL (client downscales first)
 const RATE_LIMIT = 6; // vision calls

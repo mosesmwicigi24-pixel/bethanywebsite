@@ -3,7 +3,7 @@
 **A code-grounded companion to *"AI-Powered Website Strategy & Implementation Roadmap."***
 
 Prepared for: Bethany House Creations Limited
-Systems in scope: `storefront/` (Next.js/React), Bethany Hub (`hub.bethanyhouse.co.ke/api/v1`), Neema (AI agent), and the model providers behind it — a server-side fallback chain of Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → Gemini
+Systems in scope: `storefront/` (Next.js/React), Bethany Hub (`hub.bethanyhouse.co.ke/api/v1`), Neema (AI agent), and the model providers behind it — a server-side fallback chain of Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → OpenAI → Gemini
 Date: 20 July 2026
 
 ---
@@ -64,7 +64,7 @@ Browser (ChatFab panel)
       ▼
 storefront  app/api/neema/route.ts   ← THE GATEWAY (auth, rate-limit, log, stream)
       │
-      ├──►  Neema orchestrator  ──►  provider chain: Groq → Anthropic → Gemini (function calling)
+      ├──►  Neema orchestrator  ──►  provider chain: Groq → Anthropic → OpenAI → Gemini (function calling)
       │
       └──►  Tool registry (server-side):
                search_products     → getCatalog()        [lib/catalog.ts, exists]
@@ -332,7 +332,7 @@ The strategy's §8 is sound. Three items are urgent because they touch code that
 1. **Where does the gateway live?** Recommended: inside the storefront app (`app/api/neema`) — you already ship a Node server, so it's free. Alternative: a separate Docker service if you want it shared with WhatsApp from day one.
 2. **What may Neema execute vs. only prepare?** Pick the starting autonomy level (§7). Recommend starting at **2 (Prepare)** — draft everything, commit nothing — until evaluations are green.
 3. **Reviews:** real-and-verified, or clearly-labeled-samples with no rating schema? (Blocks safe Product JSON-LD.)
-4. **Which model, when?** The gateway makes this a routing policy, not an architecture decision. The storefront now ships a fallback chain — Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → Gemini — with vision routed to Gemini → Anthropic; tune the order, models and per-intent routing as you learn.
+4. **Which model, when?** The gateway makes this a routing policy, not an architecture decision. The storefront now ships a fallback chain — Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → OpenAI → Gemini — with vision routed to Gemini → OpenAI → Anthropic; tune the order, models and per-intent routing as you learn.
 5. **Consent & identity:** how web and WhatsApp identities reconcile (phone-number keyed, opt-in) — needed before §5.5 and §5.10.
 
 ---

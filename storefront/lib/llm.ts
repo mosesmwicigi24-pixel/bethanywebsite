@@ -2,19 +2,22 @@
    Neema LLM layer — a small multi-provider abstraction.
 
    Chat runs a fallback chain: Groq (primary, llama-3.3-70b-versatile)
-   → Anthropic (Claude) → Gemini. Each provider is reached through its
-   NATIVE API — Groq and Gemini are OpenAI-compatible (chat/completions);
-   Anthropic uses its own Messages API (never an OpenAI shim). The gateway
-   drives a provider-agnostic tool loop over `providerChat`; if a provider
-   errors, the next one is tried, and if all fail the gateway falls back to
-   its deterministic catalog-grounded orchestrator.
+   → Anthropic (Claude) → OpenAI → Gemini. Each provider is reached through
+   its NATIVE API — Groq, OpenAI and Gemini are OpenAI-compatible
+   (chat/completions); Anthropic uses its own Messages API (never an OpenAI
+   shim). The gateway drives a provider-agnostic tool loop over
+   `providerChat`; if a provider errors, the next one is tried, and if all
+   fail the gateway falls back to its deterministic catalog-grounded
+   orchestrator.
 
    Vision (the measurement copilot) skips Groq — llama-3.3-70b is text-only
-   — and runs Gemini → Anthropic, both multimodal.
+   — and runs Gemini → OpenAI → Anthropic, all multimodal.
 
-   All keys are server-only. Configure per provider:
+   Only providers whose key is set are used, so the effective chain is
+   whatever you configure. All keys are server-only. Configure per provider:
      GROQ_API_KEY / GROQ_MODEL (default llama-3.3-70b-versatile) / GROQ_API_URL
      ANTHROPIC_API_KEY / ANTHROPIC_MODEL (default claude-opus-4-8) / ANTHROPIC_API_URL
+     OPENAI_API_KEY / OPENAI_MODEL (default gpt-4o) / OPENAI_API_URL
      GEMINI_API_KEY / GEMINI_MODEL (default gemini-2.0-flash) / GEMINI_API_URL
    ============================================================ */
 
@@ -43,7 +46,7 @@ export interface LlmResult {
 }
 
 export interface ProviderCfg {
-  name: "groq" | "anthropic" | "gemini";
+  name: "groq" | "anthropic" | "openai" | "gemini";
   kind: "openai" | "anthropic";
   baseUrl: string;
   key: string;
@@ -62,6 +65,11 @@ const ANTHROPIC = {
   url: process.env.ANTHROPIC_API_URL || "https://api.anthropic.com/v1",
   model: process.env.ANTHROPIC_MODEL || "claude-opus-4-8",
 };
+const OPENAI = {
+  key: process.env.OPENAI_API_KEY,
+  url: process.env.OPENAI_API_URL || "https://api.openai.com/v1",
+  model: process.env.OPENAI_MODEL || "gpt-4o",
+};
 const GEMINI = {
   key: process.env.GEMINI_API_KEY || process.env.GOOGLE_API_KEY,
   url: process.env.GEMINI_API_URL || "https://generativelanguage.googleapis.com/v1beta/openai",
@@ -72,18 +80,21 @@ const groqCfg = (): ProviderCfg | null =>
   GROQ.key ? { name: "groq", kind: "openai", baseUrl: GROQ.url, key: GROQ.key, model: GROQ.model } : null;
 const anthropicCfg = (model?: string): ProviderCfg | null =>
   ANTHROPIC.key ? { name: "anthropic", kind: "anthropic", baseUrl: ANTHROPIC.url, key: ANTHROPIC.key, model: model || ANTHROPIC.model } : null;
+const openaiCfg = (model?: string): ProviderCfg | null =>
+  OPENAI.key ? { name: "openai", kind: "openai", baseUrl: OPENAI.url, key: OPENAI.key, model: model || OPENAI.model } : null;
 const geminiCfg = (model?: string): ProviderCfg | null =>
   GEMINI.key ? { name: "gemini", kind: "openai", baseUrl: GEMINI.url, key: GEMINI.key, model: model || GEMINI.model } : null;
 
-/** Chat fallback chain: Groq → Anthropic → Gemini (only the configured ones). */
+/** Chat fallback chain: Groq → Anthropic → OpenAI → Gemini (only the configured ones). */
 export function chatChain(): ProviderCfg[] {
-  return [groqCfg(), anthropicCfg(), geminiCfg()].filter((c): c is ProviderCfg => c !== null);
+  return [groqCfg(), anthropicCfg(), openaiCfg(), geminiCfg()].filter((c): c is ProviderCfg => c !== null);
 }
 
-/** Vision chain: Gemini → Anthropic (Groq/Llama-3.3 is text-only, so it's skipped). */
+/** Vision chain: Gemini → OpenAI → Anthropic (Groq/Llama-3.3 is text-only, so it's skipped). */
 export function visionChain(): ProviderCfg[] {
   return [
     geminiCfg(process.env.GEMINI_VISION_MODEL),
+    openaiCfg(process.env.OPENAI_VISION_MODEL),
     anthropicCfg(process.env.ANTHROPIC_VISION_MODEL),
   ].filter((c): c is ProviderCfg => c !== null);
 }

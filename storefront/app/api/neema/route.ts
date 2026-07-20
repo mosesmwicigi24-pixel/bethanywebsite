@@ -23,7 +23,7 @@ import { chatChain, providerChat, type LlmMessage, type LlmTool, type ProviderCf
 
      • enforces guardrails (size caps, per-session rate limit)
      • runs Neema through a provider fallback chain — Groq (primary,
-       llama-3.3-70b-versatile) → Anthropic → Gemini — with
+       llama-3.3-70b-versatile) → Anthropic → OpenAI → Gemini — with
        function-calling tools grounding answers in the live catalog
      • falls back to a deterministic, catalog-grounded orchestrator
        when no provider is configured or all error — so the widget
@@ -34,6 +34,7 @@ import { chatChain, providerChat, type LlmMessage, type LlmTool, type ProviderCf
    Model providers are configured via server-only env (see lib/llm.ts):
      GROQ_API_KEY / GROQ_MODEL / GROQ_API_URL
      ANTHROPIC_API_KEY / ANTHROPIC_MODEL / ANTHROPIC_API_URL
+     OPENAI_API_KEY / OPENAI_MODEL / OPENAI_API_URL
      GEMINI_API_KEY / GEMINI_MODEL / GEMINI_API_URL
    ============================================================ */
 

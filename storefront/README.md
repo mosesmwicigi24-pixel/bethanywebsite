@@ -13,18 +13,21 @@ through a single server route — the browser never talks to a model or the Hub 
   orchestrator so the chat always works. Returns a validated `NeemaReply` the panel
   renders as product cards, quick replies and actions.
 - **Providers** — `lib/llm.ts` is a small multi-provider layer. Chat runs
-  **Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → Gemini**; only providers
-  whose key is set are tried, and if one errors the next takes over. Groq and Gemini use
-  their OpenAI-compatible endpoints; Anthropic uses its native Messages API.
+  **Groq (primary, `llama-3.3-70b-versatile`) → Anthropic → OpenAI → Gemini**; only
+  providers whose key is set are tried, and if one errors the next takes over. Groq,
+  OpenAI and Gemini use their OpenAI-compatible endpoints; Anthropic uses its native
+  Messages API.
 - **Tools** — `search_products`, `get_order_status`, `create_lead` and
   `estimate_shipping` reuse the existing `lib/catalog.ts` and `lib/hub.ts` functions;
   `lib/neema.ts` holds the shared contract and catalog-grounding helpers.
 - **Vision** — the measurement copilot (`app/api/neema/measure/route.ts`) runs a separate
-  chain, **Gemini → Anthropic**. Groq's Llama-3.3 is text-only, so it's skipped for images.
+  chain, **Gemini → OpenAI → Anthropic**. Groq's Llama-3.3 is text-only, so it's skipped
+  for images.
 
 Configure providers via server-only env (see `.env.example`): `GROQ_API_KEY` /
-`GROQ_MODEL`, `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL`, `GEMINI_API_KEY` / `GEMINI_MODEL`
-(plus optional `*_API_URL` and `GEMINI_VISION_MODEL` / `ANTHROPIC_VISION_MODEL` overrides).
+`GROQ_MODEL`, `ANTHROPIC_API_KEY` / `ANTHROPIC_MODEL`, `OPENAI_API_KEY` / `OPENAI_MODEL`,
+`GEMINI_API_KEY` / `GEMINI_MODEL` (plus optional `*_API_URL` and `GEMINI_VISION_MODEL` /
+`OPENAI_VISION_MODEL` / `ANTHROPIC_VISION_MODEL` overrides).
 With no key set, the grounded fallback runs — useful for local dev and demos.
 
 See `docs/AI_INTEGRATION_ADVISORY.md` for the wider plan.
