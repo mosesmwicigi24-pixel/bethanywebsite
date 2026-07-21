@@ -321,19 +321,23 @@ function cleanReply(text: string): string {
     .trim();
 }
 
-/* When the customer taps through to WhatsApp, carry the gist of this chat so the
-   team picks up in context. Deliberately a quiet, secondary path — Add to cart
-   stays the close; this is just a warm, first-person handoff note. */
-const deslug = (s: string) => s.replace(/--v\d+$/i, "").replace(/-[a-z0-9]{6,}$/i, "").replace(/-/g, " ").trim();
-function waSummary(lastUser: string, products: { slug: string }[]): string {
-  const ask = lastUser.replace(/\s+/g, " ").trim().slice(0, 160);
-  const items = products.map((p) => deslug(p.slug)).filter(Boolean).slice(0, 3).join(", ");
-  let t = "Hello Bethany House! I was just chatting with Neema on your website";
-  if (ask) t += ` about "${ask}"`;
-  t += ".";
-  if (items) t += ` I'm interested in: ${items}.`;
-  t += " Could you help me finish my order?";
-  return t.slice(0, 600);
+/* The WhatsApp handoff. Lead with the purchase and let the team pick up the full
+   thread from Neema (the AI already has it in the dashboard) — not a transcript of
+   the chat. Deliberately a quiet, secondary path: Add to cart stays the close. */
+const deslug = (s: string) => s.replace(/--v\d+$/i, "").replace(/-[a-z0-9]{8,}$/i, "").replace(/-/g, " ").trim();
+/** A short, human product label for the handoff: the catalog name's primary
+    segment, keeping a size/quantity hint ("500 pieces", "750ml") when it has one. */
+function itemLabel(slug: string, catalog: Product[]): string {
+  const name = catalog.find((c) => c.slug === slug)?.name ?? deslug(slug);
+  const [head, tail] = name.split(/\s*[—–]\s*/);
+  const hint = tail && /\d/.test(tail) ? ` (${tail.trim()})` : "";
+  return `${head.trim()}${hint}`.slice(0, 48);
+}
+function waHandoff(products: { slug: string }[], catalog: Product[]): string {
+  const items = products.slice(0, 3).map((p) => itemLabel(p.slug, catalog)).filter(Boolean).join(", ");
+  return items
+    ? `Hello Bethany House! I want to buy ${items}. Can you pick up from Neema and process my order?`
+    : `Hello Bethany House! I'd like to place an order — can you pick up my chat with Neema and help me finish?`;
 }
 
 async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
@@ -363,17 +367,19 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
   const agentProducts = Array.isArray(data.products) && data.products.length ? (data.products as { slug: string }[]) : null;
   const hasWa = rawActions.some((a) => a?.type === "whatsapp" || a?.type === "request_quote");
 
-  let products: { slug: string }[] = agentProducts ?? [];
-  if (!agentProducts) {
-    try {
-      products = deriveProducts(reply, lastUser, await getCatalog());
-    } catch {
-      /* catalog slow/unavailable — the text reply still stands on its own */
-    }
+  // Load the catalog once (cached): used both to rebuild cards on a text-only
+  // reply and to give the WhatsApp handoff real product names.
+  let catalog: Product[] = [];
+  try {
+    catalog = await getCatalog();
+  } catch {
+    /* catalog slow/unavailable — the text reply still stands on its own */
   }
+  let products: { slug: string }[] = agentProducts ?? [];
+  if (!agentProducts) products = deriveProducts(reply, lastUser, catalog);
 
   const actions: unknown[] = [...rawActions];
-  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink(waSummary(lastUser, products)) });
+  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink(waHandoff(products, catalog)) });
 
   return normalize(
     {
