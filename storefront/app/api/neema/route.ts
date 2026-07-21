@@ -252,6 +252,44 @@ async function runToolLoop(cfg: ProviderCfg, req: NeemaRequest, toolsUsed: strin
   return normalize(parsed, true);
 }
 
+/* ---------------- neema-ai brain (Path A: one Neema everywhere) ----------------
+   When NEEMA_AGENT_URL + NEEMA_AGENT_KEY are set, every web turn is proxied to
+   the shared neema-ai agent — the SAME brain as WhatsApp/Messenger/IG, with its
+   own memory, tools, live-hub grounding and human takeover. We send only the
+   latest user message + a stable session_id; the agent threads the rest and
+   shows the visitor in the dashboard inbox. On any error (or when unset) we fall
+   through to the storefront's own gateway below, so the widget never breaks. */
+
+const AGENT_URL = process.env.NEEMA_AGENT_URL;
+const AGENT_KEY = process.env.NEEMA_AGENT_KEY;
+const agentLive = () => Boolean(AGENT_URL && AGENT_KEY);
+
+async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
+  const lastUser = [...req.messages].reverse().find((m) => m.role === "user")?.content ?? "";
+  const r = await fetch(AGENT_URL as string, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-Storefront-Key": AGENT_KEY as string },
+    body: JSON.stringify({ session_id: req.sessionId || "anon", message: lastUser }),
+    signal: AbortSignal.timeout(30_000),
+  });
+  if (!r.ok) throw new Error(`agent ${r.status}`);
+  const data = (await r.json()) as { reply?: string; handled_by?: string };
+  const reply = String(data.reply ?? "").trim();
+  if (!reply) throw new Error("agent empty reply");
+  const human = data.handled_by === "human";
+  return normalize(
+    {
+      intent: "other",
+      message: reply,
+      confidence: 0.95,
+      // The agent handles the conversation; we always keep a one-tap human path.
+      actions: [{ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") }],
+      handoff: { required: human, reason: human ? "A team member is replying" : undefined },
+    },
+    true,
+  );
+}
+
 /** Try each configured provider in order (Groq → Anthropic → Gemini); on error
     move to the next. Returns the provider that answered, or "fallback" when all
     fail or none are configured. */
@@ -452,9 +490,21 @@ export async function POST(request: Request): Promise<Response> {
   let mode: string;
 
   try {
-    const res = await runChain(req, toolsUsed);
-    reply = res.reply;
-    mode = res.mode;
+    if (agentLive()) {
+      try {
+        reply = await runAgent(req);
+        mode = "agent";
+      } catch (err) {
+        console.error("[neema] agent failed, falling back to storefront gateway:", err instanceof Error ? err.message : err);
+        const res = await runChain(req, toolsUsed);
+        reply = res.reply;
+        mode = res.mode;
+      }
+    } else {
+      const res = await runChain(req, toolsUsed);
+      reply = res.reply;
+      mode = res.mode;
+    }
   } catch (err) {
     // Even the deterministic fallback failed — never 500 the customer.
     console.error("[neema] chain failed hard:", err instanceof Error ? err.message : err);
