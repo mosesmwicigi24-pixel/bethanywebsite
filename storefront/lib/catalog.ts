@@ -89,7 +89,13 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
 
   const variantImgs = variant ? imagesOf(variant.images) : [];
   const hubImgs = imagesOf(hp.images);
+  // Images: the hub is the source of truth. A curated entry can opt in with
+  // `preferHub` so hub images WIN over its curated gallery the moment the hub
+  // has any (uploading to the hub makes them authoritative). Without preferHub,
+  // the curated gallery is used first and hub images are only the fallback —
+  // this protects products whose hub images are missing or low-quality.
   const gallery = variantImgs.length ? variantImgs
+    : c?.preferHub && hubImgs.length ? hubImgs
     : c?.gallery ?? (hubImgs.length ? hubImgs : c?.img ? [c.img] : [PLACEHOLDER]);
 
   return {
