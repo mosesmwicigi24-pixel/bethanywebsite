@@ -303,6 +303,39 @@ function deriveProducts(replyText: string, userText: string, all: Product[]): { 
   return matches.slice(0, 3).map((m) => ({ slug: m.p.slug }));
 }
 
+/* Keep the customer shopping here. neema-ai sometimes opens by pasting an
+   off-site catalog link ("browse: https://neema.bethanyhouse.co.ke/catalog…"),
+   which pulls people out of the chat — away from the cards + Add to cart. Drop
+   the link (and its lead-in) and let the warm reply carry the moment. */
+function cleanReply(text: string): string {
+  if (!/https?:\/\//i.test(text)) return text; // no link → leave the reply untouched
+  return text
+    // an invite + link ("browse our range here: <url>") — drop the whole clause
+    .replace(/\b(here'?s|browse|see|view|check out|explore|visit|find|shop)\b[^:.!?\n]{0,60}:\s*https?:\/\/\S+/gi, " ")
+    .replace(/\bhttps?:\/\/\S+/gi, " ")
+    // tidy a dangling opener left at the seam ("You can  What size…")
+    .replace(/\b(you can|you may|please|kindly|feel free to|i'?ll|i can)\s+(?=[A-Z])/gi, "")
+    .replace(/\s+([,.;:!?])/g, "$1")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/[ \t]+\n/g, "\n")
+    .trim();
+}
+
+/* When the customer taps through to WhatsApp, carry the gist of this chat so the
+   team picks up in context. Deliberately a quiet, secondary path — Add to cart
+   stays the close; this is just a warm, first-person handoff note. */
+const deslug = (s: string) => s.replace(/--v\d+$/i, "").replace(/-[a-z0-9]{6,}$/i, "").replace(/-/g, " ").trim();
+function waSummary(lastUser: string, products: { slug: string }[]): string {
+  const ask = lastUser.replace(/\s+/g, " ").trim().slice(0, 160);
+  const items = products.map((p) => deslug(p.slug)).filter(Boolean).slice(0, 3).join(", ");
+  let t = "Hello Bethany House! I was just chatting with Neema on your website";
+  if (ask) t += ` about "${ask}"`;
+  t += ".";
+  if (items) t += ` I'm interested in: ${items}.`;
+  t += " Could you help me finish my order?";
+  return t.slice(0, 600);
+}
+
 async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
   const lastUser = [...req.messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const r = await fetch(AGENT_URL as string, {
@@ -316,8 +349,10 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
     reply?: string; handled_by?: string;
     products?: unknown; actions?: unknown; quick_replies?: unknown;
   };
-  const reply = String(data.reply ?? "").trim();
-  if (!reply) throw new Error("agent empty reply");
+  const rawReply = String(data.reply ?? "").trim();
+  if (!rawReply) throw new Error("agent empty reply");
+  // Strip off-site links so the chat keeps the customer here; never blank the message.
+  const reply = cleanReply(rawReply) || "Welcome to Bethany House! Here are a few of our items — tell me exactly what you need and I'll help you order.";
   const human = data.handled_by === "human";
 
   // The agent's own product cards win when present (in production the neema-ai
@@ -338,7 +373,7 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
   }
 
   const actions: unknown[] = [...rawActions];
-  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") });
+  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink(waSummary(lastUser, products)) });
 
   return normalize(
     {
