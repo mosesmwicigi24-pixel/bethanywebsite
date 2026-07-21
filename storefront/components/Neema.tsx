@@ -217,15 +217,27 @@ export default function Neema() {
                 {m.reply?.products?.map((ref) => {
                   const p = bySlug(ref.slug);
                   if (!p) return null;
+                  const readyMade = !p.producible && p.inStock !== false;
                   return (
-                    <Link className="neema-prod" key={ref.slug} href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
-                      <span className="neema-prod-img"><Img src={p.img} alt={p.name} /></span>
-                      <span className="neema-prod-body">
-                        <b>{p.name}</b>
-                        <span className="neema-prod-price"><Price p={p} /></span>
-                      </span>
-                      <span className="neema-prod-go" aria-hidden="true">›</span>
-                    </Link>
+                    <div className="neema-prod" key={ref.slug}>
+                      <Link className="neema-prod-main" href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
+                        <span className="neema-prod-img"><Img src={p.img} alt={p.name} /></span>
+                        <span className="neema-prod-body">
+                          <b>{p.name}</b>
+                          <span className="neema-prod-price"><Price p={p} /></span>
+                        </span>
+                        <span className="neema-prod-go" aria-hidden="true">›</span>
+                      </Link>
+                      {/* the closer: every card can be bought in one tap. Ready-made drops
+                          into the cart; made-to-order routes to the page for measurements. */}
+                      {readyMade ? (
+                        <button className="neema-prod-add" onClick={() => { cart.add(p.slug); cart.setOpen(true); }}>Add to cart</button>
+                      ) : (
+                        <Link className="neema-prod-add" href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
+                          {p.producible ? "Order yours" : "View"}
+                        </Link>
+                      )}
+                    </div>
                   );
                 })}
 
