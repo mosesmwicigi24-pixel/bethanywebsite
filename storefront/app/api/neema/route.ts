@@ -275,23 +275,12 @@ const NAME_STOP = new Set(["set", "the", "and", "for", "with", "from", "pieces",
 const normText = (s: string) => ` ${s.toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim()} `;
 const nameTokens = (s: string) =>
   [...new Set(normText(s).trim().split(" "))].filter((t) => t.length >= 3 && !NAME_STOP.has(t) && !/^\d+$/.test(t));
-const kes = (n: number) => `KES ${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
-
-/** The one-tap close for a product. Ready-made in stock → add straight to cart;
-    made-to-order → the widget routes to the product page (measurements first);
-    ready-made but out of stock → just show it. */
-function closerAction(p: Product): NeemaAction {
-  if (!p.producible && p.inStock === false) return { type: "view_product", label: "See details", value: p.slug };
-  const label = p.producible ? `Order yours · from ${kes(p.price)}` : `Add to cart · ${kes(p.price)}`;
-  return { type: "add_to_cart", label, value: p.slug };
-}
-
-/** Which catalog product is this conversation about? Matches product names — the
+/** Which catalog products is this conversation about? Matches product names — the
     primary segment before the em-dash — against the text: a full-name phrase, or
     ≥2 name words covering ≥60% of the name. Prefers what Neema recommended (the
-    reply), falling back to what the customer asked. Returns up to 3 cards and the
-    single action to close on when one product clearly dominates. */
-function deriveCommerce(replyText: string, userText: string, all: Product[]): { products: { slug: string }[]; action: NeemaAction | null } {
+    reply), falling back to what the customer asked. Returns up to 3 cards; each
+    renders in the widget with its own one-tap "Add" closer. */
+function deriveProducts(replyText: string, userText: string, all: Product[]): { slug: string }[] {
   const catalog = all.filter((p) => !p.variantId);
   const rank = (text: string) => {
     const hay = normText(text);
@@ -311,10 +300,7 @@ function deriveCommerce(replyText: string, userText: string, all: Product[]): { 
   };
   const fromReply = rank(replyText);
   const matches = fromReply.length ? fromReply : rank(userText);
-  if (!matches.length) return { products: [], action: null };
-  const products = matches.slice(0, 3).map((m) => ({ slug: m.p.slug }));
-  const clear = matches.length === 1 || matches[0].score - matches[1].score >= 1.5;
-  return { products, action: clear ? closerAction(matches[0].p) : null };
+  return matches.slice(0, 3).map((m) => ({ slug: m.p.slug }));
 }
 
 async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
@@ -334,28 +320,24 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
   if (!reply) throw new Error("agent empty reply");
   const human = data.handled_by === "human";
 
-  // The agent's own structured fields win when present (once neema-ai returns
-  // them, per docs/NEEMA_WEB_CHAT_CONTRACT.md). Text-only reply → we rebuild the
-  // commerce flow: the product Neema names gets its card + a gold "Add to cart"
-  // closer, grounded in the live catalog — the flow customers had before Path A.
+  // The agent's own product cards win when present (in production the neema-ai
+  // brain already returns them). Text-only reply → we rebuild the cards ourselves,
+  // grounded in the live catalog. Either way, every card carries its own one-tap
+  // "Add" closer in the widget, so the customer can buy without leaving the chat.
   const rawActions = Array.isArray(data.actions) ? (data.actions as { type?: unknown }[]) : [];
   const agentProducts = Array.isArray(data.products) && data.products.length ? (data.products as { slug: string }[]) : null;
   const hasWa = rawActions.some((a) => a?.type === "whatsapp" || a?.type === "request_quote");
-  const hasProductAction = rawActions.some((a) => a?.type === "add_to_cart" || a?.type === "view_product");
 
   let products: { slug: string }[] = agentProducts ?? [];
-  const closer: NeemaAction[] = [];
   if (!agentProducts) {
     try {
-      const derived = deriveCommerce(reply, lastUser, await getCatalog());
-      products = derived.products;
-      if (!hasProductAction && derived.action) closer.push(derived.action);
+      products = deriveProducts(reply, lastUser, await getCatalog());
     } catch {
       /* catalog slow/unavailable — the text reply still stands on its own */
     }
   }
 
-  const actions: unknown[] = [...rawActions, ...closer];
+  const actions: unknown[] = [...rawActions];
   if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") });
 
   return normalize(
