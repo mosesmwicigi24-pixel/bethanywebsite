@@ -1,7 +1,6 @@
 "use client";
 
 import { ReactNode, useRef } from "react";
-import { useHorizontalWheel } from "@/lib/useHorizontalWheel";
 
 /** Horizontal scroll-snap carousel with arrow nav (oraimo/Apple rail). */
 export default function Rail({
@@ -14,7 +13,10 @@ export default function Rail({
   navInWrap?: boolean;
 }) {
   const ref = useRef<HTMLDivElement>(null);
-  useHorizontalWheel(ref); // vertical scroll over the rail scrolls the page
+  // Vertical wheel/touch over the rail scrolls the page natively — the rail is
+  // an x-only scroller (overflow-y:hidden in .rail), so the browser chains the
+  // vertical gesture to the document. No JS wheel handling (it forced main-thread
+  // scrolling and killed momentum). `ref` drives the arrow-nav scrollBy below.
   const go = (dir: number) =>
     ref.current?.scrollBy({ left: 340 * dir, behavior: "smooth" });
 

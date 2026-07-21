@@ -146,7 +146,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .band h2,.dark-band h2{font-family:var(--serif);font-size:clamp(34px,4.2vw,56px);font-weight:600;letter-spacing:-.02em;margin-bottom:40px}
 
 /* Apple lineup carousel */
-.rail{display:flex;gap:22px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 4px 22px;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}
+/* Horizontal-only scroller: overflow-y MUST be explicit — an unset overflow-y
+   beside overflow-x:auto computes to `auto`, silently making this a vertical
+   scroll container that traps page scroll. `hidden` keeps it x-only so a
+   vertical wheel/touch chains to the document natively (no JS needed). No
+   touch-action:pan-x — that would forbid vertical finger-drags from scrolling
+   the page. overscroll-behavior-x:contain stops horizontal rubber-band chaining. */
+.rail{display:flex;gap:22px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:6px 4px 22px;scrollbar-width:none;overscroll-behavior-x:contain}
 .rail::-webkit-scrollbar{display:none}
 .lineup-card{scroll-snap-align:start;flex:0 0 clamp(300px,22vw,360px);background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:0 0 26px;text-align:center;display:flex;flex-direction:column}
 .lineup-card .art{height:300px;border-radius:22px 22px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:24px}
@@ -857,7 +863,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .hero-car{position:relative;overflow:hidden}
 /* Native scroll-snap: a slide can never rest half-visible (fixes the
    partial-card issue oraimo avoids the same way). */
-.hero-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x;overscroll-behavior-x:contain}
+.hero-track{display:flex;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
 .hero-track::-webkit-scrollbar{display:none}
 .hero-slide{flex:0 0 100%;width:100%;min-width:0;scroll-snap-align:start;scroll-snap-stop:always}
 .hero-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border-radius:99px;background:rgba(128,128,128,.28);backdrop-filter:blur(8px);color:#fff;font-size:21px;display:flex;align-items:center;justify-content:center;z-index:6;transition:.2s}
@@ -1149,7 +1155,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .ps-main .price-chip{position:absolute;left:16px;bottom:16px;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);border-radius:999px;padding:8px 14px;font-size:12.5px;font-weight:700;box-shadow:0 2px 10px rgba(11,20,37,.12)}
 .ps-main .price-chip b{font-weight:800}
 /* variant cards (photo + name) under the gallery — the visual variant picker */
-.ps-variants{display:flex;gap:12px;margin-top:16px;overflow-x:auto;padding-bottom:6px}
+.ps-variants{display:flex;gap:12px;margin-top:16px;overflow-x:auto;overflow-y:hidden;padding-bottom:6px}
 .ps-variant-card{flex:none;width:94px;border:1.5px solid var(--line);border-radius:12px;padding:6px;background:#fff;cursor:pointer;display:flex;flex-direction:column;gap:6px;transition:.15s}
 .ps-variant-card:hover{border-color:var(--gold)}
 .ps-variant-card.on{border-color:var(--navy-900);box-shadow:0 0 0 1.5px var(--navy-900) inset}
@@ -1247,7 +1253,11 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .search-veil{padding-top:calc(9vh + env(safe-area-inset-top))}
 
 /* Overlays never chain their scroll to the page behind them. */
-.mnav,.cart-panel,.search-body,.hero-track{overscroll-behavior:contain}
+/* Modals/drawers contain overscroll on BOTH axes (don't scroll the page behind
+   them). The hero-track is deliberately NOT here: it needs the y-axis free so a
+   vertical wheel/touch over the hero chains to the document. It keeps its own
+   overscroll-behavior-x:contain (x-axis only) from the .hero-track rule above. */
+.mnav,.cart-panel,.search-body{overscroll-behavior:contain}
 .rail{-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain}
 
 @media(max-width:640px){

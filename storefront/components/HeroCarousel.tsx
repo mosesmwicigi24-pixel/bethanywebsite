@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Money } from "./Money";
-import { useHorizontalWheel } from "@/lib/useHorizontalWheel";
 
 const N = 3;
 const INTERVAL = 6000;
@@ -17,7 +16,10 @@ export default function HeroCarousel() {
   const [paused, setPaused] = useState(false);
   const iRef = useRef(0);
   iRef.current = i;
-  useHorizontalWheel(track); // vertical scroll over the hero scrolls the page
+  // The hero is an x-only scroller (overflow-y:hidden on .hero-track), so a
+  // vertical wheel/touch over it chains to the document natively — no JS wheel
+  // forwarding (that ran on the main thread and made page scroll feel sluggish).
+  // `track` still drives snap position (go / onScroll) below.
 
   const go = useCallback((n: number) => {
     const el = track.current;
