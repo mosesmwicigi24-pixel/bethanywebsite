@@ -51,6 +51,15 @@ const newId = (): string => {
   try { return crypto.randomUUID(); } catch { return Math.random().toString(36).slice(2); }
 };
 
+// Always resolve a WhatsApp action to an absolute wa.me URL — a bare phone
+// number rendered as an href would be treated as a relative path and 404.
+const DEFAULT_WA = "https://wa.me/254727891989";
+const waHref = (v?: string): string => {
+  if (v && /^https?:\/\//i.test(v)) return v;
+  const digits = (v || "").replace(/\D/g, "");
+  return digits.length >= 9 ? `https://wa.me/${digits}` : DEFAULT_WA;
+};
+
 export default function Neema() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState<Msg[]>([WELCOME]);
@@ -230,13 +239,15 @@ export default function Neema() {
                   <div className="neema-actions">
                     {m.reply.actions.map((a, j) => {
                       const label = a.label;
+                      // External handoff — always an absolute wa.me URL, opened in a new tab.
                       if (a.type === "whatsapp" || a.type === "request_quote") {
-                        return <a className="neema-action" key={j} href={a.value || "https://wa.me/254727891989"} target="_blank" rel="noopener noreferrer">{label}</a>;
+                        return <a className="neema-action" key={j} href={waHref(a.value)} target="_blank" rel="noopener noreferrer">{label}</a>;
                       }
-                      if (a.type === "view_product" && a.value) {
-                        return <Link className="neema-action" key={j} href={`/product/${a.value}`} onClick={() => setOpen(false)}>{label}</Link>;
-                      }
-                      const href = a.type === "find_orders" ? "/orders" : a.value || "/shop";
+                      // Internal navigation — only ever a safe in-app path (never a raw model value).
+                      let href = "/shop";
+                      if (a.type === "view_product" && a.value) href = `/product/${a.value.replace(/^\/+/, "").replace(/^product\//, "").split(/[/?#]/)[0]}`;
+                      else if (a.type === "find_orders") href = "/orders";
+                      else if (a.value && a.value.startsWith("/")) href = a.value;
                       return <Link className="neema-action" key={j} href={href} onClick={() => setOpen(false)}>{label}</Link>;
                     })}
                   </div>

@@ -45,6 +45,13 @@ const RATE_WINDOW_MS = 60_000; // per minute, per session
 
 // WhatsApp deep-link to the shop line (E.164, no + or spaces).
 const WA_NUMBER = SITE.phone.replace(/[^\d]/g, "");
+// Coerce any WhatsApp value into a valid absolute wa.me URL, so a bare phone
+// number can never render as a relative link (which 404s the page).
+function coerceWa(value?: string): string {
+  if (value && /^https?:\/\//i.test(value)) return value;
+  const digits = (value || "").replace(/\D/g, "");
+  return `https://wa.me/${digits.length >= 9 ? digits : WA_NUMBER}`;
+}
 const waLink = (text: string) => `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(text)}`;
 
 /* ---------------- guardrails ---------------- */
@@ -187,16 +194,22 @@ const TOOLS: LlmTool[] = [
 function systemPrompt(ctx: PageContext | undefined, locale: string | undefined): string {
   const here = ctx?.productSlug ? `The customer is viewing product "${ctx.productSlug}". ` : ctx?.category ? `The customer is browsing "${ctx.category}". ` : "";
   return [
-    `You are Neema, the sales & service agent for ${SITE.name} — ${SITE.tagline}`,
+    `You are Neema, the warm, sharp sales assistant for ${SITE.name} — ${SITE.tagline}`,
     `Shop: ${SITE.address}, ${SITE.city}. Hours: ${SITE.hours}. Phone/WhatsApp: ${SITE.phone}. Payments: ${SITE.payments}. ${SITE.deliveryPromise}. We ship worldwide.`,
     here + (locale ? `Customer locale: ${locale}. ` : ""),
-    "Rules:",
-    "- Ground every product, price and stock fact in search_products. NEVER invent prices, availability or shipping figures.",
-    "- Prices are KES for Kenya, USD elsewhere. Made-to-order garments need measurements before production.",
-    "- For parish/diocese bulk orders, complex quotes, or anything you're unsure of, set handoff.required=true and offer WhatsApp.",
-    "- Be warm, concise and commercial. Move the customer toward a clear next step.",
+    "TALK LIKE A REAL PERSON ON WHATSAPP — never like a form:",
+    "- Read the whole conversation and ALWAYS move it forward. NEVER repeat a message or re-describe a product you've already covered. If the customer says yes / ok / proceed, take the NEXT concrete step — do not restate the pitch.",
+    "- Acknowledge what they just said, then add something new. Be concise and natural, ask at most one question, and vary your wording.",
+    "GROUNDING:",
+    "- Use search_products for every product, price and stock fact. NEVER invent prices, availability, totals or shipping figures. Recommend only products it returns, by exact slug. Prices are KES in Kenya, USD elsewhere.",
+    "BUYING — you CANNOT take payment or place orders in this chat:",
+    "- NEVER offer 'Pay with M-Pesa/Visa' or say an order is placed. Payment happens on the website checkout only.",
+    "- To buy a normal item: send them to the product with a view_product action (e.g. label 'View & buy') — they add to cart and pay securely at checkout.",
+    "- For bulk / parish / wholesale / a quotation (dozens or more, or the word 'quote'): collect their details for a real quote — ask for WhatsApp number, quantity and city, set readiness high and handoff.required=true; our team confirms on WhatsApp.",
+    "- Made-to-order garments need measurements before production. When unsure, or they want a person, offer a whatsapp action.",
     "Respond with ONLY a JSON object (no prose, no code fences) matching:",
-    `{"intent":"greeting|product_inquiry|quote|shipping|order_support|measurement|other","message":"reply to the customer","confidence":0..1,"products":[{"slug":"exact-slug","reason":"why"}],"questions":[{"id":"short_id","label":"a one-tap question"}],"actions":[{"type":"view_product|whatsapp|request_quote|find_orders|shop","label":"button text","value":"slug or url"}],"handoff":{"required":false,"reason":null},"readiness":"low|medium|high"}`,
+    `{"intent":"greeting|product_inquiry|quote|shipping|order_support|measurement|other","message":"warm, specific reply that advances the conversation","confidence":0..1,"products":[{"slug":"exact-slug","reason":"why"}],"questions":[{"id":"short_id","label":"one-tap reply, <=5 words"}],"actions":[{"type":"view_product|whatsapp|request_quote|find_orders|shop","label":"button text","value":"exact product-slug for view_product; leave blank for whatsapp"}],"handoff":{"required":false,"reason":null},"readiness":"low|medium|high"}`,
+    "For view_product, value MUST be the exact product slug (never a URL). For whatsapp, leave value blank — the app fills the correct link.",
   ].join("\n");
 }
 
@@ -399,7 +412,10 @@ function normalize(raw: Record<string, unknown>, grounded: boolean): NeemaReply 
     actions: asArr<NeemaAction>(raw.actions)
       .filter((a) => a?.type && a?.label)
       .slice(0, 4)
-      .map((a) => ({ type: a.type, label: String(a.label).slice(0, 40), value: a.value ? String(a.value) : undefined })),
+      .map((a) => {
+        const value = a.value ? String(a.value) : undefined;
+        return { type: a.type, label: String(a.label).slice(0, 40), value: a.type === "whatsapp" || a.type === "request_quote" ? coerceWa(value) : value };
+      }),
     handoff: { required: Boolean(handoff.required), reason: handoff.reason ? String(handoff.reason) : undefined },
     sources: asArr<{ type?: unknown; recordId?: unknown }>(raw.sources)
       .filter((s) => s?.recordId)
