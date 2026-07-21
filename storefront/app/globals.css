@@ -1350,6 +1350,10 @@ body:has(.cart-veil.open) .chat-fab{visibility:hidden}
 .neema-action{background:var(--navy-900);color:#fff;border-radius:10px;padding:8px 13px;font-size:12.5px;
   font-weight:600;text-decoration:none;display:inline-flex;align-items:center;cursor:pointer}
 .neema-action:hover{background:var(--navy-800)}
+/* the closer: filled-gold add-to-cart CTA that stands out from the navy actions */
+.neema-action.neema-buy{background:linear-gradient(180deg,var(--gold-bright),var(--gold));color:var(--navy-950);
+  border:0;font-family:inherit;font-weight:700}
+.neema-action.neema-buy:hover{background:var(--gold-bright);filter:brightness(1.04)}
 .neema-typing{display:flex;gap:4px;align-items:center}
 .neema-typing i{width:6px;height:6px;border-radius:50%;background:var(--muted);animation:neemaBlink 1.2s infinite}
 .neema-typing i:nth-child(2){animation-delay:.2s}

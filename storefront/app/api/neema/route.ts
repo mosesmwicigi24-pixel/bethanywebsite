@@ -264,6 +264,59 @@ const AGENT_URL = process.env.NEEMA_AGENT_URL;
 const AGENT_KEY = process.env.NEEMA_AGENT_KEY;
 const agentLive = () => Boolean(AGENT_URL && AGENT_KEY);
 
+/* --- The closer: re-attach cards + "Add to cart" on a text-only agent reply ---
+   Path A routes every turn to the neema-ai brain, which today answers in prose.
+   That dropped the product cards and add-to-cart button that used to carry a
+   customer to checkout. Until neema-ai returns products/actions itself (see
+   docs/NEEMA_WEB_CHAT_CONTRACT.md), we rebuild them here — grounded in the live
+   catalog, never guessed: only a product Neema actually named is surfaced. */
+
+const NAME_STOP = new Set(["set", "the", "and", "for", "with", "from", "pieces", "piece"]);
+const normText = (s: string) => ` ${s.toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim()} `;
+const nameTokens = (s: string) =>
+  [...new Set(normText(s).trim().split(" "))].filter((t) => t.length >= 3 && !NAME_STOP.has(t) && !/^\d+$/.test(t));
+const kes = (n: number) => `KES ${Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}`;
+
+/** The one-tap close for a product. Ready-made in stock → add straight to cart;
+    made-to-order → the widget routes to the product page (measurements first);
+    ready-made but out of stock → just show it. */
+function closerAction(p: Product): NeemaAction {
+  if (!p.producible && p.inStock === false) return { type: "view_product", label: "See details", value: p.slug };
+  const label = p.producible ? `Order yours · from ${kes(p.price)}` : `Add to cart · ${kes(p.price)}`;
+  return { type: "add_to_cart", label, value: p.slug };
+}
+
+/** Which catalog product is this conversation about? Matches product names — the
+    primary segment before the em-dash — against the text: a full-name phrase, or
+    ≥2 name words covering ≥60% of the name. Prefers what Neema recommended (the
+    reply), falling back to what the customer asked. Returns up to 3 cards and the
+    single action to close on when one product clearly dominates. */
+function deriveCommerce(replyText: string, userText: string, all: Product[]): { products: { slug: string }[]; action: NeemaAction | null } {
+  const catalog = all.filter((p) => !p.variantId);
+  const rank = (text: string) => {
+    const hay = normText(text);
+    return catalog
+      .map((p) => {
+        const primary = p.name.split(/[—–\-|&]/)[0];
+        const toks = nameTokens(primary);
+        if (!toks.length) return { p, score: 0 };
+        const phrase = hay.includes(normText(primary)) ? 1 : 0;
+        let hits = 0;
+        for (const t of toks) if (hay.includes(` ${t}`)) hits += 1;
+        const ok = phrase === 1 || (hits >= 2 && hits / toks.length >= 0.6) || (toks.length === 1 && hits === 1 && toks[0].length >= 5);
+        return { p, score: ok ? phrase * 3 + hits + (p.badge === "best" ? 0.5 : 0) : 0 };
+      })
+      .filter((x) => x.score > 0)
+      .sort((a, b) => b.score - a.score);
+  };
+  const fromReply = rank(replyText);
+  const matches = fromReply.length ? fromReply : rank(userText);
+  if (!matches.length) return { products: [], action: null };
+  const products = matches.slice(0, 3).map((m) => ({ slug: m.p.slug }));
+  const clear = matches.length === 1 || matches[0].score - matches[1].score >= 1.5;
+  return { products, action: clear ? closerAction(matches[0].p) : null };
+}
+
 async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
   const lastUser = [...req.messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const r = await fetch(AGENT_URL as string, {
@@ -273,17 +326,46 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
     signal: AbortSignal.timeout(30_000),
   });
   if (!r.ok) throw new Error(`agent ${r.status}`);
-  const data = (await r.json()) as { reply?: string; handled_by?: string };
+  const data = (await r.json()) as {
+    reply?: string; handled_by?: string;
+    products?: unknown; actions?: unknown; quick_replies?: unknown;
+  };
   const reply = String(data.reply ?? "").trim();
   if (!reply) throw new Error("agent empty reply");
   const human = data.handled_by === "human";
+
+  // The agent's own structured fields win when present (once neema-ai returns
+  // them, per docs/NEEMA_WEB_CHAT_CONTRACT.md). Text-only reply → we rebuild the
+  // commerce flow: the product Neema names gets its card + a gold "Add to cart"
+  // closer, grounded in the live catalog — the flow customers had before Path A.
+  const rawActions = Array.isArray(data.actions) ? (data.actions as { type?: unknown }[]) : [];
+  const agentProducts = Array.isArray(data.products) && data.products.length ? (data.products as { slug: string }[]) : null;
+  const hasWa = rawActions.some((a) => a?.type === "whatsapp" || a?.type === "request_quote");
+  const hasProductAction = rawActions.some((a) => a?.type === "add_to_cart" || a?.type === "view_product");
+
+  let products: { slug: string }[] = agentProducts ?? [];
+  const closer: NeemaAction[] = [];
+  if (!agentProducts) {
+    try {
+      const derived = deriveCommerce(reply, lastUser, await getCatalog());
+      products = derived.products;
+      if (!hasProductAction && derived.action) closer.push(derived.action);
+    } catch {
+      /* catalog slow/unavailable — the text reply still stands on its own */
+    }
+  }
+
+  const actions: unknown[] = [...rawActions, ...closer];
+  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") });
+
   return normalize(
     {
       intent: "other",
       message: reply,
       confidence: 0.95,
-      // The agent handles the conversation; we always keep a one-tap human path.
-      actions: [{ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") }],
+      products,
+      questions: Array.isArray(data.quick_replies) ? data.quick_replies : [],
+      actions,
       handoff: { required: human, reason: human ? "A team member is replying" : undefined },
     },
     true,

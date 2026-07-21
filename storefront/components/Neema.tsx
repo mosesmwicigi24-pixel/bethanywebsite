@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Img from "./Img";
 import { Price } from "./Money";
 import { useCatalog } from "@/lib/catalogClient";
+import { useCart } from "@/lib/cart";
 import type { NeemaReply } from "@/lib/neema";
 
 /* Neema — the customer-facing chat widget (advisory §3.1).
@@ -75,6 +76,7 @@ export default function Neema() {
 
   const pathname = usePathname();
   const { bySlug } = useCatalog();
+  const cart = useCart();
   // Intent-aware context for the gateway — stable across renders so `send`'s
   // memo holds (a product page opens Neema already knowing the product).
   const pageContext = useMemo(() => {
@@ -242,6 +244,17 @@ export default function Neema() {
                       // External handoff — always an absolute wa.me URL, opened in a new tab.
                       if (a.type === "whatsapp" || a.type === "request_quote") {
                         return <a className="neema-action" key={j} href={waHref(a.value)} target="_blank" rel="noopener noreferrer">{label}</a>;
+                      }
+                      // The closer: one-tap add to cart. Ready-made items drop straight into
+                      // the cart (drawer opens); made-to-order routes to the product page so
+                      // measurements are captured first.
+                      if (a.type === "add_to_cart" && a.value) {
+                        const slug = a.value.replace(/^\/+/, "").replace(/^product\//, "").split(/[/?#]/)[0];
+                        const p = bySlug(slug);
+                        if (p && !p.producible) {
+                          return <button className="neema-action neema-buy" key={j} onClick={() => { cart.add(slug); cart.setOpen(true); }}>{label}</button>;
+                        }
+                        return <Link className="neema-action neema-buy" key={j} href={`/product/${slug}`} onClick={() => setOpen(false)}>{label}</Link>;
                       }
                       // Internal navigation — only ever a safe in-app path (never a raw model value).
                       let href = "/shop";
