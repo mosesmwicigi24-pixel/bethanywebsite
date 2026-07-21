@@ -55,7 +55,7 @@ export interface NeemaQuestion {
 }
 
 export interface NeemaAction {
-  type: "view_product" | "whatsapp" | "request_quote" | "find_orders" | "shop";
+  type: "view_product" | "add_to_cart" | "whatsapp" | "request_quote" | "find_orders" | "shop";
   label: string;
   value?: string; // e.g. a slug for view_product
 }

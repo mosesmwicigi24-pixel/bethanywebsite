@@ -273,17 +273,29 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
     signal: AbortSignal.timeout(30_000),
   });
   if (!r.ok) throw new Error(`agent ${r.status}`);
-  const data = (await r.json()) as { reply?: string; handled_by?: string };
+  const data = (await r.json()) as {
+    reply?: string; handled_by?: string;
+    products?: unknown; actions?: unknown; quick_replies?: unknown;
+  };
   const reply = String(data.reply ?? "").trim();
   if (!reply) throw new Error("agent empty reply");
   const human = data.handled_by === "human";
+
+  // Render whatever structured extras the agent returns: product cards, action
+  // buttons (add_to_cart / view_product / whatsapp) and one-tap quick replies —
+  // this is what turns a text answer into a checkout. All optional (a text-only
+  // reply still works); normalize() validates + sanitizes each field.
+  const agentActions = Array.isArray(data.actions) ? (data.actions as { type?: unknown }[]) : [];
+  const hasWa = agentActions.some((a) => a?.type === "whatsapp" || a?.type === "request_quote");
   return normalize(
     {
       intent: "other",
       message: reply,
       confidence: 0.95,
-      // The agent handles the conversation; we always keep a one-tap human path.
-      actions: [{ type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") }],
+      products: Array.isArray(data.products) ? data.products : [],
+      questions: Array.isArray(data.quick_replies) ? data.quick_replies : [],
+      // Keep a one-tap human path unless the agent already offered one.
+      actions: hasWa ? agentActions : [...agentActions, { type: "whatsapp", label: "Chat on WhatsApp", value: waLink("Hello Bethany House") }],
       handoff: { required: human, reason: human ? "A team member is replying" : undefined },
     },
     true,
