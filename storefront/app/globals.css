@@ -59,6 +59,20 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .utility .meta{display:flex;gap:18px;white-space:nowrap}
 .utility .meta a:hover{color:#fff}
 
+/* ---------- seasonal ribbon (additive; brand colours untouched) ----------
+   Shown only when a liturgical season is active. Same navy/gold register as the
+   utility bar — the season reads through the motif + name + scripture, NOT a
+   recolour. The seasonal accent tints only the small motif glyph. */
+.season-ribbon{background:var(--navy-950);color:#c3cee0;border-bottom:1px solid rgba(255,255,255,.06);font-size:12.5px}
+.season-ribbon .wrap{display:flex;align-items:center;justify-content:space-between;gap:18px;min-height:36px;padding:6px 0}
+.season-ribbon .sr-left{display:flex;align-items:center;gap:11px;min-width:0}
+.season-ribbon .sr-motif{font-size:14px;line-height:1;flex:none}
+.season-ribbon .sr-left b{color:var(--gold-bright);font-weight:700;letter-spacing:.02em;white-space:nowrap;flex:none}
+.season-ribbon .sr-left em{font-family:var(--serif);font-style:italic;color:#9fb0c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.season-ribbon .sr-camp{color:#fff;font-weight:700;white-space:nowrap;flex:none}
+.season-ribbon .sr-camp:hover{color:var(--gold-bright)}
+@media(max-width:720px){.season-ribbon .sr-left em{display:none}}
+
 /* ---------- nav ---------- */
 .nav{background:var(--navy-900);color:#fff;position:sticky;top:0;z-index:120;border-bottom:1px solid rgba(255,255,255,.06)}
 .nav .wrap{display:flex;align-items:center;height:64px;gap:34px}

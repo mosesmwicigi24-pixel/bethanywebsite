@@ -1,10 +1,13 @@
 import type { Metadata, Viewport } from "next";
+import { Suspense } from "react";
 import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
 import { UtilityBar, Nav, Footer, ChatFab } from "@/components/chrome";
+import SeasonRibbon from "@/components/SeasonRibbon";
 import { CartProvider } from "@/lib/cart";
 import { CurrencyProvider } from "@/lib/currency";
 import { CatalogProvider } from "@/lib/catalogClient";
 import { getCatalog } from "@/lib/catalog";
+import { getSiteTheme } from "@/lib/theme";
 import CartDrawer from "@/components/CartDrawer";
 import JsonLd from "@/components/JsonLd";
 import { SITE } from "@/lib/site";
@@ -62,7 +65,7 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const catalog = await getCatalog();
+  const [catalog, siteTheme] = await Promise.all([getCatalog(), getSiteTheme()]);
   return (
     <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
       <body>
@@ -70,6 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <CurrencyProvider>
         <CatalogProvider catalog={catalog}>
         <CartProvider>
+          <Suspense fallback={null}><SeasonRibbon site={siteTheme} /></Suspense>
           <UtilityBar />
           <Nav />
           {children}
