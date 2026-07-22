@@ -8,6 +8,7 @@ import { MeasureProvider, MeasurementForm } from "@/components/measure";
 import Highlights from "@/components/Highlights";
 import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
+import EditorialChapter from "@/components/EditorialChapter";
 import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
 import ProductStudio from "@/components/ProductStudio";
@@ -85,6 +86,15 @@ export default async function ProductPage(
   const cmsPillars = (pdp.product_pillar ?? []).map((b) => ({
     icon: (b.styles as Record<string, string> | null)?.icon || "✦",
     title: b.title || "", text: b.subtitle || "",
+  }));
+  const cmsHighlights = (pdp.product_highlight ?? []).map((b) => ({
+    label: (b.styles as Record<string, string> | null)?.eyebrow || b.title || "",
+    title: b.title || "", text: b.subtitle || "", img: b.image_url || "",
+  }));
+  const chapters = (pdp.product_chapter ?? []).map((b) => ({
+    eyebrow: (b.styles as Record<string, string> | null)?.eyebrow,
+    title: b.title || "", copy: b.subtitle || "",
+    img: b.image_url || undefined, theme: (b.styles as Record<string, string> | null)?.theme,
   }));
 
   // related: same category first, then fill from the rest — parents/simples only
@@ -189,9 +199,13 @@ export default async function ProductPage(
       <ProductRail title="You May Also Like" products={also} small tight />
 
       <PosterBanner p={parent} override={posterOverride} />
+      {cmsHighlights.length > 0 && <Highlights items={cmsHighlights} />}
       {features.length > 0 && (
         <CloserLook features={features} fallbackImg={parent.img} />
       )}
+      {chapters.map((ch, i) => (
+        <EditorialChapter key={i} c={ch} />
+      ))}
 
       {isFlagship && (
         <div className="story" style={{ marginTop: 10 }}>

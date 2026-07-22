@@ -991,6 +991,21 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 .poster.warm{background:linear-gradient(160deg,#e8d5ae 0%,#f6ecd2 45%,#fdf8ea 100%);color:#2c2410}
 .poster.dark{background:radial-gradient(130% 140% at 50% 0%,#1b3050,var(--navy-950) 70%);color:#fff}
 .poster-eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.65}
+
+/* ---------- editorial product chapter (Apple Health/Fitness pattern) ---------- */
+.chapter{position:relative;width:min(89vw,1300px);margin:26px auto;border-radius:22px;overflow:hidden;min-height:clamp(420px,58vh,620px);display:flex;align-items:flex-end;isolation:isolate}
+.chapter-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-2}
+.chapter-scrim{position:absolute;inset:0;z-index:-1}
+.chapter.dark{background:var(--navy-950);color:#fff}
+.chapter.dark .chapter-scrim{background:linear-gradient(180deg,rgba(7,15,28,.5) 0%,rgba(7,15,28,.12) 42%,rgba(7,15,28,.82) 100%)}
+.chapter.light{background:var(--tile);color:var(--ink)}
+.chapter.light .chapter-scrim{background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.6) 100%)}
+.chapter-inner{position:relative;padding:clamp(28px,4vw,56px);max-width:660px}
+.chapter-eyebrow{display:block;font-size:13px;font-weight:800;letter-spacing:.02em;color:var(--gold-bright);margin-bottom:12px}
+.chapter.light .chapter-eyebrow{color:var(--navy-700)}
+.chapter-title{font-family:var(--serif);font-size:clamp(30px,4.4vw,52px);font-weight:600;letter-spacing:-.02em;line-height:1.05}
+.chapter-copy{font-size:15.5px;line-height:1.7;margin-top:16px;max-width:540px;opacity:.92}
+@media(max-width:640px){.chapter{min-height:420px}.chapter-inner{padding:24px}}
 .poster h2{font-family:var(--serif);font-size:clamp(32px,4vw,54px);font-weight:600;letter-spacing:-.02em;margin:12px 0 14px}
 .poster-specs{font-size:12.5px;font-weight:600;max-width:760px;margin:0 auto;opacity:.75;line-height:1.8}
 .poster-art{margin:30px auto 0;display:flex;justify-content:center}
