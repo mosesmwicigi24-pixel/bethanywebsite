@@ -27,6 +27,9 @@ export function UtilityBar() {
   );
 }
 
+/** Link to the shop filtered by a root department (see lib/categories.ts). */
+const shopCat = (c: string) => `/shop?category=${encodeURIComponent(c)}`;
+
 export function Nav() {
   return (
     <nav className="nav">
@@ -36,7 +39,7 @@ export function Nav() {
         <ul className="nav-links">
           <li><Link href="/shop">Offers <span className="flame">🔥</span></Link></li>
           <li className="has-mega">
-            <Link href="/shop">Communion Elements</Link>
+            <Link href={shopCat("Communion Elements")}>Communion Elements</Link>
             <div className="mega">
               <div className="mega-inner">
                 <div className="mega-rail">
@@ -77,9 +80,9 @@ export function Nav() {
               </div>
             </div>
           </li>
-          <li><Link href="/shop">Clergy Apparel</Link></li>
-          <li><Link href="/shop">Gifts &amp; Accessories</Link></li>
-          <li><Link href="/shop">Church Essentials</Link></li>
+          <li><Link href={shopCat("Clergy Apparel")}>Clergy Apparel</Link></li>
+          <li><Link href={shopCat("Gifts & Accessories")}>Gifts &amp; Accessories</Link></li>
+          <li><Link href={shopCat("Church Essentials")}>Church Essentials</Link></li>
           <li className="has-drop">
             <a href="#">Support</a>
             <div className="drop">
@@ -124,19 +127,20 @@ export function Footer() {
         </div>
         <div>
           <h5>Shop</h5>
-          <Link href="/shop">Communion Elements</Link>
-          <Link href="/shop">Clergy Apparel</Link>
-          <Link href="/shop">Gifts &amp; Accessories</Link>
-          <Link href="/shop">Church Essentials</Link>
+          <Link href={shopCat("Communion Elements")}>Communion Elements</Link>
+          <Link href={shopCat("Clergy Apparel")}>Clergy Apparel</Link>
+          <Link href={shopCat("Gifts & Accessories")}>Gifts &amp; Accessories</Link>
+          <Link href={shopCat("Church Essentials")}>Church Essentials</Link>
           <Link href="/shop">Daily Offers</Link>
         </div>
         <div>
           <h5>Support</h5>
-          <a href="#">Track Your Order</a>
-          <a href="#">Delivery &amp; Returns</a>
-          <a href="#">Parish Accounts</a>
-          <a href="#">Engraving Services</a>
-          <a href="#">Contact Us</a>
+          <Link href="/orders">Track Your Order</Link>
+          <Link href="/policies/shipping">Delivery &amp; Returns</Link>
+          <Link href="/policies/returns">Returns &amp; Refunds</Link>
+          <a href={SITE.phoneHref}>Parish Accounts</a>
+          <a href={SITE.phoneHref}>Engraving Services</a>
+          <a href={`mailto:${SITE.email}`}>Contact Us</a>
         </div>
         <div className="contact">
           <h5>Visit Us</h5>
@@ -148,6 +152,12 @@ export function Footer() {
       </div>
       <div className="wrap base">
         <span>© 2026 {SITE.name}. All rights reserved.</span>
+        <span className="legal-links">
+          <Link href="/policies/terms">Terms of Service</Link>
+          <Link href="/policies/privacy">Privacy Policy</Link>
+          <Link href="/policies/returns">Returns &amp; Refunds</Link>
+          <Link href="/policies/shipping">Shipping &amp; Delivery</Link>
+        </span>
         <span>{SITE.payments}</span>
       </div>
     </footer>
