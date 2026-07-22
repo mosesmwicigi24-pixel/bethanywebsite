@@ -48,8 +48,9 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
     // Detect the visitor's country → default currency (Kenya → KES, Zambia →
     // Kwacha, everywhere else → USD), but only when they haven't chosen one — a
     // manual pick always wins. This same call fires the analytics beacon
-    // (server-side in /api/geo). Never blocks the page.
-    fetch(`/api/geo?path=${encodeURIComponent(location.pathname)}`)
+    // (server-side in /geo). Kept off the /api/* prefix: nginx routes /api/* to
+    // the legacy POS app, so this route lives at /geo to reach the Next server.
+    fetch(`/geo?path=${encodeURIComponent(location.pathname)}`)
       .then((r) => r.json())
       .then((d: { currency?: Currency }) => {
         if (!localStorage.getItem(KEY) && (d.currency === "USD" || d.currency === "KES" || d.currency === "ZMW")) {
