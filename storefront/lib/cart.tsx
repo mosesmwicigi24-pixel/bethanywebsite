@@ -2,6 +2,7 @@
 
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCatalog } from "./catalogClient";
+import { cartToken, postInterest } from "./interest";
 
 export interface CartItem {
   /** unique line key — producible items with measurements get their own line */
@@ -21,6 +22,8 @@ interface CartCtx {
   subtotalUsd: number;   // USD
   open: boolean;
   hydrated: boolean;
+  /** cross-channel interest token (BH-XXXX) for this browser's cart */
+  token: string;
   add: (slug: string, qty?: number, measurements?: Record<string, string>, size?: string) => void;
   setQty: (key: string, qty: number) => void;
   remove: (key: string) => void;
@@ -42,12 +45,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [open, setOpen] = useState(false);
   const [hydrated, setHydrated] = useState(false);
+  const [token, setToken] = useState("");
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem(KEY);
       if (raw) setItems(JSON.parse(raw));
     } catch { /* corrupted storage — start fresh */ }
+    setToken(cartToken());
     setHydrated(true);
   }, []);
 
@@ -97,8 +102,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
     return { count, subtotal, subtotalUsd };
   }, [items, bySlug]);
 
+  // Mirror the cart to the Hub interest ledger (server-side, via /api/cart),
+  // debounced so a burst of edits sends one write. Keyed by the cross-channel
+  // token so WhatsApp/Messenger can resume the same cart. Best-effort — a
+  // failure just means this beat isn't mirrored; the cart still works locally.
+  useEffect(() => {
+    if (!hydrated || !token || items.length === 0) return;
+    const id = setTimeout(() => {
+      postInterest({
+        token,
+        items: items.map((i) => ({ slug: i.slug, quantity: i.qty, measurements: i.measurements, size: i.size })),
+        subtotal,
+        currency: "KES",
+        sourcePath: typeof location !== "undefined" ? location.pathname : undefined,
+      });
+    }, 1200);
+    return () => clearTimeout(id);
+  }, [items, hydrated, token, subtotal]);
+
   return (
-    <Ctx.Provider value={{ items, count, subtotal, subtotalUsd, open, hydrated, add, setQty, remove, clear, setOpen }}>
+    <Ctx.Provider value={{ items, count, subtotal, subtotalUsd, open, hydrated, token, add, setQty, remove, clear, setOpen }}>
       {children}
     </Ctx.Provider>
   );

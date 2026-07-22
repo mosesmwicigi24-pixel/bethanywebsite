@@ -213,4 +213,92 @@ To activate: (1) set the secret in a Hub env and enable the gate; (2) the storef
 
 ---
 
+## 7. Interest ledger — the cross-channel cart *(NEW — needs Hub build)*
+
+The storefront now mirrors every cart to the Hub as an **expression of interest**, keyed to a short cross-channel token (`BH-XXXX`). The row is **durable and never deleted**: it traces a customer's interest over time and lets Neema resume the *same cart* when a customer moves between the website, WhatsApp, Messenger and Instagram. When the cart resolves, its outcome is attributed to the channel where it closed.
+
+- **Consumer:** `storefront/lib/hub.ts` (`upsertInterestCart()`, `markInterestOutcome()`), invoked server-side from `storefront/app/api/cart/route.ts`. The browser POSTs its cart to `/api/cart`; the storefront forwards here (so the write credential stays server-side). Same base path, JSON style, idempotency and `X-Storefront-Key` auth as §1–§6.
+- **Status is authoritative on the Hub side too:** neema-ai (WhatsApp/Messenger/IG) reads and transitions the **same rows** — see `docs/NEEMA_WEB_CHAT_CONTRACT.md`.
+- **Graceful:** until these endpoints exist, the storefront's calls just no-op (non-2xx → ignored); the cart keeps working. So this can ship on the storefront side ahead of the Hub build.
+
+### Table `interest_carts`
+
+| Column | Notes |
+|---|---|
+| `id` | pk |
+| `token` | **unique index** — the cross-channel handle; POST **upserts on this** |
+| `channel` | origin: `web` \| `whatsapp` \| `messenger` \| `instagram` \| `facebook` |
+| `last_channel` | where it was last touched (update on each write) |
+| `status` | `active_cart` → `checkout_started` → `online_order` \| `whatsapp_order` \| `abandoned` |
+| `session_id` | web session (nullable) |
+| `phone`, `name`, `church` | customer identity, filled in as it becomes known (nullable) |
+| `messenger_psid`, `instagram_psid` | for identity-linking from Meta channels (nullable) |
+| `items` | json: `[{ slug, quantity, measurements?, size? }]` |
+| `subtotal`, `currency` | snapshot for the ledger (nullable) |
+| `order_ref` | links to the placed order once it converts (nullable) |
+| `source_path` | attribution (nullable) |
+| `created_at`, `updated_at`, `converted_at` | timestamps |
+
+> **Identity:** `phone` is the strongest cross-channel key (WhatsApp gives it free; web/Messenger capture it at checkout/quote). Matching new carts to a known phone is what unifies a customer's interest across channels. A separate `customers` table (phone ↔ psids ↔ sessions) is a fine v2; for v1, `phone` on the row is enough.
+
+### 7a. `POST /storefront/interest-carts` — upsert the live cart
+
+Exactly what `upsertInterestCart()` sends:
+
+```jsonc
+{
+  "client_request_id": "…uuid",          // retry idempotency
+  "token": "BH-7QK2ZP9A",                // required — UPSERT KEY
+  "channel": "web",                       // required
+  "status": "active_cart",                // "active_cart" | "checkout_started"
+  "session_id": "web-abc123",             // optional
+  "customer": { "name": "…", "phone": "+254…", "church": "…" },  // optional; any subset
+  "items": [ { "slug": "holy-communion-bread-500pcs", "quantity": 2, "size": "500" } ],
+  "subtotal": 1600, "currency": "KES",    // optional snapshot
+  "source_path": "/product/…"             // optional
+}
+```
+
+- **Upsert on `token`** (last write wins) — a customer editing their cart sends repeated POSTs; keep one row per token.
+- Never drop a status backwards (don't let `active_cart` overwrite a converted `online_order`).
+- Response: `{ "interest_cart": { "token": "…", "status": "…" } }` (200/201). The storefront only checks for 2xx.
+
+### 7b. `GET /storefront/interest-carts?token=…`  /  `?phone=…` — load & resume
+
+Used by neema-ai to resume a cart (by token from the WhatsApp handoff, or by matching the customer's phone) and to read interest history.
+
+```jsonc
+// ?token=BH-7QK2ZP9A  → the one cart
+{ "interest_cart": { "token": "…", "status": "active_cart", "channel": "web",
+    "items": [ { "slug": "…", "quantity": 2, "size": "500" } ],
+    "subtotal": 1600, "currency": "KES", "phone": null, "updated_at": "…" } }
+
+// ?phone=+254727891989  → this customer's carts, most-recent first (interest history)
+{ "interest_carts": [ { "token": "…", "status": "abandoned", "items": [...], "updated_at": "…" }, … ] }
+```
+
+### 7c. `PATCH /storefront/interest-carts/{token}` — transition the outcome
+
+Exactly what `markInterestOutcome()` sends:
+
+```jsonc
+{ "status": "online_order",               // online_order | whatsapp_order | abandoned
+  "order_ref": "ORD-9F2K",                // optional — the placed order's number/ref
+  "customer": { "name": "…", "phone": "+254…", "church": "…" } }  // optional — attach when known
+```
+
+- The **storefront** PATCHes `online_order` (with `order_ref`) at web checkout.
+- **neema-ai** PATCHes `whatsapp_order` when a cart closes on WhatsApp.
+- `abandoned` may be set by a Hub cron after N days of no activity — but the row is **kept** (that's the interest signal).
+
+### Acceptance
+
+- [ ] POST upserts on `token` (repeat POSTs update one row, don't duplicate).
+- [ ] GET `?token=` returns the cart; `?phone=` returns the customer's carts newest-first.
+- [ ] PATCH transitions status and records `order_ref`; won't regress a converted cart.
+- [ ] Row is never hard-deleted; `abandoned` is a status, not a delete.
+- [ ] Same `X-Storefront-Key` gate as §6.
+
+---
+
 *Contract v1. Matches `storefront/lib/hub.ts` as of this branch. Questions on the storefront side → see `docs/AI_INTEGRATION_ADVISORY.md` §4.*

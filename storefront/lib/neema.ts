@@ -39,6 +39,9 @@ export interface NeemaRequest {
   sessionId: string;
   locale?: string;
   pageContext?: PageContext;
+  /** cross-channel cart token (BH-XXXX) — carried into the WhatsApp handoff so
+      the same cart can be resumed there. */
+  cartToken?: string;
 }
 
 /** A recommended product — `slug` resolves through the client catalog
