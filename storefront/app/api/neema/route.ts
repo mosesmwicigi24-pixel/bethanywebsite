@@ -325,13 +325,31 @@ function cleanReply(text: string): string {
    thread from Neema (the AI already has it in the dashboard) — not a transcript of
    the chat. Deliberately a quiet, secondary path: Add to cart stays the close. */
 const deslug = (s: string) => s.replace(/--v\d+$/i, "").replace(/-[a-z0-9]{8,}$/i, "").replace(/-/g, " ").trim();
+/** Tidy a size token for display: "500PCS" → "500 pcs", "1,000 pieces" stays.
+    Only touches spacing/case around pcs/pieces; leaves other units alone. */
+const prettySize = (s: string) =>
+  s.replace(/\s+/g, " ").trim().replace(/(\d)\s*(pcs?|pieces?)\b/i, (_m, d, u) => `${d} ${String(u).toLowerCase()}`);
+
 /** A short, human product label for the handoff: the catalog name's primary
-    segment, keeping a size/quantity hint ("500 pieces", "750ml") when it has one. */
+    segment, with a size/quantity hint in parentheses when the name carries one —
+    however it's attached ("Chalice — Gold Set", "Wine — 750ml", "Bread -500PCS"). */
 function itemLabel(slug: string, catalog: Product[]): string {
-  const name = catalog.find((c) => c.slug === slug)?.name ?? deslug(slug);
-  const [head, tail] = name.split(/\s*[—–]\s*/);
-  const hint = tail && /\d/.test(tail) ? ` (${tail.trim()})` : "";
-  return `${head.trim()}${hint}`.slice(0, 48);
+  const name = (catalog.find((c) => c.slug === slug)?.name ?? deslug(slug)).trim();
+  let head = name;
+  let tail = "";
+  const em = name.split(/\s*[—–]\s*/); // em/en-dash → a descriptor or a size
+  if (em.length > 1) {
+    head = em[0].trim();
+    tail = em.slice(1).join(" ").trim();
+  } else {
+    const hy = name.match(/^(.*\S)\s*-\s*(\d[\w.,\s]*)$/); // hyphen + a trailing size ("Bread -500PCS")
+    if (hy) {
+      head = hy[1].trim();
+      tail = hy[2].trim();
+    }
+  }
+  const hint = /\d/.test(tail) ? ` (${prettySize(tail)})` : "";
+  return `${head}${hint}`.slice(0, 48);
 }
 function waHandoff(products: { slug: string }[], catalog: Product[]): string {
   const items = products.slice(0, 3).map((p) => itemLabel(p.slug, catalog)).filter(Boolean).join(", ");
