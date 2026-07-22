@@ -397,10 +397,12 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .newsletter button{background:var(--gold);color:var(--navy-950);border-radius:99px;padding:9px 18px;font-weight:800;font-size:13px}
 
 /* float chat */
-.chat-fab{position:fixed;right:26px;bottom:96px;height:54px;padding:0 20px 0 7px;border-radius:99px;background:var(--navy-950);border:2px solid var(--gold);display:flex;align-items:center;gap:11px;z-index:125;box-shadow:0 10px 26px rgba(7,15,28,.35)}
-.chat-fab-mark{width:40px;height:40px;border-radius:99px;display:flex;align-items:center;justify-content:center;flex:none}
-.chat-fab img{width:30px;height:30px;object-fit:contain}
-.chat-fab-label{color:var(--gold-soft);font-weight:600;font-size:14.5px;letter-spacing:.02em;white-space:nowrap}
+.chat-fab{position:fixed;right:24px;bottom:26px;height:46px;padding:0 16px 0 6px;border-radius:99px;background:var(--navy-950);border:2px solid var(--gold);display:flex;align-items:center;gap:9px;z-index:125;box-shadow:0 10px 26px rgba(7,15,28,.35);transition:bottom .25s ease}
+.chat-fab-mark{width:34px;height:34px;border-radius:99px;display:flex;align-items:center;justify-content:center;flex:none}
+.chat-fab img{width:26px;height:26px;object-fit:contain}
+.chat-fab-label{color:var(--gold-soft);font-weight:600;font-size:13.5px;letter-spacing:.02em;white-space:nowrap}
+/* On product pages the buy bar rises from the bottom — lift the chat pill clear of it. */
+body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))}
 @media(max-width:900px){
   .mega,.drop{display:none}
   .nav-links{display:none}
@@ -700,10 +702,10 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
   .vespers{padding:60px 20px}
   .footer .cols{grid-template-columns:1fr;gap:26px;padding:40px 0 28px}
   .footer .base{flex-direction:column;gap:6px;text-align:center}
-  .chat-fab{right:16px;bottom:88px;height:48px;padding:0 16px 0 6px;gap:9px}
-  .chat-fab-mark{width:35px;height:35px}
-  .chat-fab img{width:26px;height:26px}
-  .chat-fab-label{font-size:13px}
+  .chat-fab{right:14px;bottom:20px;height:44px;padding:0 13px 0 5px;gap:8px}
+  .chat-fab-mark{width:30px;height:30px}
+  .chat-fab img{width:22px;height:22px}
+  .chat-fab-label{font-size:12.5px}
   .search-veil{padding:0}
   .search-panel{width:100%;max-height:100vh;height:100%;border-radius:0}
   .crumbs{flex-wrap:wrap;row-gap:2px;font-size:12.5px;padding:14px 0}
@@ -1283,7 +1285,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
      inset when the site is added to the Home Screen). */
   .nav{padding-top:env(safe-area-inset-top)}
   .pheader{padding-top:env(safe-area-inset-top)}
-  .chat-fab{bottom:calc(84px + env(safe-area-inset-bottom))}
+  .chat-fab{bottom:calc(16px + env(safe-area-inset-bottom))}
 
   /* Apple-legible body + comfortable HIG tap targets (>=44px). */
   body{font-size:16px}
