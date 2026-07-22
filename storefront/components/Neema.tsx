@@ -200,7 +200,10 @@ export default function Neema() {
         <div className="neema" role="dialog" aria-label="Chat with Neema" onKeyDown={(e) => e.key === "Escape" && setOpen(false)}>
           <header className="neema-head">
             <div className="neema-id">
-              <span className="neema-avatar"><img src="/brand/mark-gold.png" alt="" /></span>
+              <span className="neema-ava">
+                <span className="neema-avatar"><img src="/brand/mark-gold.png" alt="" /></span>
+                <span className="neema-dot" aria-hidden="true"></span>
+              </span>
               <div>
                 <b>Neema</b>
                 <span className="neema-sub">Bethany House assistant</span>
