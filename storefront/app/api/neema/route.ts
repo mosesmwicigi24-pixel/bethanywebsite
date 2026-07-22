@@ -351,11 +351,13 @@ function itemLabel(slug: string, catalog: Product[]): string {
   const hint = /\d/.test(tail) ? ` (${prettySize(tail)})` : "";
   return `${head}${hint}`.slice(0, 48);
 }
-function waHandoff(products: { slug: string }[], catalog: Product[]): string {
+function waHandoff(products: { slug: string }[], catalog: Product[], token?: string): string {
   const items = products.slice(0, 3).map((p) => itemLabel(p.slug, catalog)).filter(Boolean).join(", ");
+  // Carry the cart token so Neema can load the exact same cart on WhatsApp.
+  const ref = token ? ` (cart ${token})` : "";
   return items
-    ? `Hello Bethany House! I want to buy ${items}. Can you pick up from Neema and process my order?`
-    : `Hello Bethany House! I'd like to place an order — can you pick up my chat with Neema and help me finish?`;
+    ? `Hello Bethany House! I want to buy ${items}.${ref} Can you pick up from Neema and process my order?`
+    : `Hello Bethany House! I'd like to place an order${ref} — can you pick up my chat with Neema and help me finish?`;
 }
 
 async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
@@ -397,7 +399,7 @@ async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
   if (!agentProducts) products = deriveProducts(reply, lastUser, catalog);
 
   const actions: unknown[] = [...rawActions];
-  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink(waHandoff(products, catalog)) });
+  if (!hasWa) actions.push({ type: "whatsapp", label: "Chat on WhatsApp", value: waLink(waHandoff(products, catalog, req.cartToken)) });
 
   return normalize(
     {
@@ -607,7 +609,10 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ error: "Too many messages — please wait a moment." }, { status: 429 });
   }
 
-  const req: NeemaRequest = { messages, sessionId, locale: body.locale, pageContext: body.pageContext };
+  const req: NeemaRequest = {
+    messages, sessionId, locale: body.locale, pageContext: body.pageContext,
+    cartToken: typeof body.cartToken === "string" ? body.cartToken.slice(0, 40) : undefined,
+  };
   const toolsUsed: string[] = [];
   let reply: NeemaReply;
   let mode: string;

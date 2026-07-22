@@ -328,3 +328,105 @@ export async function estimateShipping(q: ShippingQuery): Promise<ShippingEstima
     return null;
   }
 }
+
+/* ============================================================
+   Interest ledger — the cross-channel cart (durable, never deleted).
+
+   Every cart is an *expression of interest* by a customer, keyed to a
+   short cross-channel token (BH-XXXX). We upsert it to the Hub as items
+   change, and mark its outcome when it resolves — online_order (paid on
+   the web), whatsapp_order (finished on WhatsApp), or abandoned. Because
+   the row is never deleted, the ledger traces a customer's interest over
+   time and lets Neema resume the same cart when a customer moves between
+   the website, WhatsApp, Messenger and Instagram.
+
+   Server-side only, like createLead(). All best-effort: until the Hub
+   endpoints exist (or NEXT_PUBLIC_HUB_API is set) these return null/false
+   and the cart still works exactly as before — nothing is dropped.
+
+   Hub-side (see docs/HUB_CONTRACT.md §7): the row is keyed/upserted on
+   `token`; POST upserts the active cart, PATCH transitions its status.
+   ============================================================ */
+
+/** Shared headers for the server-to-server Hub calls — carries the
+    X-Storefront-Key when HUB_STOREFRONT_KEY is set (dormant until then). */
+function hubHeaders(): Record<string, string> {
+  const h: Record<string, string> = { "Content-Type": "application/json", Accept: "application/json" };
+  const key = process.env.HUB_STOREFRONT_KEY;
+  if (key) h["X-Storefront-Key"] = key;
+  return h;
+}
+
+export type InterestChannel = "web" | "whatsapp" | "messenger" | "instagram" | "facebook";
+export type InterestStatus = "active_cart" | "checkout_started";
+export type InterestOutcome = "online_order" | "whatsapp_order" | "abandoned";
+
+export interface InterestItem {
+  slug: string;
+  quantity: number;
+  measurements?: Record<string, string>;
+  size?: string;
+}
+
+export interface InterestCartPayload {
+  token: string;                 // BH-XXXX — the cross-channel handle (Hub upserts on this)
+  channel: InterestChannel;
+  sessionId?: string;
+  status?: InterestStatus;       // default active_cart
+  items: InterestItem[];
+  subtotal?: number;
+  currency?: string;
+  customer?: { name?: string; phone?: string; church?: string };
+  sourcePath?: string;
+}
+
+/** Upsert the live cart into the Hub interest ledger (POST /storefront/interest-carts).
+    Keyed on `token`; last write wins. Returns the token on success, null otherwise. */
+export async function upsertInterestCart(p: InterestCartPayload): Promise<{ token: string } | null> {
+  if (!HUB || !p.token || !p.items?.length) return null;
+  const cust = p.customer && (p.customer.phone || p.customer.name || p.customer.church) ? p.customer : undefined;
+  try {
+    const r = await fetch(`${HUB}/storefront/interest-carts`, {
+      method: "POST",
+      headers: hubHeaders(),
+      body: JSON.stringify({
+        client_request_id: crypto.randomUUID(),
+        token: p.token,
+        channel: p.channel,
+        session_id: p.sessionId || undefined,
+        status: p.status || "active_cart",
+        customer: cust,
+        items: p.items,
+        subtotal: typeof p.subtotal === "number" ? p.subtotal : undefined,
+        currency: p.currency || undefined,
+        source_path: p.sourcePath || undefined,
+      }),
+    });
+    if (!r.ok) return null;
+    return { token: p.token };
+  } catch {
+    return null;
+  }
+}
+
+/** Transition an interest cart's outcome (PATCH /storefront/interest-carts/{token}) —
+    online_order / whatsapp_order / abandoned, optionally linking the order ref and
+    attaching the customer once known. Best-effort; true when the Hub accepted it. */
+export async function markInterestOutcome(
+  token: string,
+  status: InterestOutcome,
+  opts?: { orderRef?: string; customer?: { name?: string; phone?: string; church?: string } },
+): Promise<boolean> {
+  if (!HUB || !token) return false;
+  const cust = opts?.customer && (opts.customer.phone || opts.customer.name || opts.customer.church) ? opts.customer : undefined;
+  try {
+    const r = await fetch(`${HUB}/storefront/interest-carts/${encodeURIComponent(token)}`, {
+      method: "PATCH",
+      headers: hubHeaders(),
+      body: JSON.stringify({ status, order_ref: opts?.orderRef || undefined, customer: cust }),
+    });
+    return r.ok;
+  } catch {
+    return false;
+  }
+}

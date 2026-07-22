@@ -129,3 +129,36 @@ cards, not an off-site page.
 The website then carries it the rest of the way: **card → add to cart →
 checkout → Hub receipt → track order by phone** — exactly the flow customers had
 before, now driven by the one Neema brain.
+
+---
+
+## 5. Cross-channel carts & the interest ledger
+
+The website now mirrors every cart to the Hub as an **interest record**, keyed to
+a short token `BH-XXXX` (see `docs/HUB_CONTRACT.md` §7 — the `interest_carts`
+table + 3 endpoints). This lets Neema **carry a cart between channels** and get
+wiser about each customer over time. Neema's part, on **WhatsApp / Messenger /
+Instagram**:
+
+### Resume a cart the customer started on the web
+When a web visitor taps "Continue on WhatsApp", the deep-link message carries the
+token, e.g.:
+> "Hello Bethany House! I want to buy Holy Communion Bread (500 pcs). **(cart BH-7QK2ZP9A)** Can you pick up from Neema and process my order?"
+
+On that first WhatsApp message:
+1. Parse a `BH-XXXX` token if present → `GET /storefront/interest-carts?token=BH-XXXX`.
+2. If no token, match by the customer's **phone** (WhatsApp gives it) → `GET …?phone=+254…` and take the most recent open cart.
+3. Load those items and **continue without re-asking** — *"Karibu! I've got your cart: 2 × Holy Communion Bread (500 pcs). Shall I confirm and take delivery details?"*
+4. When it closes on WhatsApp → `PATCH /storefront/interest-carts/{token}` with `status: "whatsapp_order"` (and `order_ref` if you place the order). If it's a fresh WhatsApp cart with no token, create one via `POST …/interest-carts` with `channel: "whatsapp"`.
+
+### Be wiser using interest history
+Before answering a returning customer on any channel, you may `GET …?phone=+254…`
+to see their past carts/orders and tailor the reply — *"Last week you were looking
+at the purple cassock — still interested, alongside the communion bread?"* Keep it
+natural; use it to relate, not to over-pitch.
+
+### Rules
+- **Phone is the cross-channel key.** Capture it early and warmly on Meta channels; it's what links WhatsApp ↔ Messenger ↔ web into one customer.
+- **Don't drop the cart.** Loading and continuing an existing cart always beats starting over.
+- **Attribute honestly:** a cart that closes on WhatsApp is `whatsapp_order`; one that closes on the web is `online_order` (the storefront sets that). The row is never deleted — an unfinished cart stays as `abandoned`, which is still useful interest.
+- **Web channel is unchanged** by this: the storefront already mirrors the web cart and sets `online_order` at checkout. This section is only about what the *brain* does on the Meta channels.

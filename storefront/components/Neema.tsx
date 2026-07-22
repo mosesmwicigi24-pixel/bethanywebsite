@@ -119,6 +119,7 @@ export default function Neema() {
             sessionId: sid.current || "anon",
             locale: typeof navigator !== "undefined" ? navigator.language : undefined,
             pageContext,
+            cartToken: cart.token || undefined,
           }),
         });
         if (!res.ok) throw new Error(String(res.status));
@@ -137,7 +138,7 @@ export default function Neema() {
         setLoading(false);
       }
     },
-    [messages, loading, pageContext],
+    [messages, loading, pageContext, cart.token],
   );
 
   const setField = useCallback((i: number, id: string, val: string) => {

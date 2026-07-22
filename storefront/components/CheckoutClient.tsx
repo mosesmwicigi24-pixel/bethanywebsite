@@ -11,6 +11,7 @@ import { formatMoney, type Currency } from "@/lib/products";
 import { useCatalog } from "@/lib/catalogClient";
 import { buildOnlineOrder, measurementsToNote, submitOnlineOrder } from "@/lib/hub";
 import { saveOrder } from "@/lib/orders";
+import { cartToken, rotateCartToken, postInterest } from "@/lib/interest";
 import { useRouter } from "next/navigation";
 import { SITE } from "@/lib/site";
 
@@ -104,6 +105,15 @@ export default function CheckoutClient() {
       paymentToken: live?.paymentToken,
       email: email || undefined,
     });
+    // Close this cart out in the interest ledger as an ONLINE order (with the
+    // order ref + who bought), then rotate the token so the next cart is fresh.
+    postInterest({
+      token: cartToken(),
+      status: "online_order",
+      orderRef: ref,
+      customer: { name: `${firstName} ${lastName}`.trim(), phone, church: church || undefined },
+    });
+    rotateCartToken();
     clear();
     router.push(`/order/${encodeURIComponent(ref)}`);
   };
