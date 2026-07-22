@@ -45,6 +45,18 @@ export function CurrencyProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const saved = localStorage.getItem(KEY);
     if (saved === "USD" || saved === "KES" || saved === "ZMW") setCurrencyState(saved);
+    // Detect the visitor's country → default currency (Kenya → KES, Zambia →
+    // Kwacha, everywhere else → USD), but only when they haven't chosen one — a
+    // manual pick always wins. This same call fires the analytics beacon
+    // (server-side in /api/geo). Never blocks the page.
+    fetch(`/api/geo?path=${encodeURIComponent(location.pathname)}`)
+      .then((r) => r.json())
+      .then((d: { currency?: Currency }) => {
+        if (!localStorage.getItem(KEY) && (d.currency === "USD" || d.currency === "KES" || d.currency === "ZMW")) {
+          setCurrencyState(d.currency);
+        }
+      })
+      .catch(() => {});
   }, []);
 
   const setCurrency = (c: Currency) => {
