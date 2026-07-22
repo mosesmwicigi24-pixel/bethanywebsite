@@ -12,6 +12,7 @@ import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
+import { getSiteContent } from "@/lib/theme";
 import { bySlug as curatedBySlug } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { productJsonLd, breadcrumbJsonLd } from "@/lib/seo";
@@ -64,6 +65,27 @@ export default async function ProductPage(
       ? catalog.find((x) => x.slug === p.baseSlug && x.variants?.length) ?? p
       : p;
   const isVariable = Boolean(parent.variants?.length);
+
+  // CMS-managed PDP sections (Home Front Customization → Product Pages), keyed by
+  // the base product slug. An empty slot → the built-in curated content is used.
+  const pdp = await getSiteContent(`product:${parent.baseSlug ?? parent.slug}`);
+  const cmsFeatures = (pdp.product_feature ?? []).map((b) => ({
+    label: b.title || "", text: b.subtitle || "", img: b.image_url || undefined,
+  }));
+  const features = cmsFeatures.length ? cmsFeatures : (parent.closerLook ?? []);
+  const posterB = pdp.product_poster?.[0];
+  const posterOverride = posterB
+    ? {
+        eyebrow: (posterB.styles as Record<string, string> | null)?.eyebrow,
+        tagline: posterB.title ?? undefined,
+        specs: posterB.subtitle ?? undefined,
+        img: posterB.image_url ?? undefined,
+      }
+    : undefined;
+  const cmsPillars = (pdp.product_pillar ?? []).map((b) => ({
+    icon: (b.styles as Record<string, string> | null)?.icon || "✦",
+    title: b.title || "", text: b.subtitle || "",
+  }));
 
   // related: same category first, then fill from the rest — parents/simples only
   const related = catalog.filter((x) => !x.variantId && x.slug !== parent.slug);
@@ -166,9 +188,9 @@ export default async function ProductPage(
 
       <ProductRail title="You May Also Like" products={also} small tight />
 
-      <PosterBanner p={parent} />
-      {parent.closerLook && parent.closerLook.length > 0 && (
-        <CloserLook features={parent.closerLook} fallbackImg={parent.img} />
+      <PosterBanner p={parent} override={posterOverride} />
+      {features.length > 0 && (
+        <CloserLook features={features} fallbackImg={parent.img} />
       )}
 
       {isFlagship && (
@@ -183,7 +205,7 @@ export default async function ProductPage(
       )}
       {isFlagship && <FlagshipStory />}
 
-      <WhyBuy />
+      <WhyBuy pillars={cmsPillars.length ? cmsPillars : undefined} />
 
       <div id="reviews" className="story">
         {parent.reviews > 0 ? (
