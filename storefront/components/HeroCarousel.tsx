@@ -7,35 +7,65 @@ import type { ContentBlock } from "@/lib/theme";
 
 const INTERVAL = 6000;
 
-/** A single CMS-managed hero slide (home_hero banner). Uses the same cathedral
-    layout as the built-in slides; styles JSON carries the eyebrow, theme and an
-    optional price plate. */
+/** Render a headline, turning *word* into a gold-italic emphasis (matches the
+    built-in slides' <em>). */
+function headline(title: string) {
+  return title.split(/\*([^*]+)\*/).map((part, i) =>
+    i % 2 === 1 ? <em key={i}>{part}</em> : part,
+  );
+}
+
+interface Mark { b?: string; t?: string }
+
+/** A single CMS-managed hero slide (home_hero banner). Same cathedral layout as
+    the built-in slides; the styles JSON carries the eyebrow, theme, a second
+    CTA, the "marks" row and an optional price plate (plate_kes → currency-aware
+    via <Money>, else plate_price text). */
 function CmsSlide({ s, active }: { s: ContentBlock; active: boolean }) {
-  const st = (s.styles ?? {}) as Record<string, string>;
-  const theme = st.theme === "light" ? " light" : st.theme === "slate" ? " slate" : "";
-  const cta2 = st.cta2_text && st.cta2_url;
+  const st = (s.styles ?? {}) as Record<string, unknown>;
+  const str = (k: string) => (typeof st[k] === "string" ? (st[k] as string) : "");
+  const theme = str("theme") === "light" ? " light" : str("theme") === "slate" ? " slate" : "";
+  const marks: Mark[] = Array.isArray(st.marks) ? (st.marks as Mark[]) : [];
+  const plateKes = typeof st.plate_kes === "number" ? (st.plate_kes as number)
+    : Number(st.plate_kes) || 0;
+  const hasPlate = str("plate_name") || plateKes || str("plate_price");
+
   return (
     <div className="hero-slide" aria-hidden={!active}>
       <div className={`hero-cath${theme}`}>
         <div className="wrap">
           <div className="hero-copy">
-            {st.eyebrow ? <span className="eyebrow">{st.eyebrow}</span> : null}
-            {s.title ? <h1>{s.title}</h1> : null}
+            {str("eyebrow") ? <span className="eyebrow">{str("eyebrow")}</span> : null}
+            {s.title ? <h1>{headline(s.title)}</h1> : null}
             {s.subtitle ? <p className="sub">{s.subtitle}</p> : null}
             <div className="ctas">
               {s.link_url ? (
                 <Link className="pill pill-gold" href={s.link_url}>{s.link_text || "Shop now"}</Link>
               ) : null}
-              {cta2 ? <Link className="pill pill-ghost-dark" href={st.cta2_url}>{st.cta2_text}</Link> : null}
+              {str("cta2_text") && str("cta2_url") ? (
+                <Link className={`pill ${str("cta2_class") || "pill-ghost-dark"}`} href={str("cta2_url")}>
+                  {str("cta2_text")}
+                </Link>
+              ) : null}
             </div>
+            {marks.length ? (
+              <div className="marks">
+                {marks.map((m, i) => (
+                  <div className="mark" key={i}><b>{m.b}</b>{m.t}</div>
+                ))}
+              </div>
+            ) : null}
           </div>
           {s.image_url ? (
             <div className="arch">
               <img src={s.image_url} alt={s.title || ""} />
-              {st.plate_name || st.plate_price ? (
+              {hasPlate ? (
                 <div className="plate">
-                  {st.plate_name ? <span className="nm">{st.plate_name}</span> : null}
-                  {st.plate_price ? <span className="pr">{st.plate_price}</span> : null}
+                  {str("plate_name") ? <span className="nm">{str("plate_name")}</span> : null}
+                  <span className="pr">
+                    {str("plate_prefix") ? `${str("plate_prefix")} ` : ""}
+                    {plateKes ? <Money kes={plateKes} /> : str("plate_price")}
+                  </span>
                   {s.link_url ? <Link href={s.link_url}>View</Link> : null}
                 </div>
               ) : null}
