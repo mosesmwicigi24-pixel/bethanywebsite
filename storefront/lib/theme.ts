@@ -58,6 +58,45 @@ export async function getSiteTheme(): Promise<SiteTheme> {
   }
 }
 
+/* ── Home-front content blocks (CMS-managed marketing) ────────────────────────
+   The storefront's hero slider + marketing blocks read their content here. An
+   empty slot (or the hub being unreachable) → the component keeps its built-in
+   fallback content, so the site never breaks. See bethany-house BannerController. */
+
+export interface ContentBlock {
+  id: number;
+  position: string;
+  sort_order: number;
+  title?: string | null;
+  subtitle?: string | null;
+  image_url?: string | null;
+  mobile_image_url?: string | null;
+  link_url?: string | null;
+  link_text?: string | null;
+  open_in_new_tab?: boolean;
+  styles?: Record<string, unknown> | null;
+}
+
+/** Active content blocks grouped by position slot (home_hero, home_promo, …). */
+export type SiteContent = Record<string, ContentBlock[]>;
+
+export async function getSiteContent(placement = "homepage"): Promise<SiteContent> {
+  if (!HUB) return {};
+  try {
+    const r = await fetch(`${HUB}/site/content?placement=${encodeURIComponent(placement)}`, {
+      next: { revalidate: REVALIDATE },
+      headers: { Accept: "application/json" },
+    });
+    if (!r.ok) return {};
+    const j = await r.json();
+    const d = j?.data;
+    // The hub returns an object grouped by position, or [] when empty — normalise.
+    return d && !Array.isArray(d) ? (d as SiteContent) : {};
+  } catch {
+    return {};
+  }
+}
+
 /** Motif key → glyph for the small seasonal icon (the only seasonal colour cue). */
 export const MOTIF_GLYPH: Record<string, string> = {
   lily: "🕊️", flame: "🔥", wheat: "🌾", star: "✦", cross: "✝", default: "✦",

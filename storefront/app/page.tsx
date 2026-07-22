@@ -5,12 +5,14 @@ import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
+import { getSiteContent } from "@/lib/theme";
 import type { Product } from "@/lib/products";
 
 export const revalidate = 300;
 
 export default async function Home() {
-  const catalog = (await getCatalog()).filter((p) => !p.variantId);
+  const [catalogRaw, content] = await Promise.all([getCatalog(), getSiteContent()]);
+  const catalog = catalogRaw.filter((p) => !p.variantId);
   const bySlug = (s: string) => catalog.find((p) => p.slug === s);
   const pick = (...slugs: string[]) =>
     slugs.map(bySlug).filter((p): p is Product => Boolean(p));
@@ -26,7 +28,7 @@ export default async function Home() {
   return (
     <main>
       {/* ---- Rotating campaign hero ---- */}
-      <HeroCarousel />
+      <HeroCarousel cmsSlides={content.home_hero} />
       <div className="creed">
         <div className="wrap">
           <span><i>✦</i> Free Nairobi CBD delivery over KES 10,000</span>
