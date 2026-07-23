@@ -5,6 +5,7 @@ import {
   type InterestStatus,
   type InterestOutcome,
 } from "@/lib/hub";
+import { getOrCreateVid } from "@/lib/vid";
 
 /* ============================================================
    /api/neema/cart — the storefront's write path into the Hub interest ledger.
@@ -74,6 +75,10 @@ export async function POST(request: Request): Promise<Response> {
   const token = typeof body.token === "string" ? body.token.slice(0, 40) : "";
   if (!token) return Response.json({ error: "Missing token" }, { status: 400 });
 
+  // Durable server-side visitor anchor — set/refresh the cookie and stamp it on
+  // the ledger so a visitor's carts group together even without a phone.
+  const visitorId = await getOrCreateVid();
+
   const status = typeof body.status === "string" ? body.status : "";
 
   // Terminal outcome → transition the ledger row.
@@ -94,6 +99,7 @@ export async function POST(request: Request): Promise<Response> {
   const res = await upsertInterestCart({
     token,
     channel: "web",
+    visitorId,
     sessionId: typeof body.sessionId === "string" ? body.sessionId.slice(0, 80) : undefined,
     status: status === "checkout_started" ? ("checkout_started" as InterestStatus) : ("active_cart" as InterestStatus),
     items,

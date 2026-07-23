@@ -371,7 +371,8 @@ export interface InterestItem {
 export interface InterestCartPayload {
   token: string;                 // BH-XXXX — the cross-channel handle (Hub upserts on this)
   channel: InterestChannel;
-  sessionId?: string;
+  visitorId?: string;            // bh_vid — durable per-visitor anchor (groups a visitor's carts)
+  sessionId?: string;            // bh-neema-sid — the chat session (links cart ↔ chat)
   status?: InterestStatus;       // default active_cart
   items: InterestItem[];
   subtotal?: number;
@@ -393,6 +394,7 @@ export async function upsertInterestCart(p: InterestCartPayload): Promise<{ toke
         client_request_id: crypto.randomUUID(),
         token: p.token,
         channel: p.channel,
+        visitor_id: p.visitorId || undefined,
         session_id: p.sessionId || undefined,
         status: p.status || "active_cart",
         customer: cust,
