@@ -2,7 +2,7 @@
 
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCatalog } from "./catalogClient";
-import { cartToken, postInterest } from "./interest";
+import { cartToken, postInterest, neemaSession } from "./interest";
 
 export interface CartItem {
   /** unique line key — producible items with measurements get their own line */
@@ -111,6 +111,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     const id = setTimeout(() => {
       postInterest({
         token,
+        sessionId: neemaSession(),
         items: items.map((i) => ({ slug: i.slug, quantity: i.qty, measurements: i.measurements, size: i.size })),
         subtotal,
         currency: "KES",

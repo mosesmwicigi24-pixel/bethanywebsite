@@ -230,7 +230,8 @@ The storefront now mirrors every cart to the Hub as an **expression of interest*
 | `channel` | origin: `web` \| `whatsapp` \| `messenger` \| `instagram` \| `facebook` |
 | `last_channel` | where it was last touched (update on each write) |
 | `status` | `active_cart` → `checkout_started` → `online_order` \| `whatsapp_order` \| `abandoned` |
-| `session_id` | web session (nullable) |
+| `visitor_id` | durable first-party anchor (`bh_vid` cookie) — **groups a visitor's carts before a phone exists**; set server-side + httpOnly, doesn't rotate with the cart token (nullable) |
+| `session_id` | the Neema chat session (`bh-neema-sid`) — links this cart to the customer's chat (nullable) |
 | `phone`, `name`, `church` | customer identity, filled in as it becomes known (nullable) |
 | `messenger_psid`, `instagram_psid` | for identity-linking from Meta channels (nullable) |
 | `items` | json: `[{ slug, quantity, measurements?, size? }]` |
@@ -239,7 +240,8 @@ The storefront now mirrors every cart to the Hub as an **expression of interest*
 | `source_path` | attribution (nullable) |
 | `created_at`, `updated_at`, `converted_at` | timestamps |
 
-> **Identity:** `phone` is the strongest cross-channel key (WhatsApp gives it free; web/Messenger capture it at checkout/quote). Matching new carts to a known phone is what unifies a customer's interest across channels. A separate `customers` table (phone ↔ psids ↔ sessions) is a fine v2; for v1, `phone` on the row is enough.
+> **Identity ladder (anonymous → known).** Four handles on the row, weakest to strongest:
+> `token` identifies **one cart** (rotates per order) · `visitor_id` (durable `bh_vid` cookie) groups **a visitor's carts** before any phone · `session_id` links the cart to their **chat** · `phone` is the **cross-channel key** (WhatsApp gives it free; web/Messenger capture it at checkout/quote) — matching carts to a known phone unifies interest across channels. A `customers` table (phone ↔ psids ↔ visitor_ids ↔ sessions) is the clean long-term home for these links; for now, keeping all four on the cart row already lets you group and unify.
 
 ### 7a. `POST /storefront/interest-carts` — upsert the live cart
 
@@ -248,10 +250,11 @@ Exactly what `upsertInterestCart()` sends:
 ```jsonc
 {
   "client_request_id": "…uuid",          // retry idempotency
-  "token": "BH-7QK2ZP9A",                // required — UPSERT KEY
+  "token": "BH-7QK2ZP9A",                // required — UPSERT KEY (per-cart, rotates per order)
   "channel": "web",                       // required
+  "visitor_id": "v-…",                    // optional — durable per-visitor anchor (bh_vid cookie)
   "status": "active_cart",                // "active_cart" | "checkout_started"
-  "session_id": "web-abc123",             // optional
+  "session_id": "web-abc123",             // optional — the chat session (bh-neema-sid)
   "customer": { "name": "…", "phone": "+254…", "church": "…" },  // optional; any subset
   "items": [ { "slug": "holy-communion-bread-500pcs", "quantity": 2, "size": "500" } ],
   "subtotal": 1600, "currency": "KES",    // optional snapshot

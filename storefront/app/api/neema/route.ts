@@ -15,6 +15,7 @@ import {
 } from "@/lib/neema";
 import type { Product } from "@/lib/products";
 import { chatChain, providerChat, type LlmMessage, type LlmTool, type ProviderCfg } from "@/lib/llm";
+import { getOrCreateVid } from "@/lib/vid";
 
 /* ============================================================
    Neema AI gateway — the single server-side entry for every AI
@@ -360,12 +361,12 @@ function waHandoff(products: { slug: string }[], catalog: Product[], token?: str
     : `Hello Bethany House! I'd like to place an order${ref} — can you pick up my chat with Neema and help me finish?`;
 }
 
-async function runAgent(req: NeemaRequest): Promise<NeemaReply> {
+async function runAgent(req: NeemaRequest, visitorId?: string): Promise<NeemaReply> {
   const lastUser = [...req.messages].reverse().find((m) => m.role === "user")?.content ?? "";
   const r = await fetch(AGENT_URL as string, {
     method: "POST",
     headers: { "Content-Type": "application/json", "X-Storefront-Key": AGENT_KEY as string },
-    body: JSON.stringify({ session_id: req.sessionId || "anon", message: lastUser }),
+    body: JSON.stringify({ session_id: req.sessionId || "anon", message: lastUser, visitor_id: visitorId }),
     signal: AbortSignal.timeout(30_000),
   });
   if (!r.ok) throw new Error(`agent ${r.status}`);
@@ -613,6 +614,9 @@ export async function POST(request: Request): Promise<Response> {
     messages, sessionId, locale: body.locale, pageContext: body.pageContext,
     cartToken: typeof body.cartToken === "string" ? body.cartToken.slice(0, 40) : undefined,
   };
+  // Set/refresh the durable visitor cookie now (from the first chat, before any
+  // add-to-cart) and pass it to the agent so the whole visit shares one anchor.
+  const visitorId = await getOrCreateVid();
   const toolsUsed: string[] = [];
   let reply: NeemaReply;
   let mode: string;
@@ -620,7 +624,7 @@ export async function POST(request: Request): Promise<Response> {
   try {
     if (agentLive()) {
       try {
-        reply = await runAgent(req);
+        reply = await runAgent(req, visitorId);
         mode = "agent";
       } catch (err) {
         console.error("[neema] agent failed, falling back to storefront gateway:", err instanceof Error ? err.message : err);

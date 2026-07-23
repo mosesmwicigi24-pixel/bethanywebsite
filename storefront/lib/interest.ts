@@ -47,6 +47,16 @@ export function rotateCartToken(): string {
   return t;
 }
 
+/** The Neema chat session id (set by the widget at `bh-neema-sid`) — sent with
+    the cart so the Hub can link this cart to the customer's chat conversation. */
+export function neemaSession(): string | undefined {
+  try {
+    return localStorage.getItem("bh-neema-sid") || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Fire-and-forget POST to the storefront's /api/neema/cart, which upserts to
     the Hub ledger server-side. (Under /api/neema/* because the host nginx routes
     other /api/* paths to the legacy app.) Never throws; a failure just means the
