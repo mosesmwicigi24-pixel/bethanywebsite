@@ -842,17 +842,15 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   /* Promo cards stack instead of overlapping. The image was absolutely positioned
      under a 70%-wide text block — a 73px collision that opacity:.5 only disguised.
      Now it is a real band: full opacity, zero overlap. */
-  /* oraimo's product-card idiom: the product sits COMPLETE on a clean light
-     stage, then the copy. Both source photos are portrait (0.75 / 0.68), so
-     full-bleed would run 460–510px tall and `cover` would amputate the product
-     — contain on a stage keeps every one of them whole at a sane height. */
+  /* Apple-tile idiom: the copy sits on top, then the WHOLE product below.
+     Both source photos are portrait, so the image renders at its natural
+     height (height:auto) and the CARD GROWS to fit it — the product is never
+     cropped or hidden. */
   .promo-b{flex-direction:column;align-items:stretch;padding:0;min-height:0}
-  /* Full-bleed hero: the image fills the card top edge-to-edge and big; the
-     card's own radius + overflow:hidden round its top corners. Text sits below. */
-  .promo-b img{position:static;order:1;width:100%;max-width:100%;
-    height:clamp(300px,64vw,440px);object-fit:cover;object-position:center;
-    margin:0;border-radius:0;background:none;padding:0;opacity:1;display:block}
-  .promo-b .txt{order:2;max-width:100%;padding:22px 20px 24px}
+  .promo-b .txt{order:1;max-width:100%;padding:26px 22px 20px}
+  .promo-b img{position:static;order:2;width:100%;max-width:100%;height:auto;
+    object-fit:contain;object-position:center;margin:0;border-radius:0;
+    background:none;padding:0;opacity:1;display:block}
   .promo-b h3{font-size:23px;margin-bottom:8px}
   .promo-b p{margin-bottom:16px}
   .promo-duo{gap:14px}
