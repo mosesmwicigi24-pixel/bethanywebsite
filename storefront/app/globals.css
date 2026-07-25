@@ -181,13 +181,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 /* dark editorial cards */
 .dark-band{background:var(--navy-950);color:#fff;padding:80px 0 90px}
 .dark-band h2{color:#fff}
-.edit-card{scroll-snap-align:start;flex:0 0 clamp(340px,25vw,420px);height:500px;border-radius:22px;overflow:hidden;position:relative;background:var(--navy-800);display:flex;flex-direction:column}
-.edit-card .txt{padding:24px 24px 8px;position:relative;z-index:2}
-.edit-card .eyebrow{font-size:12px;font-weight:700;color:var(--gold-bright);letter-spacing:.02em;margin-bottom:8px}
-.edit-card h3{font-size:23px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
-.edit-card .ph{flex:1;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-.edit-card .ph img{width:100%;height:100%;object-fit:cover;opacity:.94}
-.edit-card .plus{position:absolute;right:16px;bottom:16px;width:34px;height:34px;border-radius:99px;background:rgba(255,255,255,.92);color:#111;font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center;z-index:2}
+.edit-card{scroll-snap-align:start;flex:0 0 clamp(340px,25vw,420px);height:500px;border-radius:22px;overflow:hidden;position:relative;background:var(--navy-900);isolation:isolate}
+.edit-card .ph{position:absolute;inset:0;z-index:0}
+.edit-card .ph img{width:100%;height:100%;object-fit:cover;object-position:center 20%;transition:transform .5s var(--ease)}
+.edit-card:hover .ph img{transform:scale(1.05)}
+/* scrim: a touch of dark at the top (for the + chip) and a strong foot for the title */
+.edit-card::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(7,15,28,.42) 0%,rgba(7,15,28,.06) 22%,rgba(7,15,28,0) 46%,rgba(7,15,28,.52) 74%,rgba(7,15,28,.93) 100%)}
+.edit-card .txt{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:22px 22px 26px;text-align:left}
+.edit-card .eyebrow{font-size:12px;font-weight:800;color:var(--gold-bright);letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}
+.edit-card h3{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.16;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5)}
+.edit-card .plus{position:absolute;right:16px;top:16px;width:36px;height:36px;border-radius:99px;background:rgba(255,255,255,.92);color:#111;font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center;z-index:3}
 .rail-nav{display:flex;gap:10px;justify-content:flex-end;width:min(89vw,var(--wrap));margin:0 auto;padding:0}
 .rail-nav button{width:38px;height:38px;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center}
 .band .rail-nav button{background:#e4e5e9;color:#333}
@@ -676,7 +679,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .cat-index{gap:22px;margin-top:30px}
   .cat-index .thumb{width:62px;height:62px;border-radius:16px}
   .band{padding:54px 0 60px}
-  .dark-band{padding:56px 0 64px}
+  .dark-band{padding:48px 0 44px}
   .section{padding:48px 0}
   .section-head{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:20px}
   .grid-products{gap:14px}

@@ -142,11 +142,11 @@ export default async function Home() {
         <Reveal>
           <div className="wrap"><h2>Get to know Bethany House.</h2></div>
           <Rail dark>
-            <EditorialCard eyebrow="Craft" title={["Set apart", "for the sacred."]} img="/products/gold-wares.jpg" />
-            <EditorialCard eyebrow="Tailoring" title={["Vestments,", "made to measure."]} img="/products/cassock212.jpg" />
-            <EditorialCard eyebrow="Delivery" title={["Nairobi today.", "East Africa this week."]} img="/products/usher.jpg" />
-            <EditorialCard eyebrow="Heritage" title={["Serving the church,", "faithfully."]} img="/products/bishop.jpeg" />
-            <EditorialCard eyebrow="Prayer Wear" title={["The tallit,", "woven with meaning."]} img="/products/tallit.jpg" />
+            <EditorialCard eyebrow="Craft" title={["Set apart", "for the sacred."]} img="/products/gold-wares.jpg" focus="center 42%" />
+            <EditorialCard eyebrow="Tailoring" title={["Vestments,", "made to measure."]} img="/products/cassock212.jpg" focus="center 12%" />
+            <EditorialCard eyebrow="Delivery" title={["Nairobi today.", "East Africa this week."]} img="/products/usher.jpg" focus="center 14%" />
+            <EditorialCard eyebrow="Heritage" title={["Serving the church,", "faithfully."]} img="/products/bishop.jpeg" focus="center 12%" />
+            <EditorialCard eyebrow="Prayer Wear" title={["The tallit,", "woven with meaning."]} img="/products/tallit.jpg" focus="center 45%" />
           </Rail>
         </Reveal>
       </section>
