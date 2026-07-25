@@ -4,6 +4,7 @@ import MobileMenu from "./MobileMenu";
 import NavCart from "./NavCart";
 import { CurrencyToggle } from "./Money";
 import { SITE } from "@/lib/site";
+import { shopCat } from "@/lib/categories";
 import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
 import Neema from "./Neema";
 
@@ -27,8 +28,8 @@ export function UtilityBar() {
   );
 }
 
-/** Link to the shop filtered by a root department (see lib/categories.ts). */
-const shopCat = (c: string) => `/shop?category=${encodeURIComponent(c)}`;
+// shopCat lives in lib/categories.ts — one definition shared by the nav, the
+// footer and the homepage tiles.
 
 export function Nav() {
   return (

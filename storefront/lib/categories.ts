@@ -60,3 +60,8 @@ export function rootCategory(leaf: string | undefined | null): RootCategory {
   if (!leaf) return "Church Essentials";
   return LEAF_TO_ROOT[leaf.trim().toLowerCase()] ?? "Church Essentials";
 }
+
+/** Link to the shop filtered to one department. Single source of truth so the
+    nav, footer and homepage tiles can't drift apart (the homepage tiles used to
+    point at a bare /shop and quietly filtered nothing). */
+export const shopCat = (c: RootCategory) => `/shop?category=${encodeURIComponent(c)}`;
