@@ -677,15 +677,15 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .section-head{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:20px}
   .grid-products{gap:14px}
   .pcard .ph{padding:0;border-radius:12px}
-  /* Product name: a touch smaller and clamped to 2 lines so long names never
-     blow the card up, and every card's price row lines up — a calm, even grid. */
-  .pcard h3{font-size:12.5px;font-weight:600;line-height:1.3;margin-top:10px;
+  /* Product name: readable, clamped to 2 lines so a long name never blows the
+     card up (no forced min-height, so short names don't leave an empty gap). */
+  .pcard h3{font-size:13.5px;font-weight:600;line-height:1.3;margin-top:9px;
     white-space:normal;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
-    overflow:hidden;min-height:2.6em}
+    overflow:hidden}
   /* oraimo-style card: keep 2 feature chips, single-line truncated */
   .pcard .chip{font-size:11.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pcard .price{margin-top:8px}
-  .pcard .price b{font-size:16px}
+  .pcard .price{margin-top:7px}
+  .pcard .price b{font-size:14.5px}
   .pcard .avail{font-size:11.5px;margin-top:6px}
   .pcard .seller a{font-size:11.5px;padding:5px 9px}
   .pcard .rating{font-size:11.5px;left:9px;bottom:9px;padding:4px 9px}
