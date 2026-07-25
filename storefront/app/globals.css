@@ -633,7 +633,11 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .nav .logo{margin-right:auto}
   .grid-products{grid-template-columns:repeat(2,1fr);gap:20px}
   .hero-cath>.wrap{grid-template-columns:1fr;min-height:0;padding-top:48px;gap:38px}
-  .arch{justify-self:center;width:min(440px,92%)}
+  /* mobile hero image: clean, full product — drop the arch crop + inset ring
+     so the whole photo shows and nothing is hidden */
+  .arch{justify-self:stretch;width:100%;aspect-ratio:auto;border-radius:20px;border:none;box-shadow:0 22px 48px rgba(0,0,0,.26)}
+  .hero-cath.light .arch{box-shadow:0 20px 44px rgba(120,95,20,.20)}
+  .arch img{width:100%;height:auto;object-fit:contain}
   .hero-cath .marks{gap:24px;flex-wrap:wrap}
   .creed .wrap{justify-content:flex-start;row-gap:4px}
   .catalog{grid-template-columns:1fr}
@@ -952,7 +956,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 @media(prefers-reduced-motion:reduce){.hero-track{transition:none}}
 
 /* light + slate hero variants */
-.hero-cath.light{background:linear-gradient(150deg,#f3e9cf,#fdfaf1 62%)}
+.hero-cath.light{background:linear-gradient(155deg,#e6d2a4 0%,#f2e6c8 58%,#faf2dc 100%)}
 .hero-cath.light::after{background:radial-gradient(46% 42% at 74% 62%,rgba(201,162,39,.13),transparent 70%)}
 .hero-cath.light,.hero-cath.light h1{color:var(--navy-950)}
 .hero-cath.light .eyebrow{color:#a5821a}
