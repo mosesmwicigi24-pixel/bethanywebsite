@@ -169,8 +169,8 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .rail{display:flex;gap:22px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:6px 4px 22px;scrollbar-width:none;overscroll-behavior-x:contain}
 .rail::-webkit-scrollbar{display:none}
 .lineup-card{scroll-snap-align:start;flex:0 0 clamp(300px,22vw,360px);background:#fff;border-radius:22px;box-shadow:var(--shadow);padding:0 0 26px;text-align:center;display:flex;flex-direction:column}
-.lineup-card .art{height:300px;border-radius:22px 22px 0 0;overflow:hidden;display:flex;align-items:center;justify-content:center;padding:24px}
-.lineup-card .art img{max-height:100%;object-fit:contain;transition:.35s}
+.lineup-card .art{border-radius:22px 22px 0 0;overflow:hidden;display:block;padding:0}
+.lineup-card .art img{width:100%;height:auto;object-fit:contain;display:block;transition:.35s}
 .lineup-card:hover .art img{transform:scale(1.045)}
 .lineup-card .dots{display:flex;gap:6px;justify-content:center;margin:16px 0 12px}
 .lineup-card .dots i{width:10px;height:10px;border-radius:99px;border:1px solid rgba(0,0,0,.15)}
