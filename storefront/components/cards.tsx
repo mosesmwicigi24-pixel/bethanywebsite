@@ -93,19 +93,20 @@ export function LineupCard({
   );
 }
 
-/** Apple dark editorial card. */
+/** Apple-style editorial tile: full-bleed photo, title over a gradient scrim.
+    `focus` sets the image's object-position so faces/products stay in frame. */
 export function EditorialCard({
-  eyebrow, title, img,
+  eyebrow, title, img, focus,
 }: {
-  eyebrow: string; title: string[]; img: string;
+  eyebrow: string; title: string[]; img: string; focus?: string;
 }) {
   return (
     <article className="edit-card">
+      <div className="ph"><img src={img} alt="" style={focus ? { objectPosition: focus } : undefined} /></div>
       <div className="txt">
         <div className="eyebrow">{eyebrow}</div>
         <h3>{title.map((t, i) => <span key={i}>{t}<br /></span>)}</h3>
       </div>
-      <div className="ph"><img src={img} alt="" /></div>
       <button className="plus" aria-label="Learn more">+</button>
     </article>
   );

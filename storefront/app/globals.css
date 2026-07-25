@@ -181,13 +181,16 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 /* dark editorial cards */
 .dark-band{background:var(--navy-950);color:#fff;padding:80px 0 90px}
 .dark-band h2{color:#fff}
-.edit-card{scroll-snap-align:start;flex:0 0 clamp(340px,25vw,420px);height:500px;border-radius:22px;overflow:hidden;position:relative;background:var(--navy-800);display:flex;flex-direction:column}
-.edit-card .txt{padding:24px 24px 8px;position:relative;z-index:2}
-.edit-card .eyebrow{font-size:12px;font-weight:700;color:var(--gold-bright);letter-spacing:.02em;margin-bottom:8px}
-.edit-card h3{font-size:23px;font-weight:800;letter-spacing:-.015em;line-height:1.2}
-.edit-card .ph{flex:1;overflow:hidden;display:flex;align-items:flex-end;justify-content:center}
-.edit-card .ph img{width:100%;height:100%;object-fit:cover;opacity:.94}
-.edit-card .plus{position:absolute;right:16px;bottom:16px;width:34px;height:34px;border-radius:99px;background:rgba(255,255,255,.92);color:#111;font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center;z-index:2}
+.edit-card{scroll-snap-align:start;flex:0 0 clamp(340px,25vw,420px);height:500px;border-radius:22px;overflow:hidden;position:relative;background:var(--navy-900);isolation:isolate}
+.edit-card .ph{position:absolute;inset:0;z-index:0}
+.edit-card .ph img{width:100%;height:100%;object-fit:cover;object-position:center 20%;transition:transform .5s var(--ease)}
+.edit-card:hover .ph img{transform:scale(1.05)}
+/* scrim: a touch of dark at the top (for the + chip) and a strong foot for the title */
+.edit-card::after{content:"";position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,rgba(7,15,28,.42) 0%,rgba(7,15,28,.06) 22%,rgba(7,15,28,0) 46%,rgba(7,15,28,.52) 74%,rgba(7,15,28,.93) 100%)}
+.edit-card .txt{position:absolute;left:0;right:0;bottom:0;z-index:2;padding:22px 22px 26px;text-align:left}
+.edit-card .eyebrow{font-size:12px;font-weight:800;color:var(--gold-bright);letter-spacing:.08em;text-transform:uppercase;margin-bottom:9px}
+.edit-card h3{font-size:24px;font-weight:800;letter-spacing:-.015em;line-height:1.16;color:#fff;text-shadow:0 2px 18px rgba(0,0,0,.5)}
+.edit-card .plus{position:absolute;right:16px;top:16px;width:36px;height:36px;border-radius:99px;background:rgba(255,255,255,.92);color:#111;font-size:20px;font-weight:600;display:flex;align-items:center;justify-content:center;z-index:3}
 .rail-nav{display:flex;gap:10px;justify-content:flex-end;width:min(89vw,var(--wrap));margin:0 auto;padding:0}
 .rail-nav button{width:38px;height:38px;border-radius:99px;background:rgba(255,255,255,.12);color:#fff;font-size:17px;display:flex;align-items:center;justify-content:center}
 .band .rail-nav button{background:#e4e5e9;color:#333}
@@ -633,7 +636,11 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .nav .logo{margin-right:auto}
   .grid-products{grid-template-columns:repeat(2,1fr);gap:20px}
   .hero-cath>.wrap{grid-template-columns:1fr;min-height:0;padding-top:48px;gap:38px}
-  .arch{justify-self:center;width:min(440px,92%)}
+  /* mobile hero image: clean, full product — drop the arch crop + inset ring
+     so the whole photo shows and nothing is hidden */
+  .arch{justify-self:stretch;width:100%;aspect-ratio:auto;border-radius:20px;border:none;box-shadow:0 22px 48px rgba(0,0,0,.26)}
+  .hero-cath.light .arch{box-shadow:0 20px 44px rgba(120,95,20,.20)}
+  .arch img{width:100%;height:auto;object-fit:contain}
   .hero-cath .marks{gap:24px;flex-wrap:wrap}
   .creed .wrap{justify-content:flex-start;row-gap:4px}
   .catalog{grid-template-columns:1fr}
@@ -672,7 +679,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .cat-index{gap:22px;margin-top:30px}
   .cat-index .thumb{width:62px;height:62px;border-radius:16px}
   .band{padding:54px 0 60px}
-  .dark-band{padding:56px 0 64px}
+  .dark-band{padding:48px 0 44px}
   .section{padding:48px 0}
   .section-head{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:20px}
   .grid-products{gap:14px}
@@ -952,7 +959,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 @media(prefers-reduced-motion:reduce){.hero-track{transition:none}}
 
 /* light + slate hero variants */
-.hero-cath.light{background:linear-gradient(150deg,#f3e9cf,#fdfaf1 62%)}
+.hero-cath.light{background:linear-gradient(155deg,#e6d2a4 0%,#f2e6c8 58%,#faf2dc 100%)}
 .hero-cath.light::after{background:radial-gradient(46% 42% at 74% 62%,rgba(201,162,39,.13),transparent 70%)}
 .hero-cath.light,.hero-cath.light h1{color:var(--navy-950)}
 .hero-cath.light .eyebrow{color:#a5821a}
@@ -1034,10 +1041,12 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 /* ============================================================
    PRODUCT STORY PATTERN — poster banner + take-a-closer-look
    ============================================================ */
-.poster{width:min(89vw,1300px);margin:26px auto 10px;border-radius:22px;overflow:hidden;text-align:center;padding:54px 34px 0}
+.poster{width:min(89vw,1300px);margin:26px auto 10px;border-radius:22px;overflow:hidden;text-align:center;padding:0}
 .poster.warm{background:linear-gradient(160deg,#e8d5ae 0%,#f6ecd2 45%,#fdf8ea 100%);color:#2c2410}
 .poster.dark{background:radial-gradient(130% 140% at 50% 0%,#1b3050,var(--navy-950) 70%);color:#fff}
-.poster-eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.65}
+.poster-eyebrow{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;opacity:.65;margin-top:clamp(40px,7vw,54px)}
+/* copy keeps side padding; the product band (.poster-art) goes edge-to-edge */
+.poster-eyebrow,.poster h2,.poster-specs{padding-left:clamp(22px,5vw,34px);padding-right:clamp(22px,5vw,34px)}
 
 /* ---------- editorial product chapter (Apple Health/Fitness pattern) ---------- */
 .chapter{position:relative;width:min(89vw,1300px);margin:26px auto;border-radius:22px;overflow:hidden;min-height:clamp(420px,58vh,620px);display:flex;align-items:flex-end;isolation:isolate}
@@ -1055,8 +1064,11 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 @media(max-width:640px){.chapter{min-height:420px}.chapter-inner{padding:24px}}
 .poster h2{font-family:var(--serif);font-size:clamp(32px,4vw,54px);font-weight:600;letter-spacing:-.02em;margin:12px 0 14px}
 .poster-specs{font-size:12.5px;font-weight:600;max-width:760px;margin:0 auto;opacity:.75;line-height:1.8}
-.poster-art{margin:30px auto 0;display:flex;justify-content:center}
-.poster-art img{max-height:460px;object-fit:contain;border-radius:16px 16px 0 0;box-shadow:0 -18px 60px rgba(0,0,0,.18)}
+/* Desktop: product contained on the panel as a centred stage. Mobile (below):
+   the whole photo runs edge-to-edge as a band so it never reads as a pasted
+   rectangle floating on the panel. */
+.poster-art{margin:clamp(22px,4vw,32px) 0 0;display:flex;justify-content:center}
+.poster-art img{max-height:clamp(380px,48vh,520px);object-fit:contain;display:block}
 
 .closer{padding:56px 0 10px}
 .closer-title{font-family:var(--serif);font-size:clamp(30px,3.6vw,46px);font-weight:600;letter-spacing:-.015em;margin-bottom:26px}
@@ -1074,7 +1086,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .closer-panel{grid-template-columns:1fr;min-height:0}
   .closer-media{min-height:0;order:-1}
   .closer-media img{max-height:320px}
-  .poster-art img{max-height:320px}
+  .poster-art img{width:100%;height:auto;max-height:none;object-fit:cover}
 }
 
 /* ============================================================
