@@ -841,13 +841,12 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
      full-bleed would run 460–510px tall and `cover` would amputate the product
      — contain on a stage keeps every one of them whole at a sane height. */
   .promo-b{flex-direction:column;align-items:stretch;padding:0;min-height:0}
-  /* width:auto + a fixed height sizes the box to the photo's own aspect, so there
-     is no letterbox and no seam — the radius lands on the picture's real edges
-     and it reads as a framed inset on the card, not a photo pasted on a slab. */
-  .promo-b img{position:static;order:1;width:auto;max-width:calc(100% - 40px);
-    height:238px;object-fit:contain;margin:20px auto 2px;border-radius:14px;
-    background:none;padding:0;opacity:1}
-  .promo-b .txt{order:2;max-width:100%;padding:20px 20px 22px}
+  /* Full-bleed hero: the image fills the card top edge-to-edge and big; the
+     card's own radius + overflow:hidden round its top corners. Text sits below. */
+  .promo-b img{position:static;order:1;width:100%;max-width:100%;
+    height:clamp(300px,64vw,440px);object-fit:cover;object-position:center;
+    margin:0;border-radius:0;background:none;padding:0;opacity:1;display:block}
+  .promo-b .txt{order:2;max-width:100%;padding:22px 20px 24px}
   .promo-b h3{font-size:23px;margin-bottom:8px}
   .promo-b p{margin-bottom:16px}
   .promo-duo{gap:14px}
