@@ -14,12 +14,26 @@ import { Money, Price, OldPrice } from "@/components/Money";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
+import { getProductReviews } from "@/lib/hub";
 import { bySlug as curatedBySlug } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { productJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 
 export const revalidate = 300; // ISR — pages rebuild as the hub catalog changes
+
+/** "June 2, 2026" — deterministic (fixed locale) so ISR output is stable. */
+function reviewDate(iso?: string): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return isNaN(d.getTime()) ? "" : d.toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+}
+
+/** 1–5 → "★★★★☆" (rounded, clamped). */
+function starStr(n: number): string {
+  const k = Math.max(0, Math.min(5, Math.round(n)));
+  return "★★★★★☆☆☆☆☆".slice(5 - k, 10 - k);
+}
 
 export async function generateMetadata(
   { params }: { params: Promise<{ slug: string }> },
@@ -106,6 +120,20 @@ export default async function ProductPage(
   const isCurated = Boolean(curatedBySlug(parent.baseSlug ?? parent.slug));
   const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
 
+  // Live reviews from the Hub, keyed to the base product (variants share them).
+  // Falls back to the curated demo when the Hub is unset/unreachable or the
+  // product has no reviews yet.
+  const reviewSlug = parent.baseSlug ?? parent.slug;
+  const hubReviews = await getProductReviews(reviewSlug);
+  const reviewCount = hubReviews?.count ?? parent.reviews;
+  const ratingAvg = hubReviews?.average ?? parent.rating;
+  const starLabels = ["★★★★★", "★★★★☆", "★★★☆☆", "★★☆☆☆", "★☆☆☆☆"];
+  const distRows: [string, number, number][] = hubReviews
+    ? hubReviews.distribution.map((n, i): [string, number, number] => [
+        starLabels[i], reviewCount ? Math.round((n / reviewCount) * 100) : 0, n,
+      ])
+    : [["★★★★★", 88, 189], ["★★★★☆", 9, 19], ["★★★☆☆", 2, 4], ["★★☆☆☆", 1, 2], ["★☆☆☆☆", 0, 0]];
+
   const body = (
     <main className="pdp-page">
       <JsonLd data={productJsonLd(parent, { sku, path: `/product/${parent.slug}` })} />
@@ -137,7 +165,7 @@ export default async function ProductPage(
               <button className="wish" aria-label="Wishlist">♡</button>
               <h1>{parent.name}</h1>
               <div className="rrow">
-                <span className="stars">★★★★★</span><b>({parent.reviews})</b>
+                <span className="stars">{starStr(ratingAvg)}</span><b>({reviewCount})</b>
                 <a className="add" href="#reviews">Add your review ›</a>
               </div>
               {parent.seller && (
@@ -222,21 +250,21 @@ export default async function ProductPage(
       <WhyBuy pillars={cmsPillars.length ? cmsPillars : undefined} />
 
       <div id="reviews" className="story">
-        {parent.reviews > 0 ? (
+        {reviewCount > 0 ? (
           <div className="rev-summary">
             <div className="big">
               <small style={{ fontSize: 13, color: "var(--muted)" }}>Overall Rating</small><br />
-              <b>{parent.rating.toFixed(1)}</b>
-              <span className="stars">★★★★★</span>
-              <span>({parent.reviews} reviews)</span>
+              <b>{ratingAvg.toFixed(1)}</b>
+              <span className="stars">{starStr(ratingAvg)}</span>
+              <span>({reviewCount} reviews)</span>
             </div>
             <div>
-              <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>Overall Rating</div>
-              {[["★★★★★", 88, 189], ["★★★★☆", 9, 19], ["★★★☆☆", 2, 4], ["★★☆☆☆", 1, 2], ["★☆☆☆☆", 0, 0]].map(([s, w, n]) => (
-                <div className="bar-row" key={s as string}>{s}<div className="bar"><i style={{ width: `${w}%` }} /></div>{n}</div>
+              <div style={{ fontSize: 13, color: "var(--muted)", marginBottom: 10 }}>Rating breakdown</div>
+              {distRows.map(([s, w, n]) => (
+                <div className="bar-row" key={s}>{s}<div className="bar"><i style={{ width: `${w}%` }} /></div>{n}</div>
               ))}
             </div>
-            <RateInput />
+            <RateInput slug={reviewSlug} />
           </div>
         ) : (
           <div className="rev-summary" style={{ gridTemplateColumns: "1fr auto", alignItems: "center" }}>
@@ -244,11 +272,27 @@ export default async function ProductPage(
               <h2 className="serif" style={{ fontSize: 26, fontWeight: 600 }}>Be the first to review.</h2>
               <p className="muted-cap">Bought this for your church? Share how it served you.</p>
             </div>
-            <RateInput />
+            <RateInput slug={reviewSlug} />
           </div>
         )}
 
-        {isFlagship ? (
+        {hubReviews ? (
+          hubReviews.reviews.map((rv, i) => (
+            <div key={rv.id ?? i}>
+              <article className="review">
+                {reviewDate(rv.createdAt) && <div className="date">{reviewDate(rv.createdAt)}</div>}
+                <div className="stars">{starStr(rv.rating)}</div>
+                {rv.title && <h5>{rv.title}</h5>}
+                {rv.body && <p>{rv.body}</p>}
+                <div className="byline">Reviewed by <b>{rv.author || "Verified Buyer"}</b> {rv.verified && <span className="ok">✓ Verified</span>}</div>
+                {rv.photos && rv.photos.length > 0 && (
+                  <div className="shots">{rv.photos.map((src) => <img key={src} src={src} alt="" />)}</div>
+                )}
+              </article>
+              <Helpful up={rv.helpfulUp ?? 0} down={rv.helpfulDown ?? 0} />
+            </div>
+          ))
+        ) : isFlagship ? (
           <>
             <article className="review">
               <div className="date">June 2, 2026</div>
