@@ -304,4 +304,69 @@ Exactly what `markInterestOutcome()` sends:
 
 ---
 
+## 8. Product reviews — live ratings + save *(NEW — needs Hub build)*
+
+The PDP's rating summary, star distribution and review cards read from the Hub;
+the "Review this product" star input writes back. Reviews are keyed to the
+**base product slug** (variants share them). Same `X-Storefront-Key` gate as §6.
+Everything degrades gracefully — until these endpoints exist the storefront
+shows a curated fallback and still thanks a reviewer.
+
+### 8a. `GET /storefront/products/{slug}/reviews` — summary + recent reviews
+
+Consumed by `getProductReviews()` (server-side, ISR-cached ~5 min):
+
+```jsonc
+{
+  "average": 4.9,                          // mean rating
+  "count": 214,                            // total reviews (0/absent → storefront shows its fallback)
+  "distribution": { "5": 189, "4": 19, "3": 4, "2": 2, "1": 0 },  // counts; array [5★,4★,3★,2★,1★] also accepted
+  "reviews": [                             // most helpful / most recent first
+    {
+      "id": "rev_8821",
+      "rating": 5,
+      "title": "Worthy of the Lord's Table",
+      "body": "We ordered two sets for our cathedral's jubilee…",
+      "author": "Rev. Canon Mwangi",
+      "verified": true,                    // confirmed buyer → ✓ Verified badge
+      "created_at": "2026-06-02T09:12:00Z",
+      "helpful_up": 127, "helpful_down": 0,
+      "photos": ["https://hub…/reviews/8821-1.jpg"]   // optional
+    }
+  ]
+}
+```
+
+- `count` is the switch: `0`, or a 404 / unset Hub → the storefront keeps its curated demo. Any positive `count` → live data replaces it.
+- Field aliases tolerated by the client: `text`→`body`, `name`→`author`, `is_verified`→`verified`, and `createdAt`/`helpfulUp`/`helpfulDown` camelCase.
+- The object may be wrapped in `{ "data": { … } }`.
+
+### 8b. `POST /storefront/products/{slug}/reviews` — save one rating
+
+Exactly what `submitReview()` sends (proxied through the storefront's `/api/neema/review`, so the key stays server-side):
+
+```jsonc
+{
+  "client_request_id": "…uuid",           // retry idempotency
+  "rating": 5,                             // required, 1–5
+  "title": "…",                            // optional
+  "body": "How it served our church…",     // optional
+  "author": "Rev. Mwangi",                 // optional display name
+  "email": "…"                             // optional — verify follow-up only, never shown
+}
+```
+
+- Respond 2xx to accept (the storefront reads only 2xx; body optional). Returning the saved review as `{ "review": { … } }` or `{ "data": { … } }` lets the client echo it.
+- Suggested Hub-side handling: moderate before publishing (the storefront copy says the review "appears once verified"), rate-limit per IP / visitor, and — when a matching order exists for the customer — set `verified: true`.
+
+### Acceptance
+
+- [ ] GET returns `average` + `count` + `distribution` + `reviews`; `count:0` / absent lets the storefront fall back.
+- [ ] POST persists a 1–5 rating (optional title/body/author) and is idempotent on `client_request_id`.
+- [ ] Reviews key to the **base** slug so variants aggregate together.
+- [ ] Same `X-Storefront-Key` gate as §6.
+- [ ] Moderation / verification honoured before a review is returned by GET.
+
+---
+
 *Contract v1. Matches `storefront/lib/hub.ts` as of this branch. Questions on the storefront side → see `docs/AI_INTEGRATION_ADVISORY.md` §4.*

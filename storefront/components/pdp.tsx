@@ -156,16 +156,87 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
   );
 }
 
-export function RateInput() {
+export function RateInput({ slug }: { slug: string }) {
   const [hover, setHover] = useState(-1);
+  const [rating, setRating] = useState(0);
+  const [name, setName] = useState("");
+  const [text, setText] = useState("");
+  const [state, setState] = useState<"idle" | "sending" | "done" | "error">("idle");
+
+  const submit = async () => {
+    if (!rating || state === "sending") return;
+    setState("sending");
+    try {
+      const r = await fetch("/api/neema/review", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          slug,
+          rating,
+          author: name.trim() || undefined,
+          body: text.trim() || undefined,
+        }),
+      });
+      const d = await r.json().catch(() => ({}));
+      setState(r.ok && d?.ok !== false ? "done" : "error");
+    } catch {
+      setState("error");
+    }
+  };
+
+  if (state === "done") {
+    const first = name.trim().split(/\s+/)[0];
+    return (
+      <div className="rate-input rate-done">
+        <div className="rate-tick" aria-hidden="true">✓</div>
+        <h5>Thank you{first ? `, ${first}` : ""}!</h5>
+        <p>Your {rating}-star review has been received. It appears here once verified.</p>
+      </div>
+    );
+  }
+
+  // While hovering, preview that star; otherwise show the committed rating.
+  const shown = hover >= 0 ? hover : rating - 1;
   return (
     <div className="rate-input">
       <h5>Review this product</h5>
       <div className="boxes" onMouseLeave={() => setHover(-1)}>
         {[0, 1, 2, 3, 4].map((i) => (
-          <button key={i} onMouseEnter={() => setHover(i)}>{i <= hover ? "★" : "☆"}</button>
+          <button
+            key={i}
+            aria-label={`${i + 1} star${i ? "s" : ""}`}
+            className={i <= shown ? "on" : ""}
+            onMouseEnter={() => setHover(i)}
+            onClick={() => setRating(i + 1)}
+          >
+            {i <= shown ? "★" : "☆"}
+          </button>
         ))}
       </div>
+      {rating > 0 && (
+        <div className="rate-form">
+          <input
+            type="text"
+            placeholder="Your name (e.g. Rev. Mwangi)"
+            value={name}
+            maxLength={80}
+            onChange={(e) => setName(e.target.value)}
+          />
+          <textarea
+            placeholder="How did it serve your church? (optional)"
+            value={text}
+            maxLength={2000}
+            rows={3}
+            onChange={(e) => setText(e.target.value)}
+          />
+          <button className="rate-send" onClick={submit} disabled={state === "sending"}>
+            {state === "sending" ? "Sending…" : `Submit ${rating}-star review`}
+          </button>
+          {state === "error" && (
+            <span className="rate-err">Couldn’t send just now — please try again.</span>
+          )}
+        </div>
+      )}
     </div>
   );
 }

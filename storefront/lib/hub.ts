@@ -432,3 +432,130 @@ export async function markInterestOutcome(
     return false;
   }
 }
+
+/* ============================================================
+   Product reviews (bethany-house §8)
+
+   The PDP's rating summary, star distribution and review cards are LIVE
+   from the Hub when it's reachable, and fall back to the built-in curated
+   demo when it isn't (or a product has no reviews yet). The "Review this
+   product" star input POSTs here so a customer's rating is actually saved.
+
+     GET  /storefront/products/{slug}/reviews  -> summary + recent reviews
+     POST /storefront/products/{slug}/reviews  -> save one rating/review
+
+   Reviews are keyed to the BASE product slug so variants share them.
+   Everything degrades to null / {ok:false} when the Hub is unset or the
+   endpoint isn't live yet — the storefront keeps working either way.
+   ============================================================ */
+
+export interface ReviewItem {
+  id?: string;
+  rating: number;            // 1–5
+  title?: string;
+  body?: string;
+  author?: string;           // display name (e.g. "Rev. Canon Mwangi")
+  verified?: boolean;        // confirmed buyer
+  createdAt?: string;        // ISO 8601
+  helpfulUp?: number;
+  helpfulDown?: number;
+  photos?: string[];         // customer photo URLs
+}
+
+export interface ProductReviews {
+  average: number;           // mean rating, e.g. 4.9
+  count: number;             // total reviews
+  distribution: number[];    // counts, [5★, 4★, 3★, 2★, 1★]
+  reviews: ReviewItem[];     // most recent / most helpful first
+}
+
+export interface ReviewDraft {
+  rating: number;            // 1–5, required
+  title?: string;
+  body?: string;
+  author?: string;           // customer's name
+  email?: string;            // optional, for verify follow-up (never shown)
+}
+
+/** [5★,4★,3★,2★,1★] counts from either an array or a {"5":n,…} map. */
+function normalizeDistribution(raw: unknown): number[] {
+  const out = [0, 0, 0, 0, 0];
+  if (Array.isArray(raw)) {
+    for (let i = 0; i < 5; i++) out[i] = Math.max(0, Number(raw[i]) || 0);
+  } else if (raw && typeof raw === "object") {
+    const m = raw as Record<string, unknown>;
+    for (let star = 5; star >= 1; star--) out[5 - star] = Math.max(0, Number(m[String(star)]) || 0);
+  }
+  return out;
+}
+
+function toReviewItem(r: Record<string, unknown>): ReviewItem {
+  const rating = Math.max(1, Math.min(5, Math.round(Number(r.rating) || 0)));
+  const photos = Array.isArray(r.photos) ? (r.photos as unknown[]).filter((x) => typeof x === "string") as string[] : undefined;
+  return {
+    id: r.id != null ? String(r.id) : undefined,
+    rating,
+    title: typeof r.title === "string" ? r.title : undefined,
+    body: typeof r.body === "string" ? r.body : (typeof r.text === "string" ? r.text : undefined),
+    author: typeof r.author === "string" ? r.author : (typeof r.name === "string" ? r.name : undefined),
+    verified: Boolean(r.verified ?? r.is_verified),
+    createdAt: typeof r.created_at === "string" ? r.created_at : (typeof r.createdAt === "string" ? r.createdAt : undefined),
+    helpfulUp: r.helpful_up != null ? Number(r.helpful_up) || 0 : (r.helpfulUp != null ? Number(r.helpfulUp) || 0 : undefined),
+    helpfulDown: r.helpful_down != null ? Number(r.helpful_down) || 0 : (r.helpfulDown != null ? Number(r.helpfulDown) || 0 : undefined),
+    photos: photos?.length ? photos : undefined,
+  };
+}
+
+/** Live rating summary + recent reviews for a product. Returns null when the
+    Hub is unset, unreachable, or has no reviews — the PDP then shows its
+    curated fallback. Cached with the page's ISR window (best-effort). */
+export async function getProductReviews(slug: string): Promise<ProductReviews | null> {
+  if (!HUB || !slug) return null;
+  try {
+    const r = await fetch(`${HUB}/storefront/products/${encodeURIComponent(slug)}/reviews`, {
+      headers: hubHeaders(),
+      next: { revalidate: 300 },
+    });
+    if (!r.ok) return null;
+    const d = await r.json().catch(() => null);
+    const body = (d && typeof d === "object" && "data" in d ? (d as Record<string, unknown>).data : d) as Record<string, unknown> | null;
+    if (!body || typeof body !== "object") return null;
+    const count = Math.max(0, Number(body.count ?? body.total ?? 0) || 0);
+    if (!count) return null;
+    const list = Array.isArray(body.reviews) ? body.reviews : (Array.isArray(body.data) ? body.data : []);
+    const reviews = (list as Record<string, unknown>[]).map(toReviewItem);
+    const average = Number(body.average ?? body.rating ?? 0) || 0;
+    return { average, count, distribution: normalizeDistribution(body.distribution), reviews };
+  } catch {
+    return null;
+  }
+}
+
+/** Save one customer rating/review (POST /storefront/products/{slug}/reviews).
+    Best-effort: returns {ok:false} when the Hub is unset or rejects it, so the
+    caller can decide how to message the customer. Idempotent via client_request_id. */
+export async function submitReview(slug: string, draft: ReviewDraft): Promise<{ ok: boolean; review?: ReviewItem }> {
+  if (!HUB || !slug || !(Number(draft?.rating) >= 1)) return { ok: false };
+  try {
+    const r = await fetch(`${HUB}/storefront/products/${encodeURIComponent(slug)}/reviews`, {
+      method: "POST",
+      headers: hubHeaders(),
+      body: JSON.stringify({
+        client_request_id: crypto.randomUUID(),
+        rating: Math.max(1, Math.min(5, Math.round(Number(draft.rating)))),
+        title: draft.title || undefined,
+        body: draft.body || undefined,
+        author: draft.author || undefined,
+        email: draft.email || undefined,
+      }),
+    });
+    if (!r.ok) return { ok: false };
+    const d = await r.json().catch(() => null);
+    const raw = (d && typeof d === "object" && ("data" in d || "review" in d)
+      ? ((d as Record<string, unknown>).data ?? (d as Record<string, unknown>).review)
+      : d) as Record<string, unknown> | null;
+    return { ok: true, review: raw && typeof raw === "object" ? toReviewItem(raw) : undefined };
+  } catch {
+    return { ok: false };
+  }
+}
