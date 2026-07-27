@@ -11,8 +11,11 @@ export const SITE = {
   phoneHref: "tel:+254727891989",
   phone2: "+254 785 490 805",
   email: "info@bethanygiftshop.com",
-  address: "Sonalux Building, Moi Avenue",
+  address: "Sonalux Building, 7th Floor, Room 18, Moi Avenue",
   city: "Nairobi, Kenya",
+  /** Human directions with landmarks — used when a customer asks where we are. */
+  directions:
+    "We're located in Nairobi CBD, Kenya at Sonalux Building, 7th Floor, Room 18 — along Moi Avenue, near Nairobi Sports House, opposite Family Bank.",
   hours: "Mon–Sat · 8:00 AM – 5:00 PM",
   deliveryPromise:
     "Free delivery in Nairobi CBD for orders above KES 10,000 — we ship across East Africa",

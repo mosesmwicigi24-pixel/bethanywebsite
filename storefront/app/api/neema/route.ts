@@ -197,6 +197,7 @@ function systemPrompt(ctx: PageContext | undefined, locale: string | undefined):
   return [
     `You are Neema, the warm, sharp sales assistant for ${SITE.name} — ${SITE.tagline}`,
     `Shop: ${SITE.address}, ${SITE.city}. Hours: ${SITE.hours}. Phone/WhatsApp: ${SITE.phone}. Payments: ${SITE.payments}. ${SITE.deliveryPromise}. We ship worldwide.`,
+    `LOCATION / DIRECTIONS — if the customer asks where you are, how to find you, your physical shop, or about pickup, give this warmly and in full: "${SITE.directions}" Then offer to help them visit during ${SITE.hours}, or to deliver.`,
     here + (locale ? `Customer locale: ${locale}. ` : ""),
     "TALK LIKE A REAL PERSON ON WHATSAPP — never like a form:",
     "- Read the whole conversation and ALWAYS move it forward. NEVER repeat a message or re-describe a product you've already covered. If the customer says yes / ok / proceed, take the NEXT concrete step — do not restate the pitch.",
@@ -592,6 +593,46 @@ function normalize(raw: Record<string, unknown>, grounded: boolean): NeemaReply 
 
 /* ---------------- handler ---------------- */
 
+/* A "where are you / directions / pickup" question has exactly one right answer
+   — the shop address — so we answer it deterministically here, before the agent
+   or the provider chain. This keeps directions correct even when the upstream
+   brain (whose contract carries no slot for our business facts) is serving the
+   chat, and never depends on an LLM to recall the landmarks. */
+const DIRECTION_HINTS = [
+  "direction", "where are you", "where's your", "where is your", "where are you located",
+  "where are you based", "your location", "you located", "your address", "your shop",
+  "your store", "your office", "your premises", "physical shop", "physical store",
+  "physical location", "physical address", "how do i find you", "how to find you",
+  "how do i get to", "how to get to", "how to reach you", "how do i reach you",
+  "come to your", "visit your", "visit the shop", "visit the store", "can i visit",
+  "can i come", "walk in", "walk-in", "pick up", "pickup", "collect from", "collect at",
+  "are you in nairobi", "where can i find you", "your map", "google map", "located at",
+];
+
+function asksForDirections(text: string): boolean {
+  const t = text.toLowerCase();
+  // Order tracking ("where is my order") is a different intent — never hijack it.
+  if (/\b(my order|order status|track|where is my)\b/.test(t)) return false;
+  return DIRECTION_HINTS.some((h) => t.includes(h));
+}
+
+/** Canonical directions reply, or null if the message isn't a location question. */
+function directionsReply(lastUser: string): NeemaReply | null {
+  if (!asksForDirections(lastUser)) return null;
+  return normalize(
+    {
+      intent: "other",
+      message: `${SITE.directions} We're open ${SITE.hours}. I'd be glad to help you plan a visit — or we can deliver to you.`,
+      confidence: 0.98,
+      actions: [
+        { type: "whatsapp", label: "Get directions on WhatsApp", value: waLink(`Hello Bethany House! Please share directions to your shop — ${SITE.address}, ${SITE.city}.`) },
+        { type: "shop", label: "Browse the shop", value: "" },
+      ],
+    },
+    true,
+  );
+}
+
 export async function POST(request: Request): Promise<Response> {
   const started = Date.now();
   let body: NeemaRequest;
@@ -621,6 +662,14 @@ export async function POST(request: Request): Promise<Response> {
   let reply: NeemaReply;
   let mode: string;
 
+  // Physical-location questions get the canonical address, deterministically —
+  // before the brain or the provider chain (see directionsReply).
+  const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
+  const directions = directionsReply(lastUser);
+  if (directions) {
+    reply = directions;
+    mode = "directions";
+  } else
   try {
     if (agentLive()) {
       try {
