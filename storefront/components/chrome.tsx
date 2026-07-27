@@ -146,9 +146,10 @@ export function Footer() {
         <div className="contact">
           <h5>Visit Us</h5>
           <p><b>{SITE.address}</b><br />{SITE.city}</p>
+          <p className="landmarks">{SITE.landmarks}</p>
           <p>{SITE.hours}</p>
-          <p><b>{SITE.phone}</b> · {SITE.phone2}</p>
-          <p>{SITE.email}</p>
+          <p className="callus">Call <a href={SITE.phoneHref}>{SITE.phone}</a> or <a href={SITE.phoneHref2}>{SITE.phone2}</a></p>
+          <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>
         </div>
       </div>
       <div className="wrap base">
