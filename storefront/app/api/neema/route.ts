@@ -197,7 +197,7 @@ function systemPrompt(ctx: PageContext | undefined, locale: string | undefined):
   return [
     `You are Neema, the warm, sharp sales assistant for ${SITE.name} — ${SITE.tagline}`,
     `Shop: ${SITE.address}, ${SITE.city}. Hours: ${SITE.hours}. Phone/WhatsApp: ${SITE.phone}. Payments: ${SITE.payments}. ${SITE.deliveryPromise}. We ship worldwide.`,
-    `LOCATION / DIRECTIONS — if the customer asks where you are, how to find you, your physical shop, or about pickup, give this warmly and in full: "${SITE.directions}" Then offer to help them visit during ${SITE.hours}, or to deliver.`,
+    `LOCATION / DIRECTIONS — if the customer asks where you are, how to find you, your physical shop, or about pickup, give this warmly and in full: "${SITE.directions}" Add that they can call ${SITE.phone} or ${SITE.phone2}. Then offer to help them visit during ${SITE.hours}, or to deliver.`,
     here + (locale ? `Customer locale: ${locale}. ` : ""),
     "TALK LIKE A REAL PERSON ON WHATSAPP — never like a form:",
     "- Read the whole conversation and ALWAYS move it forward. NEVER repeat a message or re-describe a product you've already covered. If the customer says yes / ok / proceed, take the NEXT concrete step — do not restate the pitch.",
@@ -622,7 +622,7 @@ function directionsReply(lastUser: string): NeemaReply | null {
   return normalize(
     {
       intent: "other",
-      message: `${SITE.directions} We're open ${SITE.hours}. I'd be glad to help you plan a visit — or we can deliver to you.`,
+      message: `${SITE.directions} We're open ${SITE.hours}. Call us on ${SITE.phone} or ${SITE.phone2} — or I can help you plan a visit, and we can also deliver to you.`,
       confidence: 0.98,
       actions: [
         { type: "whatsapp", label: "Get directions on WhatsApp", value: waLink(`Hello Bethany House! Please share directions to your shop — ${SITE.address}, ${SITE.city}.`) },
