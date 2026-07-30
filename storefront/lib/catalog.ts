@@ -32,6 +32,8 @@ interface HubProduct {
   in_stock?: boolean; available_qty?: number;
   /** hub: products.aliases JSON — synonyms/Swahili/misspellings for search + Neema */
   aliases?: string[] | null;
+  /** hub: products.features JSON — selling points {icon, text}, owner-edited in admin */
+  features?: { icon?: string | null; text: string }[] | null;
 }
 interface HubVariant {
   id: number; product_id: number; sku: string; variant_name: string;
@@ -123,7 +125,10 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     sizes: c?.sizes,
     tagline: c?.tagline,
     closerLook: c?.closerLook,
-    chips: c?.chips ?? [],
+    // Buy-box selling points: curated chips win; otherwise the owner-edited
+    // hub Features ({icon,text} — the admin's Features tab) render in the same
+    // slot, so "shown on the product page" is literally true for every product.
+    chips: c?.chips ?? (hp.features ?? []).filter((f) => f?.text).map((f) => ({ icon: f.icon || "✦", text: f.text })),
     rating: c?.rating ?? 5,
     reviews: c?.reviews ?? 0,
     badge: c?.badge ?? (hp.is_featured ? "best" : undefined),

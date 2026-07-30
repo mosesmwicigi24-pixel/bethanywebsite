@@ -12,6 +12,7 @@
 
 export const SLUG_REDIRECTS: Record<string, string> = {
   // 2026-07-30 duplicate-product merge: extras archived, URLs → survivor.
+  "chalice-cup-medium": "golden-chalice-cup-medium",
   "200-pcs-of-bread": "communion-wafer-bread-200pcs",
   "canon-gown-catholic": "canon-gown",
   "princes-cassock": "white-princes-cassock",
