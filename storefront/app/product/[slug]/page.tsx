@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
+import { SLUG_REDIRECTS } from "@/lib/slug-redirects";
 import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
@@ -68,6 +69,8 @@ export default async function ProductPage(
   { params }: { params: Promise<{ slug: string }> },
 ) {
   const { slug } = await params;
+  // Old URL from before the slug cleanup → 301 to the canonical page.
+  if (SLUG_REDIRECTS[slug]) permanentRedirect(`/product/${SLUG_REDIRECTS[slug]}`);
   const p = await getProductBySlug(slug);
   if (!p) notFound();
 
