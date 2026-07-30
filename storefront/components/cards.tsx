@@ -17,6 +17,17 @@ const BadgeTag = ({ p }: { p: Product }) =>
     <span className={`tag ${badgeLabel[p.badge].cls}`}>{badgeLabel[p.badge].text}</span>
   ) : null;
 
+/** Condense a feature line for a grid card (the product page shows it in full).
+    Most read "headline — explanation", so the headline alone is the scannable
+    label; otherwise trim at a word boundary rather than mid-word. */
+export function cardFeature(text: string, max = 46): string {
+  const head = text.split(/\s[—–]\s/)[0].trim();
+  if (head.length <= max) return head;
+  const cut = head.slice(0, max);
+  const at = cut.lastIndexOf(" ");
+  return (at > max * 0.6 ? cut.slice(0, at) : cut).replace(/[,;:]$/, "") + "…";
+}
+
 /** Full oraimo-style catalog card. */
 export function ProductCard({ p }: { p: Product }) {
   const href = `/product/${p.slug}`;
@@ -30,8 +41,8 @@ export function ProductCard({ p }: { p: Product }) {
       <QuickActions slug={p.slug} />
       <h3>{p.name}</h3>
       <div className="chips">
-        {p.chips.map((c) => (
-          <div className="chip" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
+        {p.chips.slice(0, 2).map((c) => (
+          <div className="chip" key={c.text}><span className="ic">{c.icon}</span>{cardFeature(c.text)}</div>
         ))}
       </div>
       <div className="price">

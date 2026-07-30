@@ -1,4 +1,4 @@
-import type { Product, Measurement, VariantOption } from "./products";
+import type { Product, Measurement, VariantOption, Chip } from "./products";
 import { curated } from "./products";
 
 /* ============================================================
@@ -72,6 +72,26 @@ const imagesOf = (imgs: HubImage[] | undefined): string[] =>
     .map((i) => i.image_url)
     .filter(Boolean);
 
+/** Curated highlights + hub Features, de-duplicated by their leading phrase
+    (a curated "24K gold-plated brass" and a hub "24K gold-plated brass — …"
+    are the same claim, so only the curated one is kept). */
+function mergeChips(
+  curated: Chip[] | undefined,
+  features: { icon?: string | null; text: string }[] | null | undefined,
+): Chip[] {
+  const key = (t: string) =>
+    t.split(/\s[—–]\s/)[0].toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  const out: Chip[] = [...(curated ?? [])];
+  const seen = new Set(out.map((c) => key(c.text)));
+  for (const f of features ?? []) {
+    const text = f?.text?.trim();
+    if (!text || seen.has(key(text))) continue;
+    seen.add(key(text));
+    out.push({ icon: f.icon || "✦", text });
+  }
+  return out;
+}
+
 /** Map a hub product (optionally a specific variant) to a storefront Product,
     then layer the curated overlay on top when one exists for the slug. */
 function toProduct(hp: HubProduct, variant?: HubVariant): Product {
@@ -125,10 +145,10 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     sizes: c?.sizes,
     tagline: c?.tagline,
     closerLook: c?.closerLook,
-    // Buy-box selling points: curated chips win; otherwise the owner-edited
-    // hub Features ({icon,text} — the admin's Features tab) render in the same
-    // slot, so "shown on the product page" is literally true for every product.
-    chips: c?.chips ?? (hp.features ?? []).filter((f) => f?.text).map((f) => ({ icon: f.icon || "✦", text: f.text })),
+    // Selling points: curated highlights first (hand-written for flagships),
+    // then the owner-edited hub Features from the admin's Features tab, minus
+    // duplicates. Cards show the first two; the product page shows them all.
+    chips: mergeChips(c?.chips, hp.features),
     rating: c?.rating ?? 5,
     reviews: c?.reviews ?? 0,
     badge: c?.badge ?? (hp.is_featured ? "best" : undefined),
