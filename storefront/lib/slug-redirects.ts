@@ -11,6 +11,10 @@
    permanent redirects without a hub round-trip. */
 
 export const SLUG_REDIRECTS: Record<string, string> = {
+  // 2026-07-30 duplicate-product merge: extras archived, URLs → survivor.
+  "200-pcs-of-bread": "communion-wafer-bread-200pcs",
+  "canon-gown-catholic": "canon-gown",
+  "princes-cassock": "white-princes-cassock",
   "1000-pieces-of-bread": "communion-wafer-bread-500pcs",
   "anointing-oil-eliad-olive-oil-750ml": "round-collar-shirt",
   "biblia-yangu-kubwa-niipendayo-ocjn841jk": "biblia-yangu-kubwa-niipendayo",
