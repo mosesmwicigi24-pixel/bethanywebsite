@@ -30,6 +30,8 @@ interface HubProduct {
   is_producible: boolean; is_featured?: boolean; measurements?: Measurement[] | null;
   category?: HubCategory | null; images?: HubImage[]; translations?: HubTranslation[]; prices?: HubPrice[];
   in_stock?: boolean; available_qty?: number;
+  /** hub: products.aliases JSON — synonyms/Swahili/misspellings for search + Neema */
+  aliases?: string[] | null;
 }
 interface HubVariant {
   id: number; product_id: number; sku: string; variant_name: string;
@@ -75,11 +77,15 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
   const slug = variant ? `${baseSlug}--v${variant.id}` : baseSlug;
   const c = curated[baseSlug]; // curated overlay (may be undefined)
 
-  const hubName = hp.translations?.find((t) => t.language_code === "en")?.name
-    ?? hp.translations?.[0]?.name ?? hp.slug;
+  const hubT = hp.translations?.find((t) => t.language_code === "en") ?? hp.translations?.[0];
+  const hubName = hubT?.name ?? hp.slug;
   const name = variant
     ? `${c?.name ?? hubName} — ${variant.variant_name}`
     : c?.name ?? hubName;
+  // The hub's short_description (owner-editable, enriched per product) is the
+  // card line + search/Neema text; before this it silently fell back to the
+  // product NAME, so hub-side copy never reached the storefront at all.
+  const hubShort = hubT?.short_description?.trim() || undefined;
 
   const priceRows = variant?.prices ?? hp.prices;
   const kes = priceOf(priceRows, "KES") ?? c?.price ?? 0;
@@ -104,7 +110,8 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     variantId: variant?.id,
     variantAttributes: variant?.attributes,
     name,
-    short: c?.short ?? (variant ? variant.variant_name : hubName),
+    short: c?.short ?? (variant ? variant.variant_name : (hubShort ?? hubName)),
+    aliases: hp.aliases ?? undefined,
     img: gallery[0],
     gallery,
     price: kes,

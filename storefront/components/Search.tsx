@@ -20,8 +20,15 @@ export default function Search() {
   const hits = useMemo(() => {
     const t = q.trim().toLowerCase();
     if (!t) return [];
+    // Token-AND over name + category + card line + hub aliases (synonyms,
+    // Swahili terms, misspellings): "clergy robe" or "divai" now match even
+    // though neither appears in a product NAME.
+    const tokens = t.split(/\s+/).filter(Boolean);
     return products
-      .filter((p) => `${p.name} ${p.category}`.toLowerCase().includes(t))
+      .filter((p) => {
+        const hay = `${p.name} ${p.category} ${p.short} ${(p.aliases ?? []).join(" ")}`.toLowerCase();
+        return tokens.every((tok) => hay.includes(tok));
+      })
       .slice(0, 7);
   }, [q]);
 

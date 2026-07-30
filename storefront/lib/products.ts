@@ -39,6 +39,8 @@ export interface Product {
   variants?: VariantOption[];
   /** live stock signal from the hub */
   inStock?: boolean;
+  /** hub: products.aliases — synonyms/Swahili/misspellings, searched by Neema + the search box */
+  aliases?: string[];
   name: string;
   short: string;
   img: string;

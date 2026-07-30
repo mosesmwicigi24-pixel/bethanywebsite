@@ -198,7 +198,7 @@ function tokenize(q: string): string[] {
 }
 
 const haystack = (p: Product): string =>
-  [p.name, p.short, p.category, p.tagline ?? "", ...(p.chips ?? []).map((c) => c.text)]
+  [p.name, p.short, p.category, p.tagline ?? "", ...(p.aliases ?? []), ...(p.chips ?? []).map((c) => c.text)]
     .join(" ")
     .toLowerCase();
 
