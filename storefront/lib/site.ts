@@ -14,9 +14,12 @@ export const SITE = {
   email: "info@bethanygiftshop.com",
   address: "Sonalux Building, 7th Floor, Room 18, Moi Avenue",
   city: "Nairobi, Kenya",
-  /** Full spoken directions — used when a customer asks where we are (assistant). */
+  /** Local directions — for a Kenyan (+254) customer who asks where we are. */
   directions:
-    "We're located in Nairobi CBD, Kenya at Sonalux Building, 7th Floor, Room 18 — along Moi Avenue, near Nairobi Sports House, opposite Family Bank.",
+    "We are located in Nairobi CBD, Kenya at Sonalux Building, 7th Floor, Room 18 — along Moi Avenue, near Nairobi Sports House, opposite Family Bank.",
+  /** International reply — for a customer outside Kenya asking where we are / about delivery. */
+  shipWorldwide:
+    "We deliver to every city, every country and every continent from our workshop here in Nairobi, Kenya. Kindly share your city and country, and we will provide the shipping cost and the estimated delivery time.",
   /** Concise landmark hint for the footer / contact block (complements `address`). */
   landmarks: "Nairobi CBD — along Moi Avenue, near Nairobi Sports House, opposite Family Bank.",
   hours: "Mon–Sat · 8:00 AM – 5:00 PM",

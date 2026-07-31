@@ -42,6 +42,9 @@ export interface NeemaRequest {
   /** cross-channel cart token (BH-XXXX) — carried into the WhatsApp handoff so
       the same cart can be resumed there. */
   cartToken?: string;
+  /** the visitor's resolved currency (KES = Kenya) — the local-vs-international
+      signal for the directions reply on the web, where there's no phone. */
+  currency?: string;
 }
 
 /** A recommended product — `slug` resolves through the client catalog

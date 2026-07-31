@@ -7,6 +7,7 @@ import Img from "./Img";
 import { Price } from "./Money";
 import { useCatalog } from "@/lib/catalogClient";
 import { useCart } from "@/lib/cart";
+import { useCurrency } from "@/lib/currency";
 import type { NeemaReply } from "@/lib/neema";
 
 /* Neema — the customer-facing chat widget (advisory §3.1).
@@ -77,6 +78,7 @@ export default function Neema() {
   const pathname = usePathname();
   const { bySlug } = useCatalog();
   const cart = useCart();
+  const { currency } = useCurrency();
   // Intent-aware context for the gateway — stable across renders so `send`'s
   // memo holds (a product page opens Neema already knowing the product).
   const pageContext = useMemo(() => {
@@ -120,6 +122,7 @@ export default function Neema() {
             locale: typeof navigator !== "undefined" ? navigator.language : undefined,
             pageContext,
             cartToken: cart.token || undefined,
+            currency,
           }),
         });
         if (!res.ok) throw new Error(String(res.status));
@@ -138,7 +141,7 @@ export default function Neema() {
         setLoading(false);
       }
     },
-    [messages, loading, pageContext, cart.token],
+    [messages, loading, pageContext, cart.token, currency],
   );
 
   const setField = useCallback((i: number, id: string, val: string) => {

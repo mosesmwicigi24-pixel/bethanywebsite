@@ -192,13 +192,14 @@ const TOOLS: LlmTool[] = [
   },
 ];
 
-function systemPrompt(ctx: PageContext | undefined, locale: string | undefined): string {
+function systemPrompt(ctx: PageContext | undefined, locale: string | undefined, currency?: string): string {
   const here = ctx?.productSlug ? `The customer is viewing product "${ctx.productSlug}". ` : ctx?.category ? `The customer is browsing "${ctx.category}". ` : "";
   return [
-    `You are Neema, the warm, sharp sales assistant for ${SITE.name} — ${SITE.tagline}`,
+    `You are Neema, the assistant for ${SITE.name} — ${SITE.tagline}`,
+    "TONE — official yet warm: calm, confident, loving, assuring and professional. Clear, courteous English; never slangy or off-hand. Still natural and never robotic, and always moving the customer gently towards a purchase.",
     `Shop: ${SITE.address}, ${SITE.city}. Hours: ${SITE.hours}. Phone/WhatsApp: ${SITE.phone}. Payments: ${SITE.payments}. ${SITE.deliveryPromise}. We ship worldwide.`,
-    `LOCATION / DIRECTIONS — if the customer asks where you are, how to find you, your physical shop, or about pickup, give this warmly and in full: "${SITE.directions}" Add that they can call ${SITE.phone} or ${SITE.phone2}. Then offer to help them visit during ${SITE.hours}, or to deliver.`,
-    here + (locale ? `Customer locale: ${locale}. ` : ""),
+    `LOCATION / DIRECTIONS — keep the tone official, calm, warm, assuring and professional. If the customer is Kenyan (a +254 number, currency KES, or clearly within Kenya), give the shop in full: "${SITE.directions}" Add that they may call ${SITE.phone} or ${SITE.phone2}, are welcome to visit during ${SITE.hours}, and we can also deliver. If the customer is OUTSIDE Kenya, do NOT offer the walk-in address as a destination — say instead: "${SITE.shipWorldwide}"`,
+    here + (locale ? `Customer locale: ${locale}. ` : "") + (currency ? `Customer currency: ${currency}${currency === "KES" ? " — a local Kenyan customer" : " — outside Kenya"}. ` : ""),
     "TALK LIKE A REAL PERSON ON WHATSAPP — never like a form:",
     "- Read the whole conversation and ALWAYS move it forward. NEVER repeat a message or re-describe a product you've already covered. If the customer says yes / ok / proceed, take the NEXT concrete step — do not restate the pitch.",
     "- Acknowledge what they just said, then add something new. Be concise and natural, ask at most one question, and vary your wording.",
@@ -219,7 +220,7 @@ function systemPrompt(ctx: PageContext | undefined, locale: string | undefined):
 
 async function runToolLoop(cfg: ProviderCfg, req: NeemaRequest, toolsUsed: string[]): Promise<NeemaReply> {
   const history: LlmMessage[] = [
-    { role: "system", content: systemPrompt(req.pageContext, req.locale) },
+    { role: "system", content: systemPrompt(req.pageContext, req.locale, req.currency) },
     ...req.messages.map((m) => ({ role: m.role, content: m.content } as LlmMessage)),
   ];
 
@@ -607,6 +608,7 @@ const DIRECTION_HINTS = [
   "come to your", "visit your", "visit the shop", "visit the store", "can i visit",
   "can i come", "walk in", "walk-in", "pick up", "pickup", "collect from", "collect at",
   "are you in nairobi", "where can i find you", "your map", "google map", "located at",
+  "location", "located", "where is the shop", "where is your shop",
 ];
 
 function asksForDirections(text: string): boolean {
@@ -616,13 +618,38 @@ function asksForDirections(text: string): boolean {
   return DIRECTION_HINTS.some((h) => t.includes(h));
 }
 
-/** Canonical directions reply, or null if the message isn't a location question. */
-function directionsReply(lastUser: string): NeemaReply | null {
+/** Location reply, keyed to where the customer is:
+      • Kenyan (currency KES) — give the local walk-in address.
+      • Outside Kenya — we deliver worldwide; ask for their city + country.
+    Returns null if the message isn't a location question. Tone: official,
+    calm, warm, assuring, professional. */
+function directionsReply(lastUser: string, currency?: string): NeemaReply | null {
   if (!asksForDirections(lastUser)) return null;
+
+  // Outside Kenya → worldwide-delivery reply (never the walk-in address as a
+  // destination). Unknown/KES defaults to local, so a Kenyan is never sent the
+  // "which city are you in" runaround.
+  if (currency === "USD" || currency === "ZMW") {
+    return normalize(
+      {
+        intent: "shipping",
+        message: `${SITE.shipWorldwide} You are also welcome to call us on ${SITE.phone} or ${SITE.phone2}.`,
+        confidence: 0.97,
+        questions: [{ id: "country", label: "Which country?" }, { id: "city", label: "Which city?" }],
+        actions: [
+          { type: "whatsapp", label: "Continue on WhatsApp", value: waLink("Hello Bethany House! I would like to know the delivery cost and time to my city.") },
+          { type: "shop", label: "Browse the shop", value: "" },
+        ],
+      },
+      true,
+    );
+  }
+
+  // Kenyan (local) → the shop address, warmly and professionally.
   return normalize(
     {
       intent: "other",
-      message: `${SITE.directions} We're open ${SITE.hours}. Call us on ${SITE.phone} or ${SITE.phone2} — or I can help you plan a visit, and we can also deliver to you.`,
+      message: `Thank you for reaching out. ${SITE.directions} We are open ${SITE.hours}, and you are warmly welcome to visit us. You may also call us on ${SITE.phone} or ${SITE.phone2}, and if you prefer, we will gladly deliver to you.`,
       confidence: 0.98,
       actions: [
         { type: "whatsapp", label: "Get directions on WhatsApp", value: waLink(`Hello Bethany House! Please share directions to your shop — ${SITE.address}, ${SITE.city}.`) },
@@ -654,6 +681,7 @@ export async function POST(request: Request): Promise<Response> {
   const req: NeemaRequest = {
     messages, sessionId, locale: body.locale, pageContext: body.pageContext,
     cartToken: typeof body.cartToken === "string" ? body.cartToken.slice(0, 40) : undefined,
+    currency: typeof body.currency === "string" ? body.currency.slice(0, 8) : undefined,
   };
   // Set/refresh the durable visitor cookie now (from the first chat, before any
   // add-to-cart) and pass it to the agent so the whole visit shares one anchor.
@@ -665,7 +693,7 @@ export async function POST(request: Request): Promise<Response> {
   // Physical-location questions get the canonical address, deterministically —
   // before the brain or the provider chain (see directionsReply).
   const lastUser = [...messages].reverse().find((m) => m.role === "user")?.content ?? "";
-  const directions = directionsReply(lastUser);
+  const directions = directionsReply(lastUser, req.currency);
   if (directions) {
     reply = directions;
     mode = "directions";
