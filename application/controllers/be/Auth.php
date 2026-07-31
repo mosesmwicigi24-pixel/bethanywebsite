@@ -21,7 +21,7 @@ class Auth extends CI_Controller {
 	}
 	function validate_register(){
 		if($this->auth_model->user_exists($this->input->post('register_email_address')) == false){
-			$user_password = md5($this->input->post('register_password'));
+			$user_password = bethany_hash($this->input->post('register_password'));
 			$data = array(
 				'first_name' => $this->input->post('register_first_name'),
 				'last_name' => $this->input->post('register_last_name'),

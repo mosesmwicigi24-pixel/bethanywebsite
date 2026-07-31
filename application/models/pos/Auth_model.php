@@ -29,19 +29,25 @@ class Auth_model extends CI_model {
 	// }
 
 	//check if the username and password match 
-	function validate_login(){		
-		$user_password = md5($this->input->post('login_password'));
+	function validate_login(){
+		$user_password = (string) $this->input->post('login_password');
 
+		// Fetch by email only, then verify in PHP — bcrypt salts can't be matched in an
+		// SQL WHERE. bethany_verify() accepts legacy md5 so existing users keep logging in.
 		$this->db->select('system_users.*, user_roles.user_role_id, user_roles.user_role_name, user_roles.user_role_description');
 		$this->db->where('email_address', $this->input->post('login_email_address'));
-		$this->db->where('user_password', $user_password);
 		$this->db->from('system_users');
 		$this->db->join('user_roles', 'system_users.user_role_id = user_roles.user_role_id', 'LEFT OUTER');
-		
+
 		$query = $this->db->get();
-		
-		if($query->num_rows() > 0){
+
+		if($query->num_rows() > 0 && bethany_verify($user_password, $query->row()->user_password)){
 			foreach ($query->result() as $row){
+				// Transparently upgrade a legacy md5 hash to bcrypt on successful login.
+				if (bethany_needs_rehash($row->user_password)) {
+					$this->db->where('system_user_id', $row->system_user_id)
+					         ->update('system_users', array('user_password' => bethany_hash($user_password)));
+				}
 				if ($row->is_deleted == 1){
 					$arr_return = array('res' => false,'dt' => 'Sorry. This account has been deleted. Please contact the admin for more assistance.');
 				} elseif ($row->is_active == 0){
@@ -253,8 +259,8 @@ class Auth_model extends CI_model {
 					}else{
 
 						$user_data = array(
-							'user_password' => md5($new_user_password)
-						);			
+							'user_password' => bethany_hash($new_user_password)
+						);
 						$this->db->where(array('email_address'=>$email_address));
 						$this->db->update('system_users', $user_data);
 
@@ -286,17 +292,14 @@ class Auth_model extends CI_model {
 	}
 	
 	function verify_lock_password($username,$pwd){
-		$password = md5($pwd);
 		$this->db->where('username', $username);
-		$this->db->where('password', $password);
-		
 		$query = $this->db->get('user_admin');
-		
-		if($query->num_rows == 1){
-			return true;
+
+		if($query->num_rows() == 1){
+			return bethany_verify($pwd, $query->row()->password);
 		}else{
 			return false;
-		}		
+		}
 	}
 	
 	//PROFILE
@@ -335,12 +338,10 @@ class Auth_model extends CI_model {
 		return $arr_return;
 	}
 	function old_password_valid($old_password, $system_user_id){
-		$this->db->where('user_password',md5($old_password));
 		$this->db->where('system_user_id',$system_user_id);
-
 		$query = $this->db->get('system_users');
 		if ($query->num_rows() > 0){
-			return true;
+			return bethany_verify($old_password, $query->row()->user_password);
 		}else{
 			return false;
 		}
@@ -354,7 +355,7 @@ class Auth_model extends CI_model {
     		$arr_return = array('res' => false,'dt' => 'The Old Password you have provided is incorrect.');
     	}else{
     		$data = array(
-				'user_password' => md5($this->input->post('new_password'))			
+				'user_password' => bethany_hash($this->input->post('new_password'))
 			);
 			$this->db->where(array('system_user_id' => $system_user_id));
 			$update = $this->db->update('system_users', $data);

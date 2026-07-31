@@ -4,8 +4,9 @@ class Support extends CI_Controller {
 	
 	function __construct(){
 		parent::__construct();		
-		$this->load->library('form_validation');	
+		$this->load->library('form_validation');
 		$this->load->model('be/support_model');
+		$this->load->model('be/auth_model');
 	}
 
 	function index(){
@@ -14,19 +15,19 @@ class Support extends CI_Controller {
 
 	function notifications() {
 		if($this->session->userdata('bgs_be_active')) {
-			// if ($this->auth_model->validate_user_access('notifications_view', $this->session->userdata('system_user_id')) == false){
-			// 	redirect('be/auth/access_denied');
-			// } else {
+			if ($this->auth_model->validate_user_access('notifications_view', $this->session->userdata('system_user_id')) == false){
+				redirect('be/auth/access_denied');
+			} else {
 				$data['cur'] = 'Help & Support';
 				$data['cur_sub'] = 'Notifications';
 				$data['cur_cur_sub'] = '';
 
-				//$data['sbr_notifications_add'] = $this->auth_model->validate_user_access('notifications_add', $this->session->userdata('system_user_id'));
+				$data['sbr_notifications_add'] = $this->auth_model->validate_user_access('notifications_add', $this->session->userdata('system_user_id'));
 
 				$data['page_title'] = 'Notifications | ';
 				$data['main_content'] = 'be/notifications';
 				$this->load->view('be/includes/template',$data);
-			//}
+			}
         } 
 		else {
             redirect('be/auth');
