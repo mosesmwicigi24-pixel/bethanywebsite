@@ -28,10 +28,13 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Lint changed PHP (application/ + services/)
+      - name: Lint changed PHP (application/ + services/, excluding vendored third_party)
         run: |
           set -e
-          find application services index.php -name '*.php' -print0 \
+          # application/third_party (PHPExcel, dompdf, tcpdf) is vendored legacy
+          # code we don't maintain; PHPExcel is PHP5-era and parse-fatals on
+          # PHP 8, so lint only the code we own.
+          find application services index.php -path application/third_party -prune -o -name '*.php' -print0 \
             | xargs -0 -n1 -P4 php -l >/dev/null
 
       - name: Run unit tests
