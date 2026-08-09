@@ -1,6 +1,7 @@
 {
     "name": "bethany/storefront",
     "description": "Bethany House storefront (CodeIgniter 3) with portable Bethany\\Services\\* packages.",
+    "license": "proprietary",
     "type": "project",
     "require": {
         "php": ">=8.1",
