@@ -10,15 +10,22 @@ class Account_model extends CI_Model{
     }
 
     function submit_login() {
-        $password = md5($this->input->post('login_password'));
+        $password = (string) $this->input->post('login_password');
+        // Fetch by email only, then verify the password in PHP: bcrypt hashes carry a
+        // random salt and cannot be matched inside an SQL WHERE. bethany_verify() also
+        // accepts legacy md5 hashes so existing customers keep logging in.
         $this->db->where('email_address', $this->input->post('login_email_address'));
-        $this->db->where('password', $password);
         $this->db->from('customers');
-    
+
         $query = $this->db->get();
-        
-        if($query->num_rows() > 0){
+
+        if($query->num_rows() > 0 && bethany_verify($password, $query->row()->password)){
             foreach ($query->result() as $row){
+                // Transparently upgrade a legacy md5 hash to bcrypt on successful login.
+                if (bethany_needs_rehash($row->password)) {
+                    $this->db->where('customer_id', $row->customer_id)
+                             ->update('customers', array('password' => bethany_hash($password)));
+                }
                 $this->session->set_userdata('bgs_fe_login_state', TRUE);
                 $this->session->set_userdata('customer_id', $row->customer_id);
                 $this->session->set_userdata('customer_email_address', $row->email_address);
@@ -254,12 +261,10 @@ class Account_model extends CI_Model{
     }
 
     function old_password_valid($old_password, $customer_id){
-        $this->db->where('password',md5($old_password));
         $this->db->where('customer_id',$customer_id);
-
         $query = $this->db->get('customers');
         if ($query->num_rows() > 0){
-            return true;
+            return bethany_verify($old_password, $query->row()->password);
         }else{
             return false;
         }
@@ -670,8 +675,8 @@ class Account_model extends CI_Model{
                 }else{
 
                     $user_data = array(
-                        'password' => md5($new_user_password)
-                    );          
+                        'password' => bethany_hash($new_user_password)
+                    );
                     $this->db->where(array('email_address'=>$email_address));
                     $this->db->update('customers', $user_data);
 

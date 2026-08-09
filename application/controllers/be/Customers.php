@@ -106,7 +106,7 @@ class Customers extends CI_Controller {
 				'loyalty_number' => $loyalty_number,
 				'loyalty_enrollment_date' => $this->input->post('loyalty_enrollment_date'),
 				'reference_customer_id' => $this->input->post('reference_customer_id'),
-				'password' => md5($this->input->post('password')),
+				'password' => bethany_hash($this->input->post('password')),
 				'is_active' => $this->input->post('is_active'),
 				'sort_key' => $this->input->post('sort_key'),
 				'created_on' => date("Y-m-d H:i:s", time())

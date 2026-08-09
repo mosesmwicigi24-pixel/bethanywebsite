@@ -307,6 +307,20 @@ switch (ENVIRONMENT)
 
 /*
  * --------------------------------------------------------------------
+ * COMPOSER AUTOLOAD (portable Bethany\Services\* packages + Guzzle)
+ * --------------------------------------------------------------------
+ *
+ * Loaded explicitly here (rather than via config['composer_autoload']) because the
+ * production config.php is a host-mounted secret we don't control from the image.
+ * Guarded so a bare checkout without `composer install` still boots.
+ */
+if (file_exists(__DIR__.'/vendor/autoload.php'))
+{
+	require_once __DIR__.'/vendor/autoload.php';
+}
+
+/*
+ * --------------------------------------------------------------------
  * LOAD THE BOOTSTRAP FILE
  * --------------------------------------------------------------------
  *

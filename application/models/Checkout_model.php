@@ -19,15 +19,20 @@ class Checkout_model extends CI_Model{
     }
 
     function submit_login() {
-        $password = md5($this->input->post('login_password'));
+        $password = (string) $this->input->post('login_password');
+        // Fetch by email, verify in PHP (bcrypt salts can't be matched in SQL).
+        // bethany_verify() accepts legacy md5 so existing customers keep logging in.
         $this->db->where('email_address', $this->input->post('login_email_address'));
-        $this->db->where('password', $password);
         $this->db->from('customers');
-    
+
         $query = $this->db->get();
-        
-        if($query->num_rows() > 0){
+
+        if($query->num_rows() > 0 && bethany_verify($password, $query->row()->password)){
             foreach ($query->result() as $row){
+                if (bethany_needs_rehash($row->password)) {
+                    $this->db->where('customer_id', $row->customer_id)
+                             ->update('customers', array('password' => bethany_hash($password)));
+                }
                 $this->session->set_userdata('bgs_fe_login_state', TRUE);
                 $this->session->set_userdata('customer_id', $row->customer_id);
                 $this->session->set_userdata('customer_email_address', $row->email_address);

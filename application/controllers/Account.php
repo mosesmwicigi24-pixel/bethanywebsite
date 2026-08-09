@@ -105,7 +105,7 @@ class Account extends CI_Controller {
                 'last_name' => $this->input->post('register_last_name'),
                 'email_address' => $this->input->post('register_email_address'),
                 'phone_number' => $this->input->post('register_phone_number'),
-                'password' => md5($this->input->post('register_password'))
+                'password' => bethany_hash($this->input->post('register_password'))
             );
             $q = $this->account_model->submit_register($data);
             if($q['res'] == true){
@@ -340,7 +340,7 @@ class Account extends CI_Controller {
             }else{
 
                 $data = array(
-                    'password' => md5($this->input->post('new_password'))           
+                    'password' => bethany_hash($this->input->post('new_password'))
                 );
 
                 $q = $this->account_model->update_password($data,$customer_id);

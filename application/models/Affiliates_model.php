@@ -172,20 +172,26 @@ class Affiliates_model extends CI_Model {
     }
 
     function submit_login() {
-        $password = md5($this->input->post('login_password'));
+        $password = (string) $this->input->post('login_password');
+        // Fetch by email, verify in PHP (bcrypt salts can't be matched in SQL).
+        // bethany_verify() accepts legacy md5 so existing affiliates keep logging in.
         $this->db->where('email_address', $this->input->post('login_email_address'));
-        $this->db->where('password', $password);
         $this->db->from('affiliates');
-    
+
         $query = $this->db->get();
-        
-        if($query->num_rows() > 0){
+
+        if($query->num_rows() > 0 && bethany_verify($password, $query->row()->password)){
 
             $affiliate = $query->result();
 
             foreach ($affiliate as $row) {
                 $is_verified = $row->is_verified;
                 $affiliate_status = $row->affiliate_status;
+                // Transparently upgrade a legacy md5 hash to bcrypt on successful login.
+                if (bethany_needs_rehash($row->password)) {
+                    $this->db->where('affiliate_id', $row->affiliate_id)
+                             ->update('affiliates', array('password' => bethany_hash($password)));
+                }
             }
 
             if ($is_verified == 0) {
@@ -220,12 +226,10 @@ class Affiliates_model extends CI_Model {
     }
 
     function old_password_valid($old_password, $affiliate_id){
-        $this->db->where('password',md5($old_password));
         $this->db->where('affiliate_id',$affiliate_id);
-
         $query = $this->db->get('affiliates');
         if ($query->num_rows() > 0){
-            return true;
+            return bethany_verify($old_password, $query->row()->password);
         }else{
             return false;
         }
