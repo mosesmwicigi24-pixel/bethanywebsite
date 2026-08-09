@@ -12,7 +12,7 @@ class Ai_seo extends CI_Controller {
 	function __construct(){
 		parent::__construct();
 		$this->load->model('be/auth_model');
-		$this->load->library('ai_seo');
+		$this->load->library('ai_seo_service');
 	}
 
 	/**
@@ -26,7 +26,7 @@ class Ai_seo extends CI_Controller {
 			return;
 		}
 
-		if ( ! $this->ai_seo->available()) {
+		if ( ! $this->ai_seo_service->available()) {
 			echo json_encode(array('status' => 'ERR', 'message' => 'AI is not configured. Set ANTHROPIC_API_KEY on the host.'));
 			return;
 		}
@@ -45,7 +45,7 @@ class Ai_seo extends CI_Controller {
 		}
 
 		try {
-			$meta = $this->ai_seo->generate_meta($product);
+			$meta = $this->ai_seo_service->generate_meta($product);
 			echo json_encode(array('status' => 'SUCCESS', 'meta' => $meta->toArray()));
 		} catch (AiException $e) {
 			log_message('error', 'AI SEO generation failed: ' . $e->getMessage());

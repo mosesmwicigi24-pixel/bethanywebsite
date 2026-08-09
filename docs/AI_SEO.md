@@ -18,7 +18,7 @@ services/tests/                 PHPUnit suite, runs offline with fakes (no API k
 
 CI3 adapters:
 
-- [`application/libraries/Ai_seo.php`](../application/libraries/Ai_seo.php) — wires the
+- [`application/libraries/Ai_seo_service.php`](../application/libraries/Ai_seo_service.php) — wires the
   services with config; reads the API key from the environment.
 - [`application/controllers/be/Ai_seo.php`](../application/controllers/be/Ai_seo.php) —
   admin endpoint `POST be/ai_seo/generate` (RBAC: `seo_edit`).
@@ -55,7 +55,7 @@ and add the three fields to the product form.
 
 ## Structured data (JSON-LD) — zero-cost SEO win
 
-`$this->load->library('ai_seo'); $sd = $this->ai_seo->structured_data();`
+`$this->load->library('ai_seo_service'); $sd = $this->ai_seo_service->structured_data();`
 then in the product view `<head>`:
 
 ```php

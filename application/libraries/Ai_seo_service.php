@@ -15,9 +15,9 @@ use GuzzleHttp\Client as GuzzleClient;
  * key is read from the ANTHROPIC_API_KEY environment variable (12-factor), passed into
  * the container by docker-compose — it is never committed.
  *
- * Load with: $this->load->library('ai_seo');
+ * Load with: $this->load->library('ai_seo_service');
  */
-class Ai_seo {
+class Ai_seo_service {
 
 	/** @var CI_Controller */
 	protected $CI;
