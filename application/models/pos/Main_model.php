@@ -2200,7 +2200,9 @@ class Main_model extends CI_Model{
                 'last_name' => $this->input->post('last_name'),
                 'phone_number' => $this->input->post('phone_number'),
                 'email_address' => $this->input->post('email_address'),
-                'init_password' => $init_password,
+                // Security: only the bcrypt hash is stored; the plaintext initial
+                // password is never persisted (customers.init_password stays NULL).
+                // Nothing in the application reads init_password back.
                 'password' => bethany_hash($init_password),
                 'created_on' => date("Y-m-d H:i:s", time())
             );
