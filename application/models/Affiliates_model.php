@@ -602,7 +602,15 @@ class Affiliates_model extends CI_Model {
             $last_name = $row->last_name;
             $email_address = $row->email_address;
             $affiliate_code = $row->affiliate_code;
-            $temp_pass = $row->temp_pass;
+
+            // Security: plaintext passwords are no longer stored (affiliates.temp_pass
+            // stays NULL). Generate a fresh one-time password at approval time, persist
+            // only its bcrypt hash, and email the plaintext exactly once. The hash is
+            // saved BEFORE the send so a delivered email always matches the stored
+            // credential; if the send fails, the next cron run simply rotates again.
+            $temp_pass = $this->new_password();
+            $this->db->where(array('affiliate_id' => $row->affiliate_id));
+            $this->db->update('affiliates', array('password' => bethany_hash($temp_pass)));
 
             $mail          = new PHPMailer();
             $mail->IsSMTP();
@@ -627,7 +635,7 @@ class Affiliates_model extends CI_Model {
 			$email_message .= "We have also created a one-time password for you. Please remember to change it immediately you log in. Your login credentials are as below:<br /><br />";
 			
 			$email_message .= "<strong>Email:</strong> ".$row->email_address."<br />";
-			$email_message .= "<strong>Password:</strong> ".$row->temp_pass."<br />";
+			$email_message .= "<strong>Password:</strong> ".$temp_pass."<br />";
 			$email_message .= "<strong>Login URL:</strong> <a href='".base_url()."affiliates/login' style='color:#EE7202 !important'>Affiliate Account Login</a><br /><br />";
 
 			if ($row->is_verified == 0){

@@ -107,8 +107,11 @@ class Affiliates extends CI_Controller {
                 'country_id' => $this->input->post('register_country_id'),
                 'company_name' => $this->input->post('register_company_name'),
                 'website' => $this->input->post('register_website'),
+                // Security: only the bcrypt hash is stored. The plaintext is never
+                // persisted (temp_pass stays NULL) — the approval email generates a
+                // fresh one-time password at send time (see Affiliates_model::
+                // send_affiliate_approval_emails()).
                 'password' => bethany_hash($new_password),
-                'temp_pass' => $new_password,
             );
             $q = $this->affiliates_model->submit_register($data, $affiliate_code);
             if($q['res'] == true){
