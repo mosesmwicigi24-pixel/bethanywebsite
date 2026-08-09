@@ -1,3 +1,5 @@
+    <?php /* Article + Organization JSON-LD (schema.org), built server-side in Home::blog_article(). */ ?>
+    <?php if (!empty($seo_jsonld)) { echo $seo_jsonld; } ?>
     <div class="ps-page--blog">
         <div class="container">
             <div class="ps-page__header">

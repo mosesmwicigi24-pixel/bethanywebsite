@@ -2,10 +2,25 @@
 class Products_model extends CI_Model {
 
 	function __construct(){
-		parent::__construct();		
+		parent::__construct();
 		$this->load->model('be/outlets_model');
 	}
-	
+
+	/**
+	 * Optional AI SEO meta columns (meta_title / meta_description / meta_keywords),
+	 * added by the manual migration db/migrations/2026-07-07_add_product_seo_meta.sql.
+	 * Only include them in a write when the columns actually exist, so saves keep
+	 * working on databases where the migration has not been run yet.
+	 */
+	private function append_seo_meta_columns($data){
+		if ($this->db->field_exists('meta_title', 'products')) {
+			$data['meta_title'] = $this->input->post('meta_title');
+			$data['meta_description'] = $this->input->post('meta_description');
+			$data['meta_keywords'] = $this->input->post('meta_keywords');
+		}
+		return $data;
+	}
+
 	function get_products_list(){
 		$this->db->select("p.*, b.brand_name, u.unit_code, u.unit_name, (SELECT GROUP_CONCAT(pca.product_category_name SEPARATOR ',')) AS 'product_category_name'");
 		$this->db->from('products p');
@@ -296,6 +311,8 @@ class Products_model extends CI_Model {
 				'seo_keywords' => $this->input->post('seo_keywords')
 			);
 
+			$data = $this->append_seo_meta_columns($data);
+
 			$this->db->where(array('product_id'=>$product_id));
 			$update = $this->db->update('products', $data);
 			if ($update){
@@ -402,6 +419,8 @@ class Products_model extends CI_Model {
 				'created_by' => $this->session->userdata('system_user_id'),
 				'created_on' => date("Y-m-d H:i:s", time())
 			);
+
+			$data = $this->append_seo_meta_columns($data);
 
 			$insert = $this->db->insert('products', $data);
 			$insert_id = $this->db->insert_id();
@@ -524,6 +543,7 @@ class Products_model extends CI_Model {
 					'is_draft' => 0
 				);
 
+				$data = $this->append_seo_meta_columns($data);
 
 				if ($product_type == '' || $product_type == 'Simple'){
 					$this->db->where(array('product_id'=>$product_id));
@@ -663,6 +683,8 @@ class Products_model extends CI_Model {
 					'created_by' => $this->session->userdata('system_user_id'),
 					'created_on' => date("Y-m-d H:i:s", time())
 				);
+
+				$data = $this->append_seo_meta_columns($data);
 
 				$insert = $this->db->insert('products', $data);
 				$insert_id = $this->db->insert_id();

@@ -588,6 +588,41 @@ class Home extends CI_Controller {
         $data['blog_article'] = $blog_article;
         $data['blog_article_title'] = $blog_article_title;
 
+        // Article + Organization JSON-LD (schema.org) via the portable SEO service
+        // (Bethany\Services\Seo\StructuredData, bridged by the Ai_seo_service library).
+        // Server-side, no AI, no network — /blog is still publicly served by this app.
+        $this->load->library('ai_seo_service');
+        $sd = $this->ai_seo_service->structured_data();
+
+        $publisher = $sd->organization();
+        unset($publisher['@context']);
+
+        $seo_jsonld = '';
+        foreach ($blog_article as $row) {
+            $article = array(
+                '@context' => 'https://schema.org',
+                '@type' => 'Article',
+                'headline' => $row->blog_article_title,
+                'mainEntityOfPage' => base_url('blog/' . $blog_article_reference_id),
+                'publisher' => $publisher,
+            );
+            $published = empty($row->blog_article_date) ? false : strtotime($row->blog_article_date);
+            if ($published !== false) {
+                $article['datePublished'] = date('c', $published);
+            }
+            if (!empty($row->blog_article_author)) {
+                $article['author'] = array('@type' => 'Person', 'name' => $row->blog_article_author);
+            } else {
+                $article['author'] = $publisher;
+            }
+            if (!empty($row->cover_image) && file_exists('./uploads/blog_article_cover_images/' . $row->cover_image)) {
+                $article['image'] = base_url('uploads/blog_article_cover_images/' . $row->cover_image);
+            }
+            $seo_jsonld .= $sd->script($article) . "\n";
+        }
+        $seo_jsonld .= $sd->script($sd->organization());
+        $data['seo_jsonld'] = $seo_jsonld;
+
         $data['blog_categories'] = $this->main_model->get_blog_categories();
         $data['num_blog_categories'] = $this->main_model->get_num_blog_categories();
 
