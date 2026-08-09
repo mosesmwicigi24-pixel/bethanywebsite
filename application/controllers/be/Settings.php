@@ -4,9 +4,8 @@ class Settings extends CI_Controller {
 	
 	function __construct(){
 		parent::__construct();		
-		$this->load->library('form_validation');	
-		$this->load->library('excel');
-		
+		$this->load->library('form_validation');
+
 		$this->load->model('be/store_information_model');
 		$this->load->model('be/outlets_model');
 		$this->load->model('be/locations_model');
@@ -2223,26 +2222,24 @@ class Settings extends CI_Controller {
 
 		        $file_name = $upload_data['file_name']; //uploded file name
 				$extension=$upload_data['file_ext'];    // uploded file extension
-				
-				//$objReader =PHPExcel_IOFactory::createReader('Excel5');     //For excel 2003 
-		 		$objReader= PHPExcel_IOFactory::createReader('Excel2007');	// For excel 2007 	  
-		        
-				//Set to read only
-		        $objReader->setReadDataOnly(true); 		  
-		        
-				//Load excel file
-				$objPHPExcel=$objReader->load('./uploads/excel/'.$file_name);		 
-		        $totalrows=$objPHPExcel->setActiveSheetIndex(0)->getHighestRow();   //Count Number of rows avalable in excel      	 
-		        $objWorksheet=$objPHPExcel->setActiveSheetIndex(0);                
-		        
+
+				// createReaderForFile sniffs the real format, so .xls/.xlsx/.csv
+				// (all in allowed_types) load correctly — the old code only read xlsx.
+				$objReader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile('./uploads/excel/'.$file_name);
+		        $objReader->setReadDataOnly(true);
+
+				$spreadsheet = $objReader->load('./uploads/excel/'.$file_name);
+		        $objWorksheet = $spreadsheet->getSheet(0);
+		        $totalrows = $objWorksheet->getHighestRow();   //Count Number of rows avalable in excel
+
 				//loop from first data untill last data
 		        for($i=2;$i<=$totalrows;$i++){
-		        	$transaction_id= $objWorksheet->getCellByColumnAndRow(0,$i)->getValue();			
-		            $phone_number= $objWorksheet->getCellByColumnAndRow(1,$i)->getValue(); //Excel Column 1
+		        	$transaction_id= $objWorksheet->getCell([1,$i])->getValue();
+		            $phone_number= $objWorksheet->getCell([2,$i])->getValue(); //Excel Column 1
 
 					$q = $this->lnm_reconciliation_model->reconcile_lnm_v2_contacts($transaction_id,$phone_number);
 				}
-		        unlink('././uploads/excel/'.$file_name); //File Deleted After uploading in database .	
+		        unlink('././uploads/excel/'.$file_name); //File Deleted After uploading in database .
 		     	
 		     	//redirect(base_url() . "put link were you want to redirect");
 				$resp = array('status' => 'SUCCESS','message' => 'Reconciliation successful.');
