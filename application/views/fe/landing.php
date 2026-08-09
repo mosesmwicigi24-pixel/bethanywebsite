@@ -1547,8 +1547,9 @@
                 </div>
             </div>
         </div>
-        
 
+
+<?php $this->load->view('shared/csrf_boot'); ?>
     </body>
 
 </html>

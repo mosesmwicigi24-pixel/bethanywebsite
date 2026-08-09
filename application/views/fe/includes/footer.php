@@ -153,5 +153,6 @@
 <script async src="<?= base_url(auto_version('assets/fe/js/main.js')) ?>"></script>
 <script async src="<?= base_url(auto_version('assets/fe/js/custom.js')) ?>"></script>
 
+<?php $this->load->view('shared/csrf_boot'); ?>
 </body>
 </html>

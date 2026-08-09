@@ -31,5 +31,6 @@
         <script src="<?php echo base_url() . auto_version('assets/pos/plugins/tableexport/dist/js/tableexport.min.js'); ?>"></script>
         <script src="<?php echo base_url() . auto_version('assets/pos/plugins/chartjs/Chart.min.js'); ?>"></script>
         <script src="<?php echo base_url() . auto_version('assets/pos/js/custom.js'); ?>"></script>
+<?php $this->load->view('shared/csrf_boot'); ?>
     </body>
 </html>
