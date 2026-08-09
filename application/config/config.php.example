@@ -449,13 +449,41 @@ $config['global_xss_filtering'] = TRUE;
 | 'csrf_expire' = The number in seconds the token should expire.
 | 'csrf_regenerate' = Regenerate token on every submission
 | 'csrf_exclude_uris' = Array of URIs which ignore CSRF checks
+|
+| FLIP RUNBOOK (prod config is HOST-MOUNTED at /opt/bethanywebsite/config/
+| config.php — this example is NOT what production reads): copy this whole
+| CSRF block into the mounted config to enable protection, then run the
+| smoke checklist in docs/CSRF.md. INSTANT ROLLBACK: set csrf_protection
+| back to FALSE in the mounted config (no rebuild/redeploy needed — the
+| token-injection JS in the app is a no-op while protection is off).
+|
+| - csrf_regenerate is FALSE on purpose: the token stays stable per
+|   session, so parallel AJAX requests, multiple admin tabs and the
+|   report/print POST windows all keep working. The tradeoff is a
+|   per-session (not per-request) token — an attacker who exfiltrates one
+|   token can reuse it for the cookie's lifetime. With TRUE, every POST
+|   rotates the token and any second tab / queued AJAX call holding the
+|   old token gets a 403 — that is a staff-lockout footgun for POS/admin,
+|   so we accept the per-session token.
+| - csrf_expire 28800 (8h) covers a full POS shift: a tab left idle
+|   longer than the expiry gets a 403 on its next POST and must reload.
+| - cookie_httponly MUST stay FALSE (see above): the injection JS reads
+|   the fresh hash from the CSRF cookie. (SameSite=Strict is applied to
+|   the CSRF cookie by CI 3.1.13 itself.)
+| - csrf_exclude_uris: server-to-server POSTs that can never carry the
+|   token — M-Pesa C2B validation/confirmation, STK push callback,
+|   Pesapal IPN (all under api/), and cron. Patterns are regexes matched
+|   against the full URI string, anchored on both ends by CI.
 */
-$config['csrf_protection'] = FALSE;
-$config['csrf_token_name'] = 'csrf_test_name';
-$config['csrf_cookie_name'] = 'csrf_cookie_name';
-$config['csrf_expire'] = 7200;
-$config['csrf_regenerate'] = TRUE;
-$config['csrf_exclude_uris'] = array();
+$config['csrf_protection'] = TRUE;
+$config['csrf_token_name'] = 'bh_csrf_token';
+$config['csrf_cookie_name'] = 'bh_csrf_cookie';
+$config['csrf_expire'] = 28800;
+$config['csrf_regenerate'] = FALSE;
+$config['csrf_exclude_uris'] = array(
+	'api/.*',   // M-Pesa C2B registerurl/validation/confirmation, stk_cb, pesapal_callback
+	'cron/.*',  // scheduled jobs hit by the host cron via HTTP
+);
 
 /*
 |--------------------------------------------------------------------------

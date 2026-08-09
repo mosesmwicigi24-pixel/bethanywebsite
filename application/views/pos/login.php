@@ -103,5 +103,6 @@
         <script src="<?php echo base_url() . auto_version('assets/pos/js/scripts.js'); ?>"></script>
         <script src="<?php echo base_url() . auto_version('assets/pos/js/settings.js'); ?>"></script>
         <script src="<?php echo base_url() . auto_version('assets/pos/js/custom.js'); ?>"></script>
+<?php $this->load->view('shared/csrf_boot'); ?>
 
 </html>

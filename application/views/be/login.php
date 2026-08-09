@@ -179,5 +179,6 @@
 	</div>
 	<!-- /page content -->
 
+<?php $this->load->view('shared/csrf_boot'); ?>
 </body>
 </html>
