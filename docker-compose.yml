@@ -20,6 +20,20 @@ services:
       - /opt/bethanywebsite/config/database.php:/var/www/html/application/config/database.php:ro
       - /opt/bethanywebsite/config/config.php:/var/www/html/application/config/config.php:ro
       # Host MySQL socket so database.php 'localhost' connects to the existing DB.
-      - /run/mysqld/mysqld.sock:/var/run/mysqld/mysqld.sock
+      # DIRECTORY mount, not the socket file: a single-file bind mount pins the
+      # inode, so when MySQL restarts (e.g. after a host reboot) and recreates the
+      # socket, the container keeps the dead one and every request 500s with
+      # "Connection refused" (root cause of the 2026-07-29 outage). Mounting the
+      # directory tracks the live socket across MySQL restarts.
+      - /run/mysqld:/var/run/mysqld
     extra_hosts:
       - "host.docker.internal:host-gateway"
+
+  # Customer-facing storefront (Next.js). nginx routes / here; the legacy
+  # app above keeps serving POS/back-office paths.
+  storefront:
+    image: ghcr.io/mosesmwicigi24-pixel/bethanywebsite-storefront:latest
+    container_name: bethany_storefront
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8097:3000"

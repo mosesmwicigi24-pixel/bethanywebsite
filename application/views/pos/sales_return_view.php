@@ -332,7 +332,7 @@
 								    <!-- this row will not appear when printing -->
 								    <div class="row no-print card-body">
 								        <div class="col-xs-12 text-center">
-								        	<p><small>Powered by Devlab Africa | <a href="https://devlabafrica.com" target="_blank">www.devlabafrica.com</a></small></p>
+								        	<p><small>Bethany House | <a href="https://bethanyhouse.co.ke" target="_blank">www.bethanyhouse.co.ke</a></small></p>
 								        </div>
 								    </div>
 								<?php endforeach; ?>

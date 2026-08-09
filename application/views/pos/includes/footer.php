@@ -1,7 +1,7 @@
                     <div class="nk-footer">
                         <div class="container-fluid">
                             <div class="nk-footer-wrap">
-                                <div class="nk-footer-copyright">&copy; <?php echo date('Y'); ?> Bethany House POS. <small>Powered by <a href="https://devlabafrica.com" target="_blank">Devlab Africa</a></small></div>
+                                <div class="nk-footer-copyright">&copy; <?php echo date('Y'); ?> Bethany House POS.</div>
                                 <div class="nk-footer-links">
                                     <div class="nk-header-app-name d-xl-none">
                                         <img src="<?php echo base_url();?>assets/pos/images/outlet.png" class="mr-1" alt="">

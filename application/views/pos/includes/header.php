@@ -2,7 +2,7 @@
 <html lang="zxx" class="js">
     <head>
         <meta charset="utf-8" />
-        <meta name="author" content="Devlab Africa" />
+        <meta name="author" content="Bethany House" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
          <meta name="description" content=" Communion Hosts and Altar Bread · Altar Wine · 
     Holy Water, Oil & Baptismal Accessories · Candles, Candle holders & accessories · 

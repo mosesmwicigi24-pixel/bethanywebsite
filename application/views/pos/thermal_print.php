@@ -209,7 +209,7 @@
                     You were served by: <b><?php echo $row->system_user_first_name . ' ' . $row->system_user_last_name; ?></b><br>
                     Trnx Time: <b><?php echo date('d M, Y H:i:s', strtotime($row->created_on)); ?></b>
                 </p>
-                <p class="centered" style="font-size: 0.8rem">POS by Devlab Africa | www.devlabafrica.com | +254 780912916</p>
+                <p class="centered" style="font-size: 0.8rem">Bethany House | www.bethanyhouse.co.ke | +254 727 891 989</p>
             <?php endforeach; ?>
         </div>
         <!-- <script src="<?php echo base_url();?>assets/pos/printer/script.js"></script> -->

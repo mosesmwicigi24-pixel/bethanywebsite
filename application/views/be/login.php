@@ -162,7 +162,7 @@
 
 				<div class="navbar-collapse collapse text-center" id="navbar-footer">
 					<span class="navbar-text margin-0-auto">
-						&copy; <?php echo date('Y'); ?> <a href="#">Bethany House CMS</a>. Powered by <a href="https://devlab.africa" target="_blank">Devlab Africa</a>
+						&copy; <?php echo date('Y'); ?> <a href="#">Bethany House CMS</a>
 					</span>
 
 					<!-- <ul class="navbar-nav ml-lg-auto">
