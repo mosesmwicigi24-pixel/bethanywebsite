@@ -325,7 +325,10 @@
 									</div>
 									<div class="card border-top-success rounded-top-0">
 										<div class="card-header alpha-grey header-elements-inline pt-2 pb-2">
-											<h5 class="card-title font-weight-600 text-dark font-size-lg">SEO</h5>			
+											<h5 class="card-title font-weight-600 text-dark font-size-lg">SEO</h5>
+											<div class="header-elements">
+												<button type="button" class="btn btn-sm btn-primary btn_ai_seo_generate">&#10024; Generate with AI</button>
+											</div>
 										</div>							
 										<div class="card-body">
 											<div class="form-group mb-2">
@@ -344,6 +347,33 @@
 													</div>
 												</div>
 											</div>
+											<div class="form-group mb-2">
+												<div class="row">
+													<div class="col-sm-12">
+														<label>Meta Title</label>
+														<input id="meta_title" name="meta_title" type="text" placeholder="" class="form-control" value="">
+													</div>
+												</div>
+											</div>
+											<div class="form-group mb-2">
+												<div class="row">
+													<div class="col-sm-12">
+														<label>Meta Description</label>
+														<textarea id="meta_description" name="meta_description" class="form-control" rows="2" ></textarea>
+													</div>
+												</div>
+											</div>
+											<div class="form-group mb-2">
+												<div class="row">
+													<div class="col-sm-12">
+														<label>Meta Keywords</label>
+														<textarea id="meta_keywords" name="meta_keywords" class="form-control" rows="1" ></textarea>
+													</div>
+												</div>
+											</div>
+											<?php if (empty($seo_meta_columns_exist)): ?>
+												<p class="text-muted font-13 mb-0"><i class="icon-info22 mr-1"></i> Run the SEO migration to enable saving</p>
+											<?php endif; ?>
 										</div>
 									</div>
 								</div>
@@ -1156,7 +1186,10 @@
 										</div>
 										<div class="card border-top-success rounded-top-0">
 											<div class="card-header alpha-grey header-elements-inline pt-2 pb-2">
-												<h5 class="card-title font-weight-600 text-dark font-size-lg">SEO</h5>			
+												<h5 class="card-title font-weight-600 text-dark font-size-lg">SEO</h5>
+												<div class="header-elements">
+													<button type="button" class="btn btn-sm btn-primary btn_ai_seo_generate">&#10024; Generate with AI</button>
+												</div>
 											</div>							
 											<div class="card-body">
 												<div class="form-group mb-2">
@@ -1175,6 +1208,33 @@
 														</div>
 													</div>
 												</div>
+												<div class="form-group mb-2">
+													<div class="row">
+														<div class="col-sm-12">
+															<label>Meta Title</label>
+															<input id="meta_title" name="meta_title" type="text" placeholder="" class="form-control" value="<?php echo isset($row->meta_title) ? html_escape($row->meta_title) : ''; ?>">
+														</div>
+													</div>
+												</div>
+												<div class="form-group mb-2">
+													<div class="row">
+														<div class="col-sm-12">
+															<label>Meta Description</label>
+															<textarea id="meta_description" name="meta_description" class="form-control" rows="2" ><?php echo isset($row->meta_description) ? html_escape($row->meta_description) : ''; ?></textarea>
+														</div>
+													</div>
+												</div>
+												<div class="form-group mb-2">
+													<div class="row">
+														<div class="col-sm-12">
+															<label>Meta Keywords</label>
+															<textarea id="meta_keywords" name="meta_keywords" class="form-control" rows="1" ><?php echo isset($row->meta_keywords) ? html_escape($row->meta_keywords) : ''; ?></textarea>
+														</div>
+													</div>
+												</div>
+												<?php if (empty($seo_meta_columns_exist)): ?>
+													<p class="text-muted font-13 mb-0"><i class="icon-info22 mr-1"></i> Run the SEO migration to enable saving</p>
+												<?php endif; ?>
 											</div>
 										</div>
 									</div>
@@ -2331,7 +2391,10 @@
 									</div>
 									<div class="card border-top-success rounded-top-0">
 										<div class="card-header alpha-grey header-elements-inline pt-2 pb-2">
-											<h5 class="card-title font-weight-600 text-dark font-size-lg">SEO</h5>			
+											<h5 class="card-title font-weight-600 text-dark font-size-lg">SEO</h5>
+											<div class="header-elements">
+												<button type="button" class="btn btn-sm btn-primary btn_ai_seo_generate">&#10024; Generate with AI</button>
+											</div>
 										</div>							
 										<div class="card-body">
 											<div class="form-group mb-2">
@@ -2350,6 +2413,33 @@
 													</div>
 												</div>
 											</div>
+											<div class="form-group mb-2">
+												<div class="row">
+													<div class="col-sm-12">
+														<label>Meta Title</label>
+														<input id="meta_title" name="meta_title" type="text" placeholder="" class="form-control" value="<?php echo isset($row->meta_title) ? html_escape($row->meta_title) : ''; ?>">
+													</div>
+												</div>
+											</div>
+											<div class="form-group mb-2">
+												<div class="row">
+													<div class="col-sm-12">
+														<label>Meta Description</label>
+														<textarea id="meta_description" name="meta_description" class="form-control" rows="2" ><?php echo isset($row->meta_description) ? html_escape($row->meta_description) : ''; ?></textarea>
+													</div>
+												</div>
+											</div>
+											<div class="form-group mb-2">
+												<div class="row">
+													<div class="col-sm-12">
+														<label>Meta Keywords</label>
+														<textarea id="meta_keywords" name="meta_keywords" class="form-control" rows="1" ><?php echo isset($row->meta_keywords) ? html_escape($row->meta_keywords) : ''; ?></textarea>
+													</div>
+												</div>
+											</div>
+											<?php if (empty($seo_meta_columns_exist)): ?>
+												<p class="text-muted font-13 mb-0"><i class="icon-info22 mr-1"></i> Run the SEO migration to enable saving</p>
+											<?php endif; ?>
 										</div>
 									</div>
 								</div>
@@ -2893,6 +2983,60 @@
 							$(this).closest('.row').find('input').prop('readonly', true);
 							$(this).closest('.row').find('input[type="number"]').prop('required',false);
 							$(this).closest('.row').find('.hid_chk_ru_unit_id').prop('disabled',false);
+						}
+					});
+				});
+				// &#10024; Generate with AI — POSTs the current product form values to be/ai_seo/generate
+				// and fills the meta_title / meta_description / meta_keywords inputs from the JSON response.
+				$(document).on('click', '.btn_ai_seo_generate', function(e) {
+					e.preventDefault();
+
+					var btn = $(this);
+					var original = btn.html();
+
+					var description = '';
+					if (typeof CKEDITOR !== 'undefined') {
+						if (CKEDITOR.instances['product_description']) {
+							description = CKEDITOR.instances['product_description'].getData();
+						}
+						if (description == '' && CKEDITOR.instances['product_short_description']) {
+							description = CKEDITOR.instances['product_short_description'].getData();
+						}
+					}
+
+					var category = $('#product_category_id option:selected').map(function() {
+						return $.trim($(this).text().replace(/[\u2014\u00a0]/g, ' ')).replace(/\s+/g, ' ');
+					}).get().join(', ');
+
+					var brand = $.trim($('#brand_id option:selected').text());
+					if (brand == 'Select Brand') { brand = ''; }
+
+					btn.prop('disabled', true).html('GENERATING <i class="fa fa-spinner fa-spin ml-2"></i>');
+
+					$.ajax({
+						url: baseDir + 'be/ai_seo/generate',
+						type: 'POST',
+						dataType: 'json',
+						data: {
+							name: $('#product_name').val(),
+							description: description,
+							category: category,
+							brand: brand,
+							price: $('#regular_price').val()
+						},
+						success: function(res) {
+							btn.prop('disabled', false).html(original);
+							if (res.status == 'SUCCESS' && res.meta) {
+								$('#meta_title').val(res.meta.title);
+								$('#meta_description').val(res.meta.description);
+								$('#meta_keywords').val((res.meta.keywords || []).join(', '));
+							} else {
+								alert(res.message || 'Could not generate SEO meta. Please try again.');
+							}
+						},
+						error: function() {
+							btn.prop('disabled', false).html(original);
+							alert('Could not generate SEO meta. Please check your network and try again.');
 						}
 					});
 				});

@@ -58,6 +58,11 @@ class Products extends CI_Controller {
 				$data['suppliers'] = $this->suppliers_model->get_suppliers_list();
 				$data['default_currency'] = $this->currencies_model->get_default_currency();
 
+				// Optional AI SEO meta columns — added by the manual migration
+				// db/migrations/2026-07-07_add_product_seo_meta.sql. The form degrades
+				// gracefully (fields render with a note) until it has been run.
+				$data['seo_meta_columns_exist'] = $this->db->field_exists('meta_title', 'products');
+
 				$q = $this->products_model->draft_exists();
 				if ($q['res'] == true){
 					$product_id = $q['product_id'];
@@ -180,6 +185,11 @@ class Products extends CI_Controller {
 				$data['suppliers'] = $this->suppliers_model->get_suppliers_list();
 				$data['default_currency'] = $this->currencies_model->get_default_currency();
 
+				// Optional AI SEO meta columns — added by the manual migration
+				// db/migrations/2026-07-07_add_product_seo_meta.sql. The form degrades
+				// gracefully (fields render with a note) until it has been run.
+				$data['seo_meta_columns_exist'] = $this->db->field_exists('meta_title', 'products');
+
 				$product = $this->products_model->get_product($product_id);
 				$data['product'] = $product;
 				$data['product_product_categories'] = $this->products_model->get_product_product_categories($product_id);
@@ -271,7 +281,17 @@ class Products extends CI_Controller {
 				'is_online' => $this->input->post('is_online'),
 				'seo_description' => $this->input->post('seo_description'),
 				'seo_keywords' => $this->input->post('seo_keywords')
-			);	
+			);
+
+			// Optional AI SEO meta columns — only saved once the manual migration
+			// (db/migrations/2026-07-07_add_product_seo_meta.sql) has been run, so
+			// this update keeps working on databases without the columns.
+			if ($this->db->field_exists('meta_title', 'products')) {
+				$data['meta_title'] = $this->input->post('meta_title');
+				$data['meta_description'] = $this->input->post('meta_description');
+				$data['meta_keywords'] = $this->input->post('meta_keywords');
+			}
+
 			$q = $this->products_model->update($data,$product_id);
 			if ($q['res'] == true){
 				$resp = array('status' => 'SUCCESS','message' => $q['dt']);

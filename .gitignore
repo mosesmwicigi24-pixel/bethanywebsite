@@ -20,6 +20,8 @@ composer.phar
 # Backups / dumps
 *.zip
 *.sql
+# ...but versioned schema migrations are not dumps — keep them.
+!/db/migrations/*.sql
 /home1/
 
 # OS cruft
