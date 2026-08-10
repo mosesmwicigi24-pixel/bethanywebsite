@@ -29,8 +29,9 @@ COPY docker/php.ini    /usr/local/etc/php/conf.d/zz-bethany.ini
 WORKDIR /var/www/html
 COPY . /var/www/html
 
-# Install PHP dependencies (Guzzle) + generate the optimized autoloader for the
-# portable Bethany\Services\* packages. --no-dev keeps PHPUnit out of the image.
+# Install PHP dependencies (Guzzle, PhpSpreadsheet) + generate the optimized
+# autoloader for the portable Bethany\Services\* packages. --no-dev keeps
+# PHPUnit out of the image.
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
 # Container-safe .htaccess (drops the cPanel php73 handler + force-HTTPS loop;
