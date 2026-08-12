@@ -37,3 +37,11 @@ services:
     restart: unless-stopped
     ports:
       - "127.0.0.1:8097:3000"
+    environment:
+      # Shared secret for POST /api/revalidate — the hub signs its
+      # catalogue-changed ping with this (HMAC-SHA256 over the raw body) so a
+      # product edit reaches shoppers immediately instead of waiting out the
+      # 300s ISR window. Provided by /opt/bethanywebsite/.env on the host.
+      # Empty by default: the endpoint then refuses every call and the
+      # storefront simply falls back to its own 300s refresh.
+      STOREFRONT_REVALIDATE_SECRET: "${STOREFRONT_REVALIDATE_SECRET:-}"
