@@ -60,11 +60,14 @@ export interface Product {
   tagline?: string;
   /** full gallery (falls back to [img]) */
   gallery?: string[];
-  /** When true, HUB images win over this curated gallery as soon as the hub has
-      any — so uploading images to the hub makes them the source of truth for
-      this product. The curated gallery stays as the fallback until the hub has
-      images. Leave unset for products whose hub images are missing/low-quality. */
-  preferHub?: boolean;
+  /** Opt OUT of hub images for this product: keep the curated gallery even when
+      the hub has images of its own.
+
+      The default is the opposite — the hub wins the moment it has any image, so
+      replacing a product photo in the hub changes the storefront. Set this only
+      for a product whose studio photography must survive hub uploads, and expect
+      that editing its images in the hub will then have no visible effect here. */
+  preferCurated?: boolean;
   /** Apple-style "Take a closer look" features */
   closerLook?: { label: string; text: string; img?: string }[];
   rating: number;
@@ -104,7 +107,6 @@ export const badgeLabel: Record<Badge, { text: string; cls: string }> = {
 export const products: Product[] = [
   {
     slug: "chalice-royale",
-    preferHub: true, // hub product id 95 — hub images are authoritative once uploaded
     tagline: "Set Apart for the Sacred",
     gallery: ["/products/Chalice_Cup.jpg", "/products/Chalice_Cup21.jpg", "/products/gold-wares.jpg", "/products/gold0_72.jpg"],
     closerLook: [
