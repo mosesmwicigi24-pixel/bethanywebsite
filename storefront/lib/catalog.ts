@@ -18,6 +18,10 @@ import { curated } from "./products";
 
 const HUB = process.env.NEXT_PUBLIC_HUB_API; // https://hub.bethanyhouse.co.ke/api/v1
 const REVALIDATE = 300; // seconds — catalog refreshes without a rebuild
+/** Cache tag on every hub catalogue fetch. The hub pings /api/revalidate when a
+    product changes, which busts this tag so an edit shows up immediately
+    instead of waiting out the 300s window. */
+export const CATALOG_TAG = "catalog";
 const USD_PER_KES = 1 / 100; // shop rate: USD = KES ÷ 100
 const PLACEHOLDER = "/brand/placeholder.svg";
 
@@ -44,7 +48,7 @@ interface HubVariant {
 async function hubGet<T>(path: string): Promise<T | null> {
   if (!HUB) return null;
   try {
-    const r = await fetch(`${HUB}${path}`, { next: { revalidate: REVALIDATE }, headers: { Accept: "application/json" } });
+    const r = await fetch(`${HUB}${path}`, { next: { revalidate: REVALIDATE, tags: [CATALOG_TAG] }, headers: { Accept: "application/json" } });
     if (!r.ok) return null;
     return (await r.json()) as T;
   } catch {
@@ -117,14 +121,20 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
 
   const variantImgs = variant ? imagesOf(variant.images) : [];
   const hubImgs = imagesOf(hp.images);
-  // Images: the hub is the source of truth. A curated entry can opt in with
-  // `preferHub` so hub images WIN over its curated gallery the moment the hub
-  // has any (uploading to the hub makes them authoritative). Without preferHub,
-  // the curated gallery is used first and hub images are only the fallback —
-  // this protects products whose hub images are missing or low-quality.
+  // Images: the hub is the source of truth, full stop. Whatever the hub holds
+  // for this product wins, so replacing a photo in the hub changes the
+  // storefront — that is the whole contract the owner relies on.
+  //
+  // This used to be opt-in (`preferHub`), and only one of fourteen curated
+  // products had opted in. The other thirteen pinned their curated gallery
+  // forever: nine of them already had hub images that no edit could ever
+  // surface. A curated entry is now a FALLBACK for products the hub has no
+  // photo for, plus an explicit `preferCurated` escape hatch.
+  const curatedGallery = c?.gallery ?? (c?.img ? [c.img] : undefined);
   const gallery = variantImgs.length ? variantImgs
-    : c?.preferHub && hubImgs.length ? hubImgs
-    : c?.gallery ?? (hubImgs.length ? hubImgs : c?.img ? [c.img] : [PLACEHOLDER]);
+    : c?.preferCurated && curatedGallery?.length ? curatedGallery
+    : hubImgs.length ? hubImgs
+    : curatedGallery ?? [PLACEHOLDER];
 
   return {
     slug,
@@ -181,6 +191,14 @@ function toVariantOption(hp: HubProduct, v: HubVariant): VariantOption {
 }
 
 let _cache: { at: number; list: Product[] } | null = null;
+
+/** Drop the in-process memo below. Busting the fetch tag is not enough on its
+    own: a warm server would keep answering from this memo for up to REVALIDATE
+    seconds after the hub told us the catalogue changed. Called by
+    /api/revalidate alongside revalidateTag(). */
+export function clearCatalogMemo(): void {
+  _cache = null;
+}
 
 /** Every published product from the hub, with variants expanded to their
     own independent products. Curated overlay applied by slug. */
