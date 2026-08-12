@@ -42,7 +42,7 @@ export function ProductCard({ p }: { p: Product }) {
       <h3>{p.name}</h3>
       <div className="chips">
         {p.chips.slice(0, 2).map((c) => (
-          <div className="chip" key={c.text}><span className="ic">{c.icon}</span>{cardFeature(c.text)}</div>
+          <div className="chip" key={c.text}><span className="ic">{c.icon}</span><span className="tx">{cardFeature(c.text)}</span></div>
         ))}
       </div>
       <div className="price">
