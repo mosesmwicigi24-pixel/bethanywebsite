@@ -76,22 +76,34 @@ const imagesOf = (imgs: HubImage[] | undefined): string[] =>
     .map((i) => i.image_url)
     .filter(Boolean);
 
-/** Curated highlights + hub Features, de-duplicated by their leading phrase
-    (a curated "24K gold-plated brass" and a hub "24K gold-plated brass — …"
-    are the same claim, so only the curated one is kept). */
+/** Hub Features + curated highlights, de-duplicated by their leading phrase
+    (a hub "24K gold-plated brass — …" and a curated "24K gold-plated brass"
+    are the same claim).
+
+    The hub wins that collision. These are owner-edited selling points, so when
+    the owner rewrites one in the hub the shopper should read the new wording —
+    previously the curated copy was seeded first and the hub's version was
+    dropped as the duplicate. Curated chips with no hub counterpart are kept
+    and appended, so nothing is lost. */
 function mergeChips(
-  curated: Chip[] | undefined,
   features: { icon?: string | null; text: string }[] | null | undefined,
+  curated: Chip[] | undefined,
 ): Chip[] {
   const key = (t: string) =>
     t.split(/\s[—–]\s/)[0].toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
-  const out: Chip[] = [...(curated ?? [])];
-  const seen = new Set(out.map((c) => key(c.text)));
+  const out: Chip[] = [];
+  const seen = new Set<string>();
   for (const f of features ?? []) {
     const text = f?.text?.trim();
     if (!text || seen.has(key(text))) continue;
     seen.add(key(text));
     out.push({ icon: f.icon || "✦", text });
+  }
+  for (const chip of curated ?? []) {
+    const text = chip?.text?.trim();
+    if (!text || seen.has(key(text))) continue;
+    seen.add(key(text));
+    out.push(chip);
   }
   return out;
 }
@@ -104,13 +116,17 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
   const c = curated[baseSlug]; // curated overlay (may be undefined)
 
   const hubT = hp.translations?.find((t) => t.language_code === "en") ?? hp.translations?.[0];
-  const hubName = hubT?.name ?? hp.slug;
-  const name = variant
-    ? `${c?.name ?? hubName} — ${variant.variant_name}`
-    : c?.name ?? hubName;
-  // The hub's short_description (owner-editable, enriched per product) is the
-  // card line + search/Neema text; before this it silently fell back to the
-  // product NAME, so hub-side copy never reached the storefront at all.
+
+  // Naming, like imagery, follows the hub. A curated name is the fallback for
+  // a product the hub has no translation row for — not an override of one.
+  // Renaming a product in the hub previously changed nothing on the storefront
+  // for any of the fourteen curated products.
+  const hubName  = hubT?.name?.trim() || undefined;
+  const baseName = hubName ?? c?.name ?? hp.slug;
+  const name = variant ? `${baseName} — ${variant.variant_name}` : baseName;
+
+  // The hub's short_description is owner-editable and enriched per product.
+  // It is the card line plus the search/Neema text.
   const hubShort = hubT?.short_description?.trim() || undefined;
 
   const priceRows = variant?.prices ?? hp.prices;
@@ -142,7 +158,7 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     variantId: variant?.id,
     variantAttributes: variant?.attributes,
     name,
-    short: c?.short ?? (variant ? variant.variant_name : (hubShort ?? hubName)),
+    short: variant ? variant.variant_name : (hubShort ?? c?.short ?? baseName),
     aliases: hp.aliases ?? undefined,
     img: gallery[0],
     gallery,
@@ -158,12 +174,12 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     // Selling points: curated highlights first (hand-written for flagships),
     // then the owner-edited hub Features from the admin's Features tab, minus
     // duplicates. Cards show the first two; the product page shows them all.
-    chips: mergeChips(c?.chips, hp.features),
+    chips: mergeChips(hp.features, c?.chips),
     rating: c?.rating ?? 5,
     reviews: c?.reviews ?? 0,
-    badge: c?.badge ?? (hp.is_featured ? "best" : undefined),
+    badge: hp.is_featured ? "best" : c?.badge,
     seller: c?.seller,
-    category: c?.category ?? hp.category?.name_en ?? "Church Supplies",
+    category: hp.category?.name_en ?? c?.category ?? "Church Supplies",
     inStock: hp.in_stock,
   };
 }
