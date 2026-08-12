@@ -204,8 +204,9 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .grid-products{display:grid;grid-template-columns:repeat(4,1fr);gap:26px}
 @media(max-width:1024px){.grid-products{grid-template-columns:repeat(2,1fr)}}
 .pcard{display:flex;flex-direction:column;min-width:0}
-.pcard .ph{background:var(--tile);border-radius:14px;position:relative;aspect-ratio:1/1.05;display:flex;align-items:center;justify-content:center;padding:0;overflow:hidden}
-.pcard .ph img{width:100%;height:100%;object-fit:cover;object-position:center;transition:.3s}
+/* contain, not cover: cover was discarding ~30% of every product photo. */
+.pcard .ph{background:var(--tile);border-radius:14px;position:relative;aspect-ratio:1/1.05;display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+.pcard .ph img{width:100%;height:100%;object-fit:contain;transition:.3s}
 .pcard:hover .ph img{transform:scale(1.05)}
 .pcard .ph .tag{position:absolute;top:12px;left:12px}
 .pcard .rating{position:absolute;left:12px;bottom:12px;font-size:13px;font-weight:800;display:flex;gap:5px;align-items:center;background:rgba(255,255,255,.92);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);padding:5px 11px;border-radius:999px;box-shadow:0 2px 10px rgba(11,20,37,.14);line-height:1}
@@ -223,9 +224,13 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .pcard .seller a:hover{border-color:var(--gold)}
 
 /* mini card (You may also like) */
-.mini-card{scroll-snap-align:start;flex:0 0 clamp(240px,17vw,290px);border:1px solid var(--line);border-radius:14px;padding:0 0 18px;position:relative}
-.mini-card .ph{background:var(--tile);border-radius:14px 14px 0 0;height:190px;display:flex;align-items:center;justify-content:center;padding:0;position:relative;overflow:hidden}
-.mini-card .ph img{width:100%;height:100%;object-fit:cover;object-position:center}
+/* min-width:0 — without it a long nowrap title sets the flex item's min-content
+   width and the card grows past its basis, making the square photos uneven. */
+.mini-card{scroll-snap-align:start;flex:0 0 clamp(240px,17vw,290px);min-width:0;border:1px solid var(--line);border-radius:14px;padding:0 0 18px;position:relative}
+/* Square frame + contain so the whole product shows — a 190px landscape frame
+   with object-fit:cover was slicing the top and bottom off every item. */
+.mini-card .ph{background:var(--tile);border-radius:14px 14px 0 0;aspect-ratio:1/1;display:flex;align-items:center;justify-content:center;padding:14px;position:relative;overflow:hidden}
+.mini-card .ph img{width:100%;height:100%;object-fit:contain}
 .mini-card .ph .tag{position:absolute;top:10px;left:10px}
 .mini-card .rating{font-size:12.5px;font-weight:800;padding:10px 14px 0;display:flex;gap:4px}
 .mini-card .rating .star{color:var(--gold)}
@@ -266,13 +271,15 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 
 /* ---------- product page ---------- */
 .pdp{display:grid;grid-template-columns:1.05fr 1fr;gap:60px;padding:14px 0 50px}
-.gallery .main{background:var(--tile);border-radius:18px;height:clamp(520px,44vw,640px);display:flex;align-items:center;justify-content:center;padding:36px;position:relative;overflow:hidden}
-.gallery .main img{max-height:100%;object-fit:contain}
+/* Square frame + contain: every product photo is shown whole, whatever its
+   aspect ratio, and a 1:1 source fills the frame edge-to-edge with no bands. */
+.gallery .main{background:var(--tile);border-radius:18px;aspect-ratio:1/1;width:min(100%,760px);margin-inline:auto;display:flex;align-items:center;justify-content:center;padding:36px;position:relative;overflow:hidden}
+.gallery .main img{width:100%;height:100%;object-fit:contain}
 .gallery .gnav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:99px;background:rgba(255,255,255,.9);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:18px}
 .gallery .gnav.prev{left:14px}.gallery .gnav.next{right:14px}
 .thumbs{display:flex;gap:10px;margin-top:14px}
 .thumbs button{width:86px;height:86px;border-radius:10px;background:var(--tile);border:1.6px solid transparent;padding:8px;display:flex;align-items:center;justify-content:center}
-.thumbs button img{max-height:100%;object-fit:contain}
+.thumbs button img{width:100%;height:100%;object-fit:contain}
 .thumbs button.active{border-color:var(--navy-900);background:#fff}
 .buy h1{font-size:clamp(26px,2.6vw,34px);font-weight:800;letter-spacing:-.02em;line-height:1.18}
 .buy .wish{float:right;font-size:22px;color:#333}
@@ -549,8 +556,6 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 .cat-banner .pill{flex:none}
 
 /* ---------- PDP premium ---------- */
-.gallery .main{cursor:zoom-in}
-.gallery .main img{transition:transform .35s var(--ease)}
 .deliver{display:flex;gap:10px;align-items:center;margin-top:18px;font-size:13.5px;color:#33507a;background:#eef4fd;border:1px solid #d8e5f8;border-radius:12px;padding:12px 16px}
 .deliver b{color:var(--navy-700)}
 .bundle{border:1px solid var(--line);border-radius:20px;padding:34px 36px;margin:20px 0 34px;background:linear-gradient(160deg,#fdfaf1,#fff 55%)}
@@ -622,11 +627,9 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 .mnav-foot{margin-top:auto;padding:18px 22px 26px;border-top:1px solid rgba(255,255,255,.1)}
 .mnav-foot p{font-size:12.5px;color:#8d99ac;margin-top:12px;line-height:1.7}
 
-/* touch devices: quick actions always visible, no hover zoom */
+/* touch devices: quick actions always visible */
 @media(hover:none){
   .pcard .quick{opacity:1;transform:none}
-  .gallery .main{cursor:default}
-  .gallery .main img{transform:none!important}
 }
 
 /* ---- ≤1360: desktop-small ---- */
@@ -701,7 +704,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .section{padding:48px 0}
   .section-head{flex-direction:column;align-items:flex-start;gap:6px;margin-bottom:20px}
   .grid-products{gap:14px}
-  .pcard .ph{padding:0;border-radius:12px}
+  .pcard .ph{padding:10px;border-radius:12px}
   /* Product name: readable, clamped to 2 lines so a long name never blows the
      card up (no forced min-height, so short names don't leave an empty gap). */
   .pcard h3{font-size:13.5px;font-weight:600;line-height:1.3;margin-top:9px;
@@ -722,7 +725,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .edit-card{flex:0 0 80vw;height:440px}
   .mini-card{flex:0 0 62vw}
   .rail{gap:14px}
-  .gallery .main{height:clamp(320px,92vw,460px);padding:20px}
+  .gallery .main{padding:18px}
   .thumbs button{width:68px;height:68px}
   .buy h1{font-size:24px}
   .buy .pricerow b{font-size:28px}
@@ -784,7 +787,6 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 .catalog .grid-products{grid-template-columns:repeat(auto-fill,minmax(320px,1fr))}
 @media(max-width:900px){.grid-products,.catalog .grid-products{grid-template-columns:repeat(2,1fr);gap:16px}}
 @media(max-width:640px){.grid-products,.catalog .grid-products{grid-template-columns:repeat(2,1fr);gap:14px}}
-.gallery .main{height:clamp(520px,40vw,760px)}
 .testis .grid{grid-template-columns:repeat(auto-fit,minmax(340px,1fr))}
 .why .grid{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
 @media(max-width:640px){.testis .grid,.why .grid{grid-template-columns:1fr}}

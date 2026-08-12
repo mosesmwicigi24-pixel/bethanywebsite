@@ -10,22 +10,15 @@ import { Money } from "./Money";
 
 export function Gallery({ images, kes, usd }: { images: string[]; kes?: number; usd?: number }) {
   const [active, setActive] = useState(0);
-  const [zoom, setZoom] = useState<{ x: number; y: number } | null>(null);
   const step = (d: number) => setActive((a) => (a + d + images.length) % images.length);
-
-  const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const r = e.currentTarget.getBoundingClientRect();
-    setZoom({ x: ((e.clientX - r.left) / r.width) * 100, y: ((e.clientY - r.top) / r.height) * 100 });
-  };
 
   return (
     <div className="gallery">
-      <div className="main" onMouseMove={onMove} onMouseLeave={() => setZoom(null)}>
+      <div className="main">
         <img
           src={images[active]}
           alt="Product view"
           onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
-          style={zoom ? { transform: "scale(1.7)", transformOrigin: `${zoom.x}% ${zoom.y}%` } : undefined}
         />
         <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>
         <button className="gnav next" aria-label="Next image" onClick={() => step(1)}>›</button>
