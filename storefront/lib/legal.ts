@@ -39,16 +39,59 @@ export const LEGAL: Record<string, LegalDoc> = {
   privacy: {
     slug: "privacy",
     title: "Privacy Policy",
-    updated: "July 2026",
-    intro: `This policy explains what personal information ${SITE.name} collects, why, and your rights over it.`,
+    updated: "August 2026",
+    intro: `This policy explains what personal information ${SITE.name} collects, why we collect it, who we share it with, and the rights you have over it under the Data Protection Act, 2019 (Kenya).`,
     sections: [
-      { h: "1. What we collect", p: ["Details you give us — name, phone, email, church/parish, delivery address, order and measurement details — and basic technical data such as your device and pages viewed, to run and improve the store."] },
-      { h: "2. How we use it", p: ["To process and deliver your orders, provide support, prevent fraud, meet legal obligations, and — only where you have opted in — send occasional offers. We do not sell your personal data."] },
-      { h: "3. Payments", p: ["Payments are processed by our payment providers (e.g. M-Pesa and card processors). We receive confirmation and a reference, not your full card number."] },
-      { h: "4. Sharing", p: ["We share data only with providers who help us operate — delivery partners, payment processors and IT services — under confidentiality, and with authorities where the law requires."] },
-      { h: "5. Retention & security", p: ["We keep order records as long as needed for accounting, warranty and legal purposes, and take reasonable technical and organisational measures to protect your data."] },
-      { h: "6. Your rights", p: [`Under the Data Protection Act, 2019 (Kenya) you may request access to, correction or deletion of your data, or object to certain uses. ${contact}`] },
-      { h: "7. Cookies", p: ["We use essential cookies to keep the cart and session working. Any non-essential analytics are used only in aggregate."] },
+      {
+        h: "1. What we collect",
+        p: [
+          "Details you give us — your name, phone or WhatsApp number, email, church or parish, delivery address, and the items, sizes and measurements needed to prepare your order.",
+          "What you send our assistant — the messages you write in our chat, and any photo you choose to upload for a measurement estimate.",
+          "Ratings and reviews you submit for a product, together with the name you choose to show alongside them.",
+          "Basic technical data such as your device type, your approximate country (used to show you the right currency and delivery information) and the pages you view, to run, secure and improve the store.",
+        ],
+      },
+      {
+        h: "2. How we use it",
+        p: [
+          "To answer your questions, prepare quotations, process and deliver your orders, tailor made-to-order garments to the measurements you give us, provide support, prevent fraud, meet our legal and accounting obligations, and — only where you have opted in — send occasional offers.",
+          "We do not sell your personal data, and we do not rent or trade it for advertising.",
+        ],
+      },
+      {
+        h: "3. Our assistant, Neema",
+        p: [
+          "Neema is an AI assistant that helps you find items, answer questions and prepare an order. To produce a reply, the text of your conversation is sent to the AI provider that powers it. Please don't share sensitive personal information in the chat that isn't needed for your order.",
+          "If you upload a photo for a measurement estimate, it is sent to the AI provider solely to produce those estimates. It is not stored on our servers and is not added to your profile. The estimates are only a starting point — you confirm the final measurements before anything is cut or sewn.",
+          "Contact details you give the assistant, such as your name and phone number, are saved to your customer record so that we can follow up on your enquiry or order.",
+        ],
+      },
+      { h: "4. Payments", p: ["Payments are processed by our payment providers (for example M-Pesa and our card processor). We receive a confirmation and a payment reference — not your full card number, which never reaches our servers."] },
+      {
+        h: "5. Who we share it with",
+        p: [
+          "Only with those who help us serve you: delivery and courier partners, payment processors, the AI providers described above, and our hosting and IT suppliers. Each is bound by confidentiality and may use your data only for the service they provide to us.",
+          "We also disclose data where the law requires it, or where it is necessary to establish or defend a legal claim.",
+        ],
+      },
+      { h: "6. Transfers outside Kenya", p: ["Some of our providers — including our hosting and AI providers — process data on servers outside Kenya. Where that happens we rely on the safeguards permitted by the Data Protection Act, 2019, including contractual commitments requiring them to protect your data and to process it only on our instructions."] },
+      {
+        h: "7. Retention & security",
+        p: [
+          "We keep order and accounting records for as long as the law requires, and other details only for as long as they remain useful to serve you. Photos uploaded for a measurement estimate are not retained on our servers.",
+          "We take reasonable technical and organisational measures to protect your data, including encrypted connections and access limited to staff who need it.",
+        ],
+      },
+      {
+        h: "8. Your rights",
+        p: [
+          "Under the Data Protection Act, 2019 you may ask us for a copy of the data we hold about you, ask us to correct or delete it, object to or restrict how we use it, or withdraw a consent you have given — for example, to marketing messages.",
+          `${contact} We will respond within the time the law allows.`,
+          "If you are not satisfied with our response, you may lodge a complaint with the Office of the Data Protection Commissioner (Kenya).",
+        ],
+      },
+      { h: "9. Cookies", p: ["We use essential cookies to keep your cart, session and preferences working. Any analytics we use are reviewed in aggregate and not used to identify you personally."] },
+      { h: "10. Changes to this policy", p: ["We may update this policy as our services change. The version published on this page is the one in force, and the date shown above is when it was last revised."] },
     ],
   },
   returns: {
