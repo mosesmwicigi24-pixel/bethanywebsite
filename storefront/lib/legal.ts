@@ -94,6 +94,120 @@ export const LEGAL: Record<string, LegalDoc> = {
       { h: "10. Changes to this policy", p: ["We may update this policy as our services change. The version published on this page is the one in force, and the date shown above is when it was last revised."] },
     ],
   },
+  "user-policy": {
+    slug: "user-policy",
+    title: "User Policy",
+    updated: "August 2026",
+    intro: `This policy sets out how our website, our chat and our services may be used, so that ${SITE.name} stays safe and fair for every church and customer we serve. It sits alongside our Terms of Service and Privacy Policy.`,
+    sections: [
+      {
+        h: "1. Who this applies to",
+        p: [
+          "It applies to everyone who uses our website — browsing the catalogue, chatting with our assistant, submitting a review or placing an order — whether you are a parish, a minister, an institution or an individual.",
+          "By using the site, you agree to use it in the way described here.",
+        ],
+      },
+      {
+        h: "2. The information you give us",
+        p: [
+          "Please give accurate contact, delivery and measurement details, and keep them up to date. Made-to-order garments are cut to the measurements you supply and deliveries are made to the address you give us, so mistakes there are difficult and costly to undo.",
+          "Please do not use another person's name, phone number or payment details without their permission, or present yourself as acting for a church or organisation that has not authorised you.",
+        ],
+      },
+      {
+        h: "3. Using the site fairly",
+        p: [
+          "You are welcome to browse, search, request quotations and order for yourself, for your parish, or for the institution you represent.",
+          "Please do not use the site unlawfully or in a way that harms others. In particular: do not try to reach accounts, data or systems that are not yours; do not interfere with the site's operation or security; do not use automated tools to scrape, copy or overload it; and do not upload anything containing malware.",
+        ],
+      },
+      {
+        h: "4. Using our assistant, Neema",
+        p: [
+          "Neema is here to help you find items, ask questions and prepare an order. Please use it for that purpose and keep the conversation courteous.",
+          "Please do not share other people's personal information in the chat, or anything confidential that isn't needed for your order, and do not attempt to misuse the assistant or use it to produce content unrelated to our products.",
+          "Neema is an automated assistant and can occasionally be mistaken. Prices, availability, measurements and delivery timelines it gives are guidance until a member of our team confirms them — a confirmed order or invoice from us is what counts.",
+        ],
+      },
+      {
+        h: "5. Reviews and anything you post",
+        p: [
+          "Reviews should reflect genuine experience of a product you bought or used. Please don't post anything false, abusive, obscene or defamatory, anything that infringes someone else's rights, or a review written on behalf of a competitor or in exchange for reward.",
+          "Reviews are moderated before they appear, and we may decline or remove one that breaks this policy. By submitting a review you allow us to display it on the site alongside the name you choose to show.",
+        ],
+      },
+      {
+        h: "6. Orders placed in good faith",
+        p: [
+          "Please order only what you intend to buy and receive. Repeatedly placing orders that are abandoned or refused on delivery, or misusing our returns policy, may lead us to ask for payment in advance or to decline future orders.",
+          "Where we suspect fraud, or a payment we cannot verify, we may hold or cancel an order and refund any amount already paid.",
+        ],
+      },
+      {
+        h: "7. Our catalogue and images",
+        p: [
+          "The photographs, descriptions and designs on this site belong to us or to our suppliers. You are welcome to share links to our pages, and to use our product images when ordering or recommending an item to your parish.",
+          "Please do not copy our catalogue, photographs or descriptions to sell the same goods elsewhere, or present our work as your own, without our written permission.",
+        ],
+      },
+      {
+        h: "8. If this policy is broken",
+        p: ["Where the site is used in a way that breaks this policy, we may remove the content concerned, restrict or suspend access, decline or cancel orders, and report the matter to the authorities where the law requires it. We will act proportionately, and where it is reasonable to do so we will tell you why."],
+      },
+      {
+        h: "9. How this fits with our other policies",
+        p: ["This policy sits alongside our Terms of Service, which govern your purchase, and our Privacy Policy, which explains how we handle your personal information. Where a genuine conflict arises about a purchase, the Terms of Service prevail."],
+      },
+      {
+        h: "10. Changes and contact",
+        p: [`We may update this policy as our services change; the version published on this page is the one in force. If anything here is unclear, or you would like to report misuse, please tell us. ${contact}`],
+      },
+    ],
+  },
+  "data-deletion": {
+    slug: "data-deletion",
+    title: "User Data Deletion",
+    updated: "August 2026",
+    intro: `You can ask ${SITE.name} to delete the personal information we hold about you at any time. This page explains how to request it, what we delete, and how long it takes.`,
+    sections: [
+      {
+        h: "1. How to request deletion",
+        p: [
+          `Send us a deletion request by any of these routes: email ${SITE.email}; WhatsApp or call ${SITE.phone} or ${SITE.phone2}; or visit us at ${SITE.address}, ${SITE.city}.`,
+          'Please write "Data deletion request" in your message, and include the name and the phone or WhatsApp number you used with us, so that we can find your records. If you contacted us through WhatsApp, Messenger, Facebook or Instagram, please send the request from — or tell us — the number or account you used there.',
+          "We may ask one question to confirm your identity before we delete anything. This protects you: it stops somebody else from deleting your records.",
+        ],
+      },
+      {
+        h: "2. What we delete",
+        p: [
+          "Your customer profile and contact details; your saved measurements and sizes; your conversations with our assistant across our website, WhatsApp, Messenger, Facebook and Instagram; any saved cart or enquiry; and your marketing preferences.",
+          "Reviews you have posted are removed or, where the review must remain for other customers, permanently separated from your name and contact details so that it can no longer identify you.",
+        ],
+      },
+      {
+        h: "3. What we must keep, and why",
+        p: [
+          "Kenyan tax and accounting law requires us to retain records of completed sales — invoices, receipts and payment references — for the period the law prescribes, and we cannot delete those earlier. We keep only what the law requires, we stop using it for anything else, and we delete it when that period ends.",
+          "We may also retain the minimum needed to establish or defend a legal claim, or to comply with an order from a court or regulator.",
+        ],
+      },
+      {
+        h: "4. How long it takes",
+        p: [
+          "We act on deletion requests promptly and complete them within 30 days. If a request is complex and we need longer, we will tell you and explain why.",
+          "We will confirm to you in writing once the deletion is done.",
+        ],
+      },
+      {
+        h: "5. Your other rights",
+        p: [
+          `Deletion is one of several rights you hold under the Data Protection Act, 2019 (Kenya). You may also ask for a copy of your data, ask us to correct it, object to or restrict a particular use, or withdraw a consent you gave — for example to marketing. Our Privacy Policy explains each of these. ${contact}`,
+          "If you are not satisfied with how we handle your request, you may lodge a complaint with the Office of the Data Protection Commissioner (Kenya).",
+        ],
+      },
+    ],
+  },
   returns: {
     slug: "returns",
     title: "Returns & Refunds",
