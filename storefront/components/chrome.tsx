@@ -157,6 +157,8 @@ export function Footer() {
         <span className="legal-links">
           <Link href="/policies/terms">Terms of Service</Link>
           <Link href="/policies/privacy">Privacy Policy</Link>
+          <Link href="/policies/user-policy">User Policy</Link>
+          <Link href="/policies/data-deletion">Data Deletion</Link>
           <Link href="/policies/returns">Returns &amp; Refunds</Link>
           <Link href="/policies/shipping">Shipping &amp; Delivery</Link>
         </span>

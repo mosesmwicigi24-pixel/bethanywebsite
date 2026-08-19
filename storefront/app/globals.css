@@ -750,6 +750,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .vespers{padding:60px 20px}
   .footer .cols{grid-template-columns:1fr;gap:26px;padding:40px 0 28px}
   .footer .base{flex-direction:column;gap:6px;text-align:center}
+  .footer .base .legal-links{justify-content:center;gap:12px;row-gap:4px}
   .chat-fab{right:14px;bottom:20px;height:44px;padding:0 13px 0 5px;gap:8px}
   .chat-fab-mark{width:30px;height:30px}
   .chat-fab img{width:22px;height:22px}
