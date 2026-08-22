@@ -6,11 +6,11 @@ import { SITE } from "@/lib/site";
 
 const SHOP_LINKS = [
   ["Offers 🔥", "/shop"],
-  ["Communion Elements", "/shop"],
-  ["Clergy Apparel", "/shop"],
-  ["Gifts & Accessories", "/shop"],
-  ["Church Essentials", "/shop"],
-  ["Bibles & Devotionals", "/shop"],
+  ["Communion Elements", "/category/communion-elements"],
+  ["Clergy Apparel", "/category/clergy-vestments"],
+  ["Gifts & Accessories", "/category/church-gifts"],
+  ["Church Essentials", "/category/church-essentials"],
+  ["Bibles & Devotionals", "/category/bibles-devotionals"],
   ["Hot & New", "/shop"],
 ] as const;
 

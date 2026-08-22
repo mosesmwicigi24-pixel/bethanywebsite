@@ -48,6 +48,9 @@ export const metadata: Metadata = {
   // No layout-level canonical: it would cascade onto every child route that
   // doesn't set its own, mislabelling them all as copies of the homepage
   // (exactly what happened to /shop). Each indexable page declares its own.
+  // Google Search Console ownership verification (renders the
+  // google-site-verification meta tag on every page).
+  verification: { google: "XX06y0sNp15afuxPMyq_8CCAQQdQEqROUFB9r8IAwBE" },
   openGraph: {
     type: "website",
     siteName: SITE.name,

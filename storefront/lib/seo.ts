@@ -136,6 +136,42 @@ export function breadcrumbJsonLd(items: { name: string; path?: string }[]): Reco
   };
 }
 
+/** ItemList for a category landing page — tells engines exactly which
+    products the page lists, in order. */
+export function itemListJsonLd(
+  name: string,
+  path: string,
+  products: Pick<Product, "slug" | "name">[],
+): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    name,
+    url: abs(path),
+    numberOfItems: products.length,
+    itemListElement: products.map((p, i) => ({
+      "@type": "ListItem",
+      position: i + 1,
+      name: p.name,
+      url: abs(`/product/${p.slug}`),
+    })),
+  };
+}
+
+/** FAQPage markup — emit ONLY for questions genuinely visible on the page
+    (Google policy); the category pages render every entry they mark up. */
+export function faqPageJsonLd(faqs: { q: string; a: string }[]): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+}
+
 /** Site-wide Organization + physical Store (a LocalBusiness) identity.
     Rendered once in the root layout. Lets Google build a knowledge panel
     and lets AI assistants answer "where do I buy communion supplies in
