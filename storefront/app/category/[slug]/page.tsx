@@ -89,9 +89,22 @@ export default async function CategoryPage(
           <h2 className="sm">{products.length} product{products.length === 1 ? "" : "s"} in {def.name}</h2>
           <Link href="/shop">All products →</Link>
         </div>
-        <div className="grid-products">
-          {products.map((p) => <ProductCard key={p.slug} p={p} />)}
-        </div>
+        {products.length > 0 ? (
+          <div className="grid-products">
+            {products.map((p) => <ProductCard key={p.slug} p={p} />)}
+          </div>
+        ) : (
+          <div className="cat-empty">
+            <p>
+              We are restocking this department online — the full range is in
+              store at {SITE.address}, and just a message away.
+            </p>
+            <div className="cta-row">
+              <Link className="pill pill-solid" href="/shop">Browse all products</Link>
+              <a className="pill pill-ghost" href="https://wa.me/254727891989" target="_blank" rel="noopener">Ask on WhatsApp</a>
+            </div>
+          </div>
+        )}
       </Reveal>
 
       <section className="faqs cat-faqs">
