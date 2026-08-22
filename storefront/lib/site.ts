@@ -11,7 +11,11 @@ export const SITE = {
   phoneHref: "tel:+254727891989",
   phone2: "+254 785 490 805",
   phoneHref2: "tel:+254785490805",
-  email: "info@bethanygiftshop.com",
+  /** Mail is hosted on bethanyhouse.co.ke (the old bethanygiftshop.com
+      domain no longer resolves and cannot receive mail). */
+  email: "info@bethanyhouse.co.ke",
+  whatsapp: "https://wa.me/254727891989",
+  mapsUrl: "https://maps.google.com/?q=Sonalux+Building,+Moi+Avenue,+Nairobi",
   address: "Sonalux Building, 7th Floor, Room 18, Moi Avenue",
   city: "Nairobi, Kenya",
   /** Local directions — for a Kenyan (+254) customer who asks where we are. */
