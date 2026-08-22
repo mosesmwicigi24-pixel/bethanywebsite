@@ -47,8 +47,9 @@ export default function MobileMenu() {
             ))}
           </nav>
           <div className="mnav-sub">
-            <a href="#" onClick={close}>Track Your Order</a>
-            <a href="#" onClick={close}>Visit Our Store — {SITE.address}</a>
+            <Link href="/orders" onClick={close}>Track Your Order</Link>
+            <Link href="/faq" onClick={close}>FAQs &amp; Help</Link>
+            <Link href="/contact" onClick={close}>Visit Our Store — {SITE.address}</Link>
             <a href={SITE.phoneHref}>WhatsApp / Call {SITE.phone}</a>
           </div>
           <div className="mnav-foot">

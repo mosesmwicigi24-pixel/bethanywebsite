@@ -20,7 +20,7 @@ export function UtilityBar() {
           Free delivery in Nairobi CBD for orders above <b>KES 10,000</b> — we ship across East Africa
         </div>
         <div className="meta">
-          <a href="#">{SITE.address}</a>
+          <Link href="/contact">{SITE.address}</Link>
           <a href={SITE.phoneHref}>{SITE.phone}</a>
         </div>
       </div>
@@ -85,11 +85,11 @@ export function Nav() {
           <li><Link href={categoryHref("Gifts & Accessories")}>Gifts &amp; Accessories</Link></li>
           <li><Link href={categoryHref("Church Essentials")}>Church Essentials</Link></li>
           <li className="has-drop">
-            <a href="#">Support</a>
+            <Link href="/faq">Support</Link>
             <div className="drop">
-              <a href="#"><TruckIcon />Track Order<span>Delivery status &amp; ETA</span></a>
-              <a href="#"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9A5.6 5.6 0 0 1 12 6a5.6 5.6 0 0 1 9.5 6c-2.5 4.4-9.5 9-9.5 9z" /></svg>Visit Our Store<span>{SITE.address}</span></a>
-              <a href={SITE.phoneHref}><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9m9 0-9 9m9-9v5m0-5h-5" /></svg>WhatsApp Us<span>{SITE.phone}</span></a>
+              <Link href="/orders"><TruckIcon />Track Order<span>Delivery status &amp; ETA</span></Link>
+              <Link href="/contact"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.6-9.5-9A5.6 5.6 0 0 1 12 6a5.6 5.6 0 0 1 9.5 6c-2.5 4.4-9.5 9-9.5 9z" /></svg>Visit Our Store<span>{SITE.address}</span></Link>
+              <a href={SITE.whatsapp} target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-9-9m9 0-9 9m9-9v5m0-5h-5" /></svg>WhatsApp Us<span>{SITE.phone}</span></a>
             </div>
           </li>
           <li><Link href="/shop">Hot &amp; New</Link></li>
@@ -137,16 +137,18 @@ export function Footer() {
         <div>
           <h5>Support</h5>
           <Link href="/orders">Track Your Order</Link>
+          <Link href="/faq">FAQs</Link>
           <Link href="/policies/shipping">Delivery &amp; Returns</Link>
-          <Link href="/policies/returns">Returns &amp; Refunds</Link>
           <a href={SITE.phoneHref}>Parish Accounts</a>
           <a href={SITE.phoneHref}>Engraving Services</a>
-          <a href={`mailto:${SITE.email}`}>Contact Us</a>
+          <Link href="/about">About Us</Link>
+          <Link href="/contact">Contact Us</Link>
         </div>
         <div className="contact">
           <h5>Visit Us</h5>
           <p><b>{SITE.address}</b><br />{SITE.city}</p>
           <p className="landmarks">{SITE.landmarks}</p>
+          <p><a href={SITE.mapsUrl} target="_blank" rel="noopener">Open in Google Maps</a></p>
           <p>{SITE.hours}</p>
           <p className="callus">Call <a href={SITE.phoneHref}>{SITE.phone}</a> or <a href={SITE.phoneHref2}>{SITE.phone2}</a></p>
           <p><a href={`mailto:${SITE.email}`}>{SITE.email}</a></p>

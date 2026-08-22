@@ -216,6 +216,8 @@ export function organizationJsonLd(): Record<string, unknown> {
     email: SITE.email,
     telephone: SITE.phone,
     description: SITE.tagline,
+    foundingDate: "2019",
+    founder: { "@type": "Person", name: "Moses Mwicigi", honorificPrefix: "Pastor" },
     contactPoint: [
       {
         "@type": "ContactPoint",
@@ -244,6 +246,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     priceRange: "$$",
     currenciesAccepted: "KES, USD",
     paymentAccepted: SITE.payments,
+    hasMap: SITE.mapsUrl,
     address: {
       "@type": "PostalAddress",
       streetAddress: SITE.address,
