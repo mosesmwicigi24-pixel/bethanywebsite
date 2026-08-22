@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getCatalog } from "@/lib/catalog";
+import { CATEGORY_PAGES } from "@/lib/categories";
 import { SITE } from "@/lib/site";
 import { abs } from "@/lib/seo";
 
@@ -30,6 +31,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { url: base, changeFrequency: "daily", priority: 1 },
     { url: `${base}/shop`, changeFrequency: "daily", priority: 0.9 },
+    ...CATEGORY_PAGES.map((c) => ({
+      url: `${base}/category/${c.slug}`,
+      changeFrequency: "weekly" as const,
+      priority: 0.9,
+    })),
     ...productUrls,
   ];
 }

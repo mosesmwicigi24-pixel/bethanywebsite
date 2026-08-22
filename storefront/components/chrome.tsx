@@ -4,7 +4,7 @@ import MobileMenu from "./MobileMenu";
 import NavCart from "./NavCart";
 import { CurrencyToggle } from "./Money";
 import { SITE } from "@/lib/site";
-import { shopCat } from "@/lib/categories";
+import { categoryHref } from "@/lib/categories";
 import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
 import Neema from "./Neema";
 
@@ -28,7 +28,7 @@ export function UtilityBar() {
   );
 }
 
-// shopCat lives in lib/categories.ts — one definition shared by the nav, the
+// categoryHref lives in lib/categories.ts — one definition shared by the nav, the
 // footer and the homepage tiles.
 
 export function Nav() {
@@ -40,7 +40,7 @@ export function Nav() {
         <ul className="nav-links">
           <li><Link href="/shop">Offers <span className="flame">🔥</span></Link></li>
           <li className="has-mega">
-            <Link href={shopCat("Communion Elements")}>Communion Elements</Link>
+            <Link href={categoryHref("Communion Elements")}>Communion Elements</Link>
             <div className="mega">
               <div className="mega-inner">
                 <div className="mega-rail">
@@ -81,9 +81,9 @@ export function Nav() {
               </div>
             </div>
           </li>
-          <li><Link href={shopCat("Clergy Apparel")}>Clergy Apparel</Link></li>
-          <li><Link href={shopCat("Gifts & Accessories")}>Gifts &amp; Accessories</Link></li>
-          <li><Link href={shopCat("Church Essentials")}>Church Essentials</Link></li>
+          <li><Link href={categoryHref("Clergy Apparel")}>Clergy Apparel</Link></li>
+          <li><Link href={categoryHref("Gifts & Accessories")}>Gifts &amp; Accessories</Link></li>
+          <li><Link href={categoryHref("Church Essentials")}>Church Essentials</Link></li>
           <li className="has-drop">
             <a href="#">Support</a>
             <div className="drop">
@@ -128,10 +128,10 @@ export function Footer() {
         </div>
         <div>
           <h5>Shop</h5>
-          <Link href={shopCat("Communion Elements")}>Communion Elements</Link>
-          <Link href={shopCat("Clergy Apparel")}>Clergy Apparel</Link>
-          <Link href={shopCat("Gifts & Accessories")}>Gifts &amp; Accessories</Link>
-          <Link href={shopCat("Church Essentials")}>Church Essentials</Link>
+          <Link href={categoryHref("Communion Elements")}>Communion Elements</Link>
+          <Link href={categoryHref("Clergy Apparel")}>Clergy Apparel</Link>
+          <Link href={categoryHref("Gifts & Accessories")}>Gifts &amp; Accessories</Link>
+          <Link href={categoryHref("Church Essentials")}>Church Essentials</Link>
           <Link href="/shop">Daily Offers</Link>
         </div>
         <div>

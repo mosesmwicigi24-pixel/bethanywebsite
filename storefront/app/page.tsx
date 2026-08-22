@@ -7,7 +7,7 @@ import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
-import { shopCat } from "@/lib/categories";
+import { categoryHref } from "@/lib/categories";
 import type { Product } from "@/lib/products";
 
 export const revalidate = 300;
@@ -51,34 +51,34 @@ export default async function Home() {
           <Link href="/shop">All products →</Link>
         </div>
         <div className="cat-tiles">
-          <Link className="cat-tile" href={shopCat("Communion Elements")}>
+          <Link className="cat-tile" href={categoryHref("Communion Elements")}>
             <span className="im"><img src="/products/Chalice_Cup.jpg" alt="Communion elements" /></span>
             <span className="lbl">Communion <i>›</i></span>
             <span className="sub">Chalices · wine · hosts</span>
           </Link>
-          <Link className="cat-tile" href={shopCat("Clergy Apparel")}>
+          <Link className="cat-tile" href={categoryHref("Clergy Apparel")}>
             <span className="im"><img src="/products/preaching_gown1.jpg" alt="Clergy apparel" /></span>
             <span className="lbl">Clergy Apparel <i>›</i></span>
             <span className="newdot">New arrivals</span>
           </Link>
-          <Link className="cat-tile" href={shopCat("Bibles & Devotionals")}>
+          <Link className="cat-tile" href={categoryHref("Bibles & Devotionals")}>
             <span className="im"><img src="/products/niv_bible.jpg" alt="Bibles" /></span>
             <span className="lbl">Bibles <i>›</i></span>
             <span className="sub">Study · children's · gift</span>
           </Link>
-          <Link className="cat-tile" href={shopCat("Gifts & Accessories")}>
+          <Link className="cat-tile" href={categoryHref("Gifts & Accessories")}>
             <span className="im"><img src="/products/cross1.jpg" alt="Gifts" /></span>
             <span className="lbl">Gifts <i>›</i></span>
             <span className="sub">Crosses · keepsakes</span>
           </Link>
-          <Link className="cat-tile" href={shopCat("Church Essentials")}>
+          <Link className="cat-tile" href={categoryHref("Church Essentials")}>
             <span className="im"><img src="/products/bell.jpg" alt="Church essentials" /></span>
             <span className="lbl">Essentials <i>›</i></span>
             <span className="sub">Bells · linens · ware</span>
           </Link>
           {/* Prayer wear is a leaf of Clergy Apparel in lib/categories.ts, so it
-              filters to that department rather than a root of its own. */}
-          <Link className="cat-tile" href={shopCat("Clergy Apparel")}>
+              links to that department's category page rather than a root of its own. */}
+          <Link className="cat-tile" href={categoryHref("Clergy Apparel")}>
             <span className="im"><img src="/products/tallit.jpg" alt="Prayer wear" /></span>
             <span className="lbl">Prayer Wear <i>›</i></span>
             <span className="sub">Tallits · shawls</span>

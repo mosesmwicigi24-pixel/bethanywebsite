@@ -23,13 +23,13 @@ const nextConfig: NextConfig = {
       // Legacy-site URLs still in Google's index hard-404 today, discarding
       // rankings the old site earned. Forward them to their nearest live page.
       //
-      // ⚠ TEMPORARY TARGET: /category/* currently forwards to /shop because no
-      // category landing pages exist yet. When real /category/<slug> pages ship,
-      // REPLACE this catch-all with per-slug redirects (redirects run before
-      // routes, so leaving it in place would shadow the new pages).
+      // Known legacy category slugs map to the real /category pages; any OTHER
+      // unknown /category/* address is caught by app/category/[slug]/page.tsx,
+      // which permanentRedirects it to /shop. (No catch-all here — config
+      // redirects run before routes and would shadow the live category pages.)
       {
-        source: "/category/:path*",
-        destination: "/shop",
+        source: "/category/clergy-vestments-fofem6",
+        destination: "/category/clergy-vestments",
         permanent: true,
       },
 
