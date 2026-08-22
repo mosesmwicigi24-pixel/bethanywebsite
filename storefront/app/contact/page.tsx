@@ -90,6 +90,7 @@ export default function ContactPage() {
       <section className="cat-related">
         <span>Quick answers:</span>
         <Link href="/faq">FAQs</Link>
+        <Link href="/international">International Orders</Link>
         <Link href="/policies/shipping">Shipping &amp; Delivery</Link>
         <Link href="/policies/returns">Returns &amp; Refunds</Link>
         <Link href="/about">About Bethany House</Link>

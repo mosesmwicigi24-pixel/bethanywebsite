@@ -137,6 +137,7 @@ export default function FaqPage() {
         <Link href="/policies/shipping">Shipping &amp; Delivery</Link>
         <Link href="/policies/returns">Returns &amp; Refunds</Link>
         <Link href="/policies/terms">Terms of Service</Link>
+        <Link href="/international">International Orders</Link>
         <Link href="/contact">Contact Us</Link>
       </section>
 
