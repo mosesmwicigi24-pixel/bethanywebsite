@@ -30,6 +30,11 @@ const LEAF_TO_ROOT: Record<string, RootCategory> = {
   "colden communion trays": "Communion Elements", // hub data typo (Golden)
   "anointing": "Communion Elements",
   "anointing oil": "Communion Elements",
+  // Live hub category (name_en "Chalice") — unmapped it fell to the default
+  // bucket, filing chalice cups under Church Essentials on the live site.
+  "chalice": "Communion Elements",
+  "chalices": "Communion Elements",
+  "chalice cups": "Communion Elements",
 
   // Clergy Apparel — vestments, gowns, cassocks, prayer wear + their extras
   "clergy vestments": "Clergy Apparel",
