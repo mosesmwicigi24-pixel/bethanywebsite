@@ -107,9 +107,9 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "clergy-vestments",
     root: "Clergy Apparel",
     name: "Clergy Vestments & Apparel",
-    title: "Clergy Vestments & Apparel — Cassocks, Gowns, Stoles & Shirts",
+    title: "Clergy Vestments in Nairobi, Kenya — Cassocks, Gowns & Stoles",
     description:
-      "Cassocks, preaching and ordination gowns, albs, stoles, clergy shirts and collars — ready-made or tailored to measure in Nairobi in 5–7 days.",
+      "Cassocks, preaching and ordination gowns, albs, stoles, clergy shirts and collars in Nairobi, Kenya — ready-made or made to measure in 5–7 days, delivered countrywide.",
     intro: [
       "Everything the pulpit wears: cassocks, preaching gowns, ordination gowns, albs, stoles, clergy shirts, collars and prayer wear. Buy ready-made sizes off the rack, or have your vestments made to measure in our Nairobi workshop — tailoring takes 5–7 days.",
       "We serve ministers across traditions — Anglican, Catholic, Methodist, Presbyterian, Pentecostal, Seventh-day Adventist and more — and stock the liturgical colours each season calls for. Visit us for a fitting at Sonalux Building, 7th Floor, Room 18, Moi Avenue, Nairobi (Mon–Sat, 8:00 AM–5:00 PM), or send your measurements on WhatsApp and we will tailor and deliver: free within Nairobi CBD on orders above KES 10,000, across Kenya and East Africa, and worldwide on request.",
@@ -138,11 +138,11 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "communion-elements",
     root: "Communion Elements",
     name: "Holy Communion Elements & Supplies",
-    title: "Holy Communion Elements — Wafers, Wine, Trays, Cups & Chalices",
+    title: "Holy Communion Elements in Nairobi, Kenya — Wafers, Wine & Trays",
     description:
-      "Communion wafers and hosts, altar wine and grape juice, trays, cups, chalices and ciboria for congregations of every size — delivered from Nairobi.",
+      "Buy communion wafers, altar wine and grape juice, trays, cups and chalices in Nairobi, Kenya — M-Pesa or card, free CBD delivery, countrywide and worldwide shipping.",
     intro: [
-      "The Lord's Table, fully supplied: communion wafers and hosts, altar wine and grape juice, serving trays and cups, chalices, ciboria and refiller bottles. We serve congregations of every size — from a small fellowship to churches serving thousands — and supply both wine and unfermented grape juice so every tradition is provided for.",
+      "The Lord's Table, fully supplied from Nairobi: communion wafers and hosts, altar wine and grape juice, serving trays and cups, chalices, ciboria and refiller bottles. We serve congregations of every size — from a small fellowship to churches serving thousands — and supply both wine and unfermented grape juice so every tradition is provided for.",
       "Order online or on WhatsApp (+254 727 891 989) and pay by M-Pesa, card or cash on delivery. Delivery is free within Nairobi CBD on orders above KES 10,000; we deliver across Kenya and East Africa, and ship worldwide on request from our store at Sonalux Building, Moi Avenue, Nairobi.",
     ],
     faqs: [
@@ -169,9 +169,9 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "bibles-devotionals",
     root: "Bibles & Devotionals",
     name: "Bibles & Devotionals",
-    title: "Bibles & Devotionals — Study, Children's & Gift Bibles",
+    title: "Buy Bibles in Nairobi, Kenya — Study, Children's & Gift Bibles",
     description:
-      "Bibles and devotionals for church, school and home — study Bibles, children's Bibles and daily devotionals, with bulk orders for churches welcome.",
+      "Buy Bibles and devotionals in Nairobi, Kenya — study Bibles, children's Bibles and daily devotionals, with bulk orders for churches and schools welcome.",
     intro: [
       "Scripture and daily reading for the whole congregation: study and reference Bibles, children's Bibles and story collections, and daily devotionals. Popular versions in stock include the NIV and New King James Version, alongside children's titles and 365-day devotionals.",
       "Churches and schools ordering in bulk are welcome — call or WhatsApp +254 727 891 989 for a quote. Pay by M-Pesa, card or cash on delivery; delivery is free within Nairobi CBD on orders above KES 10,000, with delivery across Kenya and East Africa and worldwide shipping on request.",
@@ -200,9 +200,9 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "church-gifts",
     root: "Gifts & Accessories",
     name: "Church Gifts & Accessories",
-    title: "Church Gifts & Accessories — Crosses, Keepsakes & Prayer Wear",
+    title: "Church Gifts in Nairobi, Kenya — Crosses, Keepsakes & Prayer Wear",
     description:
-      "Meaningful gifts for ordinations, confirmations and pastor appreciation — crosses, keepsakes, tallits and prayer shawls, delivered from Nairobi.",
+      "Meaningful church gifts in Nairobi, Kenya — crosses, keepsakes, tallits and prayer shawls for ordinations, confirmations and pastor appreciation, delivered countrywide.",
     intro: [
       "Gifts with meaning for the moments that matter: ordinations and inductions, confirmations, pastor and elder appreciation, church anniversaries and thanksgiving. Browse crosses and keepsakes, tallits and prayer shawls, and accessories that serve daily ministry.",
       "Unsure what to give? Tell us the occasion on WhatsApp (+254 727 891 989) and we will suggest options within your budget. Free engraving is offered on communion ware, and every order can be delivered — free within Nairobi CBD above KES 10,000, across Kenya and East Africa, and worldwide on request.",
@@ -231,9 +231,9 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "church-essentials",
     root: "Church Essentials",
     name: "Church Essentials & Supplies",
-    title: "Church Essentials — Bells, Candles, Linens & Sanctuary Supplies",
+    title: "Church Supplies in Nairobi, Kenya — Bells, Candles & Incense",
     description:
-      "Bells, candles, altar linens and the everyday supplies a sanctuary runs on — with parish and diocese accounts and delivery across East Africa.",
+      "Church supplies in Nairobi, Kenya — bells, candles, incense and sanctuary ware, with parish and diocese accounts and delivery across East Africa.",
     intro: [
       "The everyday supplies a sanctuary runs on: bells, candles and candle holders, altar linens and general church ware. Whether you are replacing a single item or setting up a new church from scratch, this is the department to start in.",
       "Setting up a new congregation? Visit us at Sonalux Building, Moi Avenue (Mon–Sat, 8:00 AM–5:00 PM) or message +254 727 891 989 and we will help you put a complete list together. We serve parish and diocese accounts, take M-Pesa, card or cash on delivery, and deliver — free within Nairobi CBD above KES 10,000, across Kenya and East Africa, and worldwide on request.",
