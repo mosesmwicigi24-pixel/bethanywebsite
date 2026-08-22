@@ -53,6 +53,10 @@ export default async function CategoryPage(
 
   const catalog = (await getCatalog()).filter((p) => !p.variantId);
   const products = catalog.filter((p) => rootCategory(p.category) === def.root);
+  // Live entry price for the department — competitors show prices in their
+  // snippets; ours comes from the catalog so it is always true.
+  const priced = products.filter((p) => p.price > 0);
+  const fromKes = priced.length ? Math.min(...priced.map((p) => p.price)) : 0;
   const related = def.related
     .map((s) => categoryPage(s))
     .filter((c): c is NonNullable<typeof c> => Boolean(c));
@@ -78,6 +82,7 @@ export default async function CategoryPage(
         <h1>{def.name}</h1>
         {def.intro.map((p, i) => <p key={i}>{p}</p>)}
         <div className="cat-facts">
+          {fromKes > 0 && <span>Prices from KES {fromKes.toLocaleString("en-KE")}</span>}
           <span>M-Pesa · Visa · Mastercard · Cash on Delivery</span>
           <span>Free Nairobi CBD delivery over KES 10,000</span>
           <span>Kenya · East Africa · worldwide on request</span>
