@@ -37,6 +37,9 @@ const nextConfig: NextConfig = {
       // Extend this list from Search Console's "Not found (404)" report.
       { source: "/product/alb-letmgph3a", destination: "/product/alb", permanent: true },
       { source: "/product/altar-wine-2o92iheke", destination: "/product/altar-wine", permanent: true },
+
+      // Legacy listing page still in Google's index (was 404ing away its equity).
+      { source: "/new-arrivals", destination: "/shop", permanent: true },
     ];
   },
 };
