@@ -45,7 +45,9 @@ export const metadata: Metadata = {
   },
   description:
     "The #1 supplier of Holy Communion elements, clergy apparel and Christian gifts — serving churches across East Africa from Nairobi.",
-  alternates: { canonical: "/" },
+  // No layout-level canonical: it would cascade onto every child route that
+  // doesn't set its own, mislabelling them all as copies of the homepage
+  // (exactly what happened to /shop). Each indexable page declares its own.
   openGraph: {
     type: "website",
     siteName: SITE.name,

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { Metadata } from "next";
 import Rail from "@/components/Rail";
 import HeroCarousel from "@/components/HeroCarousel";
 import Reveal from "@/components/Reveal";
@@ -10,6 +11,10 @@ import { shopCat } from "@/lib/categories";
 import type { Product } from "@/lib/products";
 
 export const revalidate = 300;
+
+// The homepage's canonical lives here (not on the layout) so it can't cascade
+// onto child routes — see the note in app/layout.tsx.
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
   const [catalogRaw, content] = await Promise.all([getCatalog(), getSiteContent()]);

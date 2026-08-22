@@ -25,10 +25,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       };
     });
 
+  // /orders is deliberately absent: it is a noindexed customer utility
+  // (see app/orders/layout.tsx) with nothing for search engines.
   return [
     { url: base, changeFrequency: "daily", priority: 1 },
     { url: `${base}/shop`, changeFrequency: "daily", priority: 0.9 },
-    { url: `${base}/orders`, changeFrequency: "monthly", priority: 0.3 },
     ...productUrls,
   ];
 }

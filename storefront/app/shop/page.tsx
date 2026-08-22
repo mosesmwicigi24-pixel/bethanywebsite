@@ -5,7 +5,10 @@ import { ProductCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { ROOT_CATEGORIES, rootCategory, type RootCategory } from "@/lib/categories";
 
-export const metadata: Metadata = { title: "Shop" };
+// Self-referencing canonical: /shop previously inherited the layout's "/"
+// canonical, telling Google the whole catalogue duplicated the homepage.
+// Filtered views (?category=…) also canonicalise here, which is intended.
+export const metadata: Metadata = { title: "Shop", alternates: { canonical: "/shop" } };
 export const revalidate = 300; // ISR — catalog refreshes without a rebuild
 
 const colours = [
