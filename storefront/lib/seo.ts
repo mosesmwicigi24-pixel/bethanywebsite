@@ -1,4 +1,5 @@
 import type { Product } from "./products";
+import type { ProductReviews } from "./hub";
 import { SITE } from "./site";
 
 /* ============================================================
@@ -7,10 +8,11 @@ import { SITE } from "./site";
    live Product model (lib/products.ts) and the business facts in
    lib/site.ts, so schema stays in step with the hub catalog.
 
-   Deliberately NO aggregateRating / review markup: the on-page
-   reviews are sample content, and emitting rating schema for
-   unverified reviews risks a Google manual action. Wire real,
-   hub-verified reviews before adding it (see docs/AI_INTEGRATION_ADVISORY.md §7).
+   aggregateRating / review markup is EARNED, never assumed: it is
+   emitted only when the caller passes live hub-verified reviews
+   (opts.reviews, count > 0) — the same reviews rendered on the page.
+   Emitting rating schema for sample/unverified reviews risks a Google
+   manual action (see docs/AI_INTEGRATION_ADVISORY.md §7).
    ============================================================ */
 
 /** Absolute URL from an app-relative path or a possibly-absolute image URL. */
@@ -66,9 +68,35 @@ function offer(price: number, currency: "KES" | "USD", url: string, availability
     Variable products (with saved variants) emit a ProductGroup whose
     hasVariant lists each variant Product + Offer — mirroring how the
     catalog already models parents and variants. */
-export function productJsonLd(p: Product, opts: { sku: string; path: string }): Record<string, unknown> {
+export function productJsonLd(
+  p: Product,
+  opts: { sku: string; path: string; reviews?: ProductReviews | null },
+): Record<string, unknown> {
   const url = abs(opts.path);
   const availability = availabilityOf(p);
+
+  // Earned stars only: rating markup exists solely when live hub-verified
+  // reviews exist, and mirrors the reviews visible on the page.
+  const rv = opts.reviews;
+  const ratingBits: Record<string, unknown> =
+    rv && rv.count > 0
+      ? {
+          aggregateRating: {
+            "@type": "AggregateRating",
+            ratingValue: Number(rv.average.toFixed(1)),
+            reviewCount: rv.count,
+            bestRating: 5,
+          },
+          review: rv.reviews.slice(0, 10).map((r) => ({
+            "@type": "Review",
+            reviewRating: { "@type": "Rating", ratingValue: r.rating, bestRating: 5 },
+            author: { "@type": "Person", name: r.author || "Verified Customer" },
+            ...(r.createdAt ? { datePublished: r.createdAt } : {}),
+            ...(r.title ? { name: r.title } : {}),
+            ...(r.body ? { reviewBody: r.body } : {}),
+          })),
+        }
+      : {};
 
   const offersFor = (kes: number, usd: number | undefined, itemUrl: string) => {
     const list = [offer(kes, "KES", itemUrl, availability)];
@@ -96,6 +124,7 @@ export function productJsonLd(p: Product, opts: { sku: string; path: string }): 
       brand: { "@type": "Brand", name: SITE.name },
       category: p.category,
       productGroupID: opts.sku,
+      ...ratingBits,
       ...(variesBy.length ? { variesBy } : {}),
       hasVariant: p.variants.map((v) => ({
         "@type": "Product",
@@ -118,6 +147,7 @@ export function productJsonLd(p: Product, opts: { sku: string; path: string }): 
     brand: { "@type": "Brand", name: SITE.name },
     category: p.category,
     offers: offersFor(p.price, p.priceUsd, url),
+    ...ratingBits,
   };
 }
 

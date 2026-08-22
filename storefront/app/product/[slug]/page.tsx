@@ -124,22 +124,23 @@ export default async function ProductPage(
   const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
 
   // Live reviews from the Hub, keyed to the base product (variants share them).
-  // Falls back to the curated demo when the Hub is unset/unreachable or the
-  // product has no reviews yet.
+  // EARNED ONLY: when there are no hub-verified reviews, no stars, no counts
+  // and no review cards render anywhere on the page — the section invites the
+  // first review instead. Nothing is sampled or simulated.
   const reviewSlug = parent.baseSlug ?? parent.slug;
   const hubReviews = await getProductReviews(reviewSlug);
-  const reviewCount = hubReviews?.count ?? parent.reviews;
-  const ratingAvg = hubReviews?.average ?? parent.rating;
+  const reviewCount = hubReviews?.count ?? 0;
+  const ratingAvg = hubReviews?.average ?? 0;
   const starLabels = ["★★★★★", "★★★★☆", "★★★☆☆", "★★☆☆☆", "★☆☆☆☆"];
-  const distRows: [string, number, number][] = hubReviews
-    ? hubReviews.distribution.map((n, i): [string, number, number] => [
-        starLabels[i], reviewCount ? Math.round((n / reviewCount) * 100) : 0, n,
-      ])
-    : [["★★★★★", 88, 189], ["★★★★☆", 9, 19], ["★★★☆☆", 2, 4], ["★★☆☆☆", 1, 2], ["★☆☆☆☆", 0, 0]];
+  const distRows: [string, number, number][] = (hubReviews?.distribution ?? []).map(
+    (n, i): [string, number, number] => [
+      starLabels[i], reviewCount ? Math.round((n / reviewCount) * 100) : 0, n,
+    ],
+  );
 
   const body = (
     <main className="pdp-page">
-      <JsonLd data={productJsonLd(parent, { sku, path: `/product/${parent.slug}` })} />
+      <JsonLd data={productJsonLd(parent, { sku, path: `/product/${parent.slug}`, reviews: hubReviews })} />
       <JsonLd data={breadcrumbJsonLd([
         { name: "Home", path: "/" },
         { name: "Shop", path: "/shop" },
@@ -168,8 +169,12 @@ export default async function ProductPage(
               <button className="wish" aria-label="Wishlist">♡</button>
               <h1>{parent.name}</h1>
               <div className="rrow">
-                <span className="stars">{starStr(ratingAvg)}</span><b>({reviewCount})</b>
-                <a className="add" href="#reviews">Add your review ›</a>
+                {reviewCount > 0 && (
+                  <><span className="stars">{starStr(ratingAvg)}</span><b>({reviewCount})</b></>
+                )}
+                <a className="add" href="#reviews">
+                  {reviewCount > 0 ? "Add your review ›" : "Be the first to review ›"}
+                </a>
               </div>
               {parent.seller && (
                 <div><Link className="seller" href="/shop"><span className="tag tag-top"></span>&nbsp;{parent.seller} ›</Link></div>
@@ -279,54 +284,21 @@ export default async function ProductPage(
           </div>
         )}
 
-        {hubReviews ? (
-          hubReviews.reviews.map((rv, i) => (
-            <div key={rv.id ?? i}>
-              <article className="review">
-                {reviewDate(rv.createdAt) && <div className="date">{reviewDate(rv.createdAt)}</div>}
-                <div className="stars">{starStr(rv.rating)}</div>
-                {rv.title && <h5>{rv.title}</h5>}
-                {rv.body && <p>{rv.body}</p>}
-                <div className="byline">Reviewed by <b>{rv.author || "Verified Buyer"}</b> {rv.verified && <span className="ok">✓ Verified</span>}</div>
-                {rv.photos && rv.photos.length > 0 && (
-                  <div className="shots">{rv.photos.map((src) => <img key={src} src={src} alt="" />)}</div>
-                )}
-              </article>
-              <Helpful up={rv.helpfulUp ?? 0} down={rv.helpfulDown ?? 0} />
-            </div>
-          ))
-        ) : isFlagship ? (
-          <>
+        {hubReviews?.reviews.map((rv, i) => (
+          <div key={rv.id ?? i}>
             <article className="review">
-              <div className="date">June 2, 2026</div>
-              <div className="stars">★★★★★</div>
-              <h5>Worthy of the Lord&apos;s Table</h5>
-              <p>We ordered two sets for our cathedral&apos;s golden jubilee. The finish is far richer in person than in the photos, and the engraving under the base was beautifully done. Delivered to Nakuru in two days, packed like treasure.</p>
-              <div className="byline">Reviewed by <b>Rev. Canon Mwangi</b> <span className="ok">✓ Verified</span></div>
-              <div className="shots"><img src="/products/Chalice_Cup21.jpg" alt="" /><img src="/products/gold-wares.jpg" alt="" /></div>
+              {reviewDate(rv.createdAt) && <div className="date">{reviewDate(rv.createdAt)}</div>}
+              <div className="stars">{starStr(rv.rating)}</div>
+              {rv.title && <h5>{rv.title}</h5>}
+              {rv.body && <p>{rv.body}</p>}
+              <div className="byline">Reviewed by <b>{rv.author || "Verified Buyer"}</b> {rv.verified && <span className="ok">✓ Verified</span>}</div>
+              {rv.photos && rv.photos.length > 0 && (
+                <div className="shots">{rv.photos.map((src) => <img key={src} src={src} alt="" />)}</div>
+              )}
             </article>
-            <Helpful up={127} down={0} />
-            <article className="review">
-              <div className="date">May 19, 2026</div>
-              <div className="stars">★★★★★</div>
-              <h5>Our congregation noticed immediately</h5>
-              <p>The jewelled stem catches the light at the rail. It has held its shine through three months of weekly service — the anti-tarnish coating is real. The fitted paten is the detail we didn&apos;t know we needed.</p>
-              <div className="byline">Reviewed by <b>Pastor Achieng O.</b> <span className="ok">✓ Verified</span></div>
-            </article>
-            <Helpful up={86} down={1} />
-          </>
-        ) : parent.reviews > 0 ? (
-          <>
-            <article className="review">
-              <div className="date">June 14, 2026</div>
-              <div className="stars">★★★★★</div>
-              <h5>Exactly as described</h5>
-              <p>Ordered for our parish and it arrived the same day, well packed. The quality matches the photos — we will be ordering again for the new church plant.</p>
-              <div className="byline">Reviewed by <b>Verified Buyer</b> <span className="ok">✓ Verified</span></div>
-            </article>
-            <Helpful up={42} down={0} />
-          </>
-        ) : null}
+            <Helpful up={rv.helpfulUp ?? 0} down={rv.helpfulDown ?? 0} />
+          </div>
+        ))}
       </div>
     </main>
   );
