@@ -15,6 +15,14 @@ export const SITE = {
       domain no longer resolves and cannot receive mail). */
   email: "info@bethanyhouse.co.ke",
   whatsapp: "https://wa.me/254727891989",
+  /** Official social profiles — mirrored on the Google Business Profile, so
+      schema `sameAs`, GBP and the site all assert one identity. */
+  socials: [
+    "https://www.facebook.com/houseofbethany",
+    "https://www.instagram.com/bethanyhousecreative/",
+    "https://www.tiktok.com/@bethanyhouse6",
+    "https://youtube.com/@bethanyhouse2075",
+  ],
   mapsUrl: "https://maps.google.com/?q=Sonalux+Building,+Moi+Avenue,+Nairobi",
   address: "Sonalux Building, 7th Floor, Room 18, Moi Avenue",
   city: "Nairobi, Kenya",

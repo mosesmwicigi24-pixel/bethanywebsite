@@ -218,6 +218,7 @@ export function organizationJsonLd(): Record<string, unknown> {
     description: SITE.tagline,
     foundingDate: "2019",
     founder: { "@type": "Person", name: "Moses Mwicigi", honorificPrefix: "Pastor" },
+    sameAs: [...SITE.socials],
     contactPoint: [
       {
         "@type": "ContactPoint",
