@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
-import { SLUG_REDIRECTS } from "@/lib/slug-redirects";
+import { SLUG_REDIRECTS, resolveLegacySlug } from "@/lib/slug-redirects";
 import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
@@ -72,7 +72,15 @@ export default async function ProductPage(
   // Old URL from before the slug cleanup → 301 to the canonical page.
   if (SLUG_REDIRECTS[slug]) permanentRedirect(`/product/${SLUG_REDIRECTS[slug]}`);
   const p = await getProductBySlug(slug);
-  if (!p) notFound();
+  if (!p) {
+    // Unknown slug: try the legacy patterns (junk 9-char suffixes, dead
+    // variant ids, duplicate counters) before giving up — the old site
+    // minted thousands of such URLs and Google still holds many.
+    const live = new Set((await getCatalog()).map((x) => x.slug));
+    const target = resolveLegacySlug(slug, (s) => live.has(s));
+    if (target) permanentRedirect(`/product/${target}`);
+    notFound();
+  }
 
   const catalog = await getCatalog();
   // If we landed on a variant slug, switch to its parent (which carries the

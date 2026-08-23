@@ -40,6 +40,23 @@ const nextConfig: NextConfig = {
 
       // Legacy listing page still in Google's index (was 404ing away its equity).
       { source: "/new-arrivals", destination: "/shop", permanent: true },
+
+      // Old-site static pages (Search Console 404 report, 2026-08-23) →
+      // their new-site equivalents.
+      { source: "/about-us", destination: "/about", permanent: true },
+      { source: "/contact-us", destination: "/contact", permanent: true },
+      { source: "/faqs", destination: "/faq", permanent: true },
+      { source: "/how-to-shop", destination: "/faq", permanent: true },
+      { source: "/privacy-policy", destination: "/policies/privacy", permanent: true },
+      { source: "/terms-and-conditions", destination: "/policies/terms", permanent: true },
+      { source: "/special-offers", destination: "/shop", permanent: true },
+      { source: "/featured", destination: "/shop", permanent: true },
+      { source: "/home", destination: "/", permanent: true },
+      { source: "/index.html", destination: "/", permanent: true },
+      { source: "/shops", destination: "/shop", permanent: true },
+      { source: "/shop.I", destination: "/shop", permanent: true },
+      { source: "/account/track", destination: "/orders", permanent: true },
+      { source: "/brand/:slug", destination: "/shop", permanent: true },
       // Natural guess-URL (people type it; /categories/ covered via slash strip).
       { source: "/categories", destination: "/shop", permanent: true },
 
@@ -51,6 +68,7 @@ const nextConfig: NextConfig = {
       { source: "/product/anointing-oil-eliad-olive-oil-750ml", destination: "/product/eliad-anointing-oil", permanent: true },
       { source: "/product/the-carry-along-bible", destination: "/category/bibles-devotionals", permanent: true },
       { source: "/product/the-carry-along-bible-9co393v3r", destination: "/category/bibles-devotionals", permanent: true },
+      { source: "/product/the-carry-along-bible-9co393v3r--v:id", destination: "/category/bibles-devotionals", permanent: true },
     ];
   },
 };
