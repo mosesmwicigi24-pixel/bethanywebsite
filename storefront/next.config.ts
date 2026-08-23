@@ -42,6 +42,15 @@ const nextConfig: NextConfig = {
       { source: "/new-arrivals", destination: "/shop", permanent: true },
       // Natural guess-URL (people type it; /categories/ covered via slash strip).
       { source: "/categories", destination: "/shop", permanent: true },
+
+      // Overrides for hub slug-redirects that point at the wrong product —
+      // their hub records were reused for unrelated items, so the old slug
+      // now follows the record to an absurd destination (a Bible landing on
+      // a collar). Config redirects win over the dynamic resolver.
+      { source: "/product/preaching-gown-1", destination: "/product/preaching-gown-843glv9rc", permanent: true },
+      { source: "/product/anointing-oil-eliad-olive-oil-750ml", destination: "/product/eliad-anointing-oil", permanent: true },
+      { source: "/product/the-carry-along-bible", destination: "/category/bibles-devotionals", permanent: true },
+      { source: "/product/the-carry-along-bible-9co393v3r", destination: "/category/bibles-devotionals", permanent: true },
     ];
   },
 };
