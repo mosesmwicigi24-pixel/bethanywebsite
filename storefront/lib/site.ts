@@ -20,7 +20,7 @@ export const SITE = {
   socials: [
     "https://www.facebook.com/houseofbethany",
     "https://www.instagram.com/bethanyhousecreative/",
-    "https://www.tiktok.com/@bethanyhouse6",
+    "https://www.tiktok.com/@bethanyhouse",
     "https://youtube.com/@bethanyhouse2075",
   ],
   mapsUrl: "https://maps.google.com/?q=Sonalux+Building,+Moi+Avenue,+Nairobi",
