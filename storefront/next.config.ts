@@ -40,6 +40,8 @@ const nextConfig: NextConfig = {
 
       // Legacy listing page still in Google's index (was 404ing away its equity).
       { source: "/new-arrivals", destination: "/shop", permanent: true },
+      // Natural guess-URL (people type it; /categories/ covered via slash strip).
+      { source: "/categories", destination: "/shop", permanent: true },
     ];
   },
 };
