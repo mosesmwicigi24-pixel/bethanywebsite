@@ -39,6 +39,9 @@ export interface Product {
   variants?: VariantOption[];
   /** live stock signal from the hub */
   inStock?: boolean;
+  /** hub: products.updated_at — feeds the sitemap's lastModified so Google
+      schedules recrawls when catalog content actually changes */
+  updatedAt?: string;
   /** hub: products.aliases — synonyms/Swahili/misspellings, searched by Neema + the search box */
   aliases?: string[];
   name: string;
