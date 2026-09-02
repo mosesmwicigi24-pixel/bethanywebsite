@@ -138,6 +138,7 @@ export function Footer() {
           <h5>Support</h5>
           <Link href="/orders">Track Your Order</Link>
           <Link href="/faq">FAQs</Link>
+          <Link href="/guides">Guides</Link>
           <Link href="/international">International Orders</Link>
           <Link href="/policies/shipping">Delivery &amp; Returns</Link>
           <a href={SITE.phoneHref}>Parish Accounts</a>

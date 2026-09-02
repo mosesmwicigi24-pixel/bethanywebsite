@@ -134,6 +134,7 @@ export default function FaqPage() {
 
       <section className="cat-related">
         <span>Full policies:</span>
+        <Link href="/guides">Guides</Link>
         <Link href="/policies/shipping">Shipping &amp; Delivery</Link>
         <Link href="/policies/returns">Returns &amp; Refunds</Link>
         <Link href="/policies/terms">Terms of Service</Link>
