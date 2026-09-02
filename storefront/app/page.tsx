@@ -28,7 +28,7 @@ export default async function Home() {
     const have = new Set(seed.map((p) => p.slug));
     return [...seed, ...catalog.filter((p) => !have.has(p.slug))].slice(0, n);
   };
-  const bestSellers = topUp(pick("chalice-royale", "preaching-gown", "altar-wine", "pectoral-cross"), 4);
+  const bestSellers = topUp(pick("chalice-royale", "preaching-gown-843glv9rc", "altar-wine", "pectoral-cross"), 4);
   const fresh = topUp(pick("ornate-chasuble", "clergy-shirt", "communion-hosts", "altar-bell", "devotional-365", "tallit-prayer-shawl"), 8);
 
   return (

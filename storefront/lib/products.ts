@@ -216,7 +216,8 @@ export const products: Product[] = [
     category: "Communion Elements",
   },
   {
-    slug: "preaching-gown",
+    // Keyed by the LIVE hub slug (the overlay merges by slug); /product/preaching-gown 301s here.
+    slug: "preaching-gown-843glv9rc",
     sizes: ["S", "M", "L", "XL", "XXL"],
     tagline: "Preach with Presence",
     gallery: ["/products/preaching_gown1.jpg", "/products/live-ORDINATION2.png", "/products/live-ORDINATION6.png", "/products/live-preaching_gown_11.jpg", "/products/live-gown-back.jpg"],

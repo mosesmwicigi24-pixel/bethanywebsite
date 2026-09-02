@@ -222,7 +222,7 @@ export default function HeroCarousel({ cmsSlides }: { cmsSlides?: ContentBlock[]
                     <div className="plate">
                       <span className="nm">Preaching Gown</span>
                       <span className="pr"><Money kes={13000} usd={130} /></span>
-                      <Link href="/product/preaching-gown">View</Link>
+                      <Link href="/product/preaching-gown-843glv9rc">View</Link>
                     </div>
                   </div>
                 </div>
