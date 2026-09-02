@@ -4,8 +4,9 @@ import { SLUG_REDIRECTS, resolveLegacySlug } from "@/lib/slug-redirects";
 import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
-import { Gallery, FinishSwatches, Qty, StickyChrome, RateInput, Helpful, BundleAdd } from "@/components/pdp";
-import { MeasureProvider, MeasurementForm } from "@/components/measure";
+import { Gallery, StickyChrome, RateInput, Helpful, BundleAdd, BuyButtons, ReadMore } from "@/components/pdp";
+import LookCard from "@/components/LookCard";
+import { MeasureProvider } from "@/components/measure";
 import Highlights from "@/components/Highlights";
 import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
@@ -18,6 +19,7 @@ import { getSiteContent } from "@/lib/theme";
 import { getProductReviews } from "@/lib/hub";
 import { bySlug as curatedBySlug } from "@/lib/products";
 import { SITE } from "@/lib/site";
+import { rootCategory } from "@/lib/categories";
 import { productJsonLd, breadcrumbJsonLd } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 
@@ -156,7 +158,7 @@ export default async function ProductPage(
         { name: parent.name },
       ])} />
       {!isVariable && (
-        <StickyChrome name={parent.short} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} />
+        <StickyChrome name={parent.name} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} />
       )}
 
       <div className="wrap">
@@ -174,14 +176,22 @@ export default async function ProductPage(
             <Gallery kes={parent.price} usd={parent.priceUsd} images={parent.gallery ?? [parent.img]} video={parent.video} />
 
             <div className="buy">
-              <button className="wish" aria-label="Wishlist">♡</button>
-              <h1>{parent.name}</h1>
+              <div className="crumb-pills">
+                <span className="cp cp-gold">{parent.category}</span>
+                <span className="cp">{parent.producible
+                  ? parent.sizes ? "Ready-made & made to measure" : "Made to measure"
+                  : "In stock · ships today"}</span>
+              </div>
+              <div className="buy-title">
+                <h1>{parent.name}</h1>
+                <button className="wish" aria-label="Save to wishlist">♡</button>
+              </div>
               <div className="rrow">
                 {reviewCount > 0 && (
-                  <><span className="stars">{starStr(ratingAvg)}</span><b>({reviewCount})</b></>
+                  <><span className="stars">{starStr(ratingAvg)}</span><b>{ratingAvg.toFixed(1)}</b><span className="muted">({reviewCount})</span></>
                 )}
                 <a className="add" href="#reviews">
-                  {reviewCount > 0 ? "Add your review ›" : "Be the first to review ›"}
+                  {reviewCount > 0 ? "Read reviews ›" : "Be the first to review ›"}
                 </a>
               </div>
               {parent.seller && (
@@ -190,14 +200,35 @@ export default async function ProductPage(
               <div className="pricerow">
                 <b><Price p={parent} /></b>
                 <OldPrice p={parent} />
+                {parent.oldPrice && parent.oldPrice > parent.price && (
+                  <span className="save-tag">Save {Math.round((1 - parent.price / parent.oldPrice) * 100)}%</span>
+                )}
               </div>
-              {parent.producible && (
-                <div style={{ margin: "2px 0 6px" }}>
-                  <span className="tag tag-gold">
-                    {parent.sizes ? "Ready-made sizes ✂ or made to measure" : "✂ Made to order — measurements required"}
-                  </span>
-                </div>
-              )}
+
+              <LookCard
+                kes={parent.price}
+                usd={parent.priceUsd}
+                producible={parent.producible}
+                swatches={isCurated
+                  ? rootCategory(parent.category) === "Clergy Apparel"
+                    ? [
+                        { label: "White", css: "#f4f4f6" },
+                        { label: "Black", css: "#15181e" },
+                        { label: "Purple", css: "#6b3fa0" },
+                        { label: "Red", css: "#b0312f" },
+                        { label: "Green", css: "#2f7d4f" },
+                      ]
+                    : [
+                        { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
+                        { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
+                      ]
+                  : undefined}
+                swatchLabel={rootCategory(parent.category) === "Clergy Apparel" ? "Colour" : "Finish"}
+                footnote={parent.producible
+                  ? <>Sewn in Nairobi · <b>5–7 days</b> · free Nairobi CBD delivery over KES 10,000</>
+                  : <>Order before <b>2 PM</b> for same-day Nairobi delivery · free in the CBD over KES 10,000</>}
+              />
+
               {parent.chips.map((c) => (
                 <div className="feat" key={c.text}><span className="ic">{c.icon}</span>{c.text}</div>
               ))}
@@ -210,28 +241,19 @@ export default async function ProductPage(
                     : <>Made to order — <b>5–7 days</b> from measurements to delivery, anywhere in Kenya.</>
                   : <>Order before <b>2 PM</b> — delivered <b>today in Nairobi</b>, 2–4 days across East Africa.</>}</span>
               </div>
-              {isCurated && (
-                parent.category === "Clergy Apparel" || parent.category === "Prayer Wear" ? (
-                  <FinishSwatches label="Colour" finishes={[
-                    { label: "White", css: "#f4f4f6" },
-                    { label: "Black", css: "#15181e" },
-                    { label: "Purple", css: "#6b3fa0" },
-                    { label: "Red", css: "#b0312f" },
-                    { label: "Green", css: "#2f7d4f" },
-                  ]} />
-                ) : (
-                  <FinishSwatches finishes={[
-                    { label: "Gold", css: "linear-gradient(135deg,#e6bf47,#a97f13)" },
-                    { label: "Silver", css: "linear-gradient(135deg,#e6e8ee,#9aa2b1)" },
-                  ]} />
-                )
-              )}
-              <MeasurementForm />
-              <Qty />
+
+              <BuyButtons slug={parent.slug} />
+
+              {(() => {
+                const text = [parent.short, parent.tagline]
+                  .find((t) => t && t.trim() && t.trim().toLowerCase() !== parent.name.trim().toLowerCase());
+                return text ? <ReadMore text={text} /> : null;
+              })()}
+
               <div className="assure">
-                <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card ⓘ</div>
-                <div className="a"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7zM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>Nationwide Delivery ⓘ</div>
-                <div className="a"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3z" /><path d="m9 12 2 2 4-4" /></svg>Quality Guarantee ⓘ</div>
+                <div className="a"><svg viewBox="0 0 24 24"><rect x="2" y="5" width="20" height="14" rx="2" /><path d="M2 10h20" /></svg>M-Pesa &amp; Card</div>
+                <div className="a"><svg viewBox="0 0 24 24"><path d="M3 7h11v10H3zM14 10h4l3 3v4h-7zM7 20a2 2 0 1 0 0-4 2 2 0 0 0 0 4zm11 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4z" /></svg>Nationwide Delivery</div>
+                <div className="a"><svg viewBox="0 0 24 24"><path d="M12 3 4 6v6c0 5 3.4 7.7 8 9 4.6-1.3 8-4 8-9V6l-8-3z" /><path d="m9 12 2 2 4-4" /></svg>Quality Guarantee</div>
               </div>
             </div>
           </div>
