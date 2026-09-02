@@ -16,7 +16,7 @@ import { FinishSwatches } from "./pdp";
  * read it from the DOM (see readQty in pdp.tsx).
  */
 export default function LookCard({
-  kes, usd, swatches, swatchLabel = "Colour", producible, footnote,
+  kes, usd, swatches, swatchLabel = "Colour", producible, footnote, before, subtitle,
 }: {
   kes: number;
   usd: number;
@@ -24,6 +24,9 @@ export default function LookCard({
   swatchLabel?: string;
   producible?: boolean;
   footnote?: ReactNode;
+  /** Rendered as the card's first section — the variant picker on a variable product. */
+  before?: ReactNode;
+  subtitle?: string;
 }) {
   const m = useMeasure();
   const [qty, setQty] = useState(1);
@@ -32,9 +35,9 @@ export default function LookCard({
   const modeLabel = !m ? null
     : m.mode === "ready" ? (m.size ? `Ready-made · ${m.size}` : "Ready-made")
     : "Made to measure";
-  const sub = producible
+  const sub = subtitle ?? (producible
     ? "Pick how it is made, add your size or measurements, choose a colour."
-    : "Pick a finish and quantity, then add to cart.";
+    : "Pick a finish and quantity, then add to cart.");
 
   return (
     <section className="look" id="look" aria-label="Choose your look">
@@ -45,6 +48,8 @@ export default function LookCard({
         </div>
         <b className="look-total"><Money kes={kes * qty} usd={usd * qty} /></b>
       </div>
+
+      {before}
 
       {m && (
         <div className="look-sec">
