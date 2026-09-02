@@ -93,6 +93,7 @@ export function Nav() {
             </div>
           </li>
           <li><Link href="/shop">Hot &amp; New</Link></li>
+          <li><Link className="clips-link" href="/clips">Clips <i aria-hidden="true">▶</i></Link></li>
         </ul>
         <div className="nav-icons">
           <CurrencyToggle />
