@@ -41,6 +41,7 @@ export default function HoverVideo({
   className?: string;
 }) {
   const wrap = useRef<HTMLSpanElement>(null);
+  const still = useRef<HTMLImageElement>(null);
   const vid = useRef<HTMLVideoElement>(null);
   const timer = useRef<number | undefined>(undefined);
   const [failed, setFailed] = useState(false);       // still failed → placeholder
@@ -50,6 +51,14 @@ export default function HoverVideo({
   const [on, setOn] = useState(false);               // first frame playing → show clip
 
   const hasClip = Boolean(video) && !broken;
+
+  // A still that 404s BEFORE React attaches never fires onError (the
+  // browser already gave up on the server-rendered <img>), so the card
+  // showed the alt text instead of the placeholder. Check on mount.
+  useEffect(() => {
+    const i = still.current;
+    if (i && i.complete && i.naturalWidth === 0) setFailed(true);
+  }, []);
 
   useEffect(() => {
     const el = wrap.current;
@@ -110,6 +119,7 @@ export default function HoverVideo({
   return (
     <span ref={wrap} className={`hv${on ? " on" : ""}${hasClip ? " has-clip" : ""}`}>
       <img
+        ref={still}
         src={failed ? PLACEHOLDER : src}
         alt={alt}
         className={className}
