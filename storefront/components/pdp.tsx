@@ -8,28 +8,62 @@ import { Money } from "./Money";
 
 /* Client-side pieces of the product page. */
 
-export function Gallery({ images, kes, usd }: { images: string[]; kes?: number; usd?: number }) {
+type Slide = { kind: "video" | "image"; src: string };
+
+export function Gallery({ images, video, kes, usd }: { images: string[]; video?: string; kes?: number; usd?: number }) {
+  // The clip leads the gallery when the product has one (as on jojosfashion.com):
+  // it is the richest view of the piece, and the first still is its poster so
+  // the frame never flashes black. Every still keeps its own thumbnail.
+  const slides: Slide[] = [
+    ...(video ? [{ kind: "video" as const, src: video }] : []),
+    ...images.map((src) => ({ kind: "image" as const, src })),
+  ];
   const [active, setActive] = useState(0);
-  const step = (d: number) => setActive((a) => (a + d + images.length) % images.length);
+  const step = (d: number) => setActive((a) => (a + d + slides.length) % slides.length);
+  const cur = slides[Math.min(active, slides.length - 1)];
 
   return (
     <div className="gallery">
       <div className="main">
-        <img
-          src={images[active]}
-          alt="Product view"
-          onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
-        />
-        <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>
-        <button className="gnav next" aria-label="Next image" onClick={() => step(1)}>›</button>
+        {cur.kind === "video" ? (
+          <video
+            key={cur.src}
+            src={cur.src}
+            poster={images[0]}
+            controls
+            muted
+            autoPlay
+            loop
+            playsInline
+            preload="metadata"
+            aria-label="Product video"
+          />
+        ) : (
+          <img
+            src={cur.src}
+            alt="Product view"
+            onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
+          />
+        )}
+        {slides.length > 1 && (
+          <>
+            <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>
+            <button className="gnav next" aria-label="Next image" onClick={() => step(1)}>›</button>
+          </>
+        )}
         {kes !== undefined && usd !== undefined && (
           <span className="price-chip">From <b><Money kes={kes} usd={usd} /></b></span>
         )}
       </div>
       <div className="thumbs">
-        {images.map((src, i) => (
-          <button key={src} className={i === active ? "active" : ""} onClick={() => setActive(i)}>
-            <img src={src} alt="" />
+        {slides.map((s, i) => (
+          <button
+            key={`${s.kind}:${s.src}`}
+            className={`${i === active ? "active" : ""}${s.kind === "video" ? " vthumb" : ""}`}
+            aria-label={s.kind === "video" ? "Play product video" : undefined}
+            onClick={() => setActive(i)}
+          >
+            <img src={s.kind === "video" ? images[0] : s.src} alt="" />
           </button>
         ))}
       </div>

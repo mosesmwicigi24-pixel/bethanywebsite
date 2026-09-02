@@ -171,7 +171,7 @@ export default async function ProductPage(
           <ProductStudio product={parent} preselect={p.slug} sku={sku} />
         ) : (
           <div className="pdp">
-            <Gallery kes={parent.price} usd={parent.priceUsd} images={parent.gallery ?? [parent.img]} />
+            <Gallery kes={parent.price} usd={parent.priceUsd} images={parent.gallery ?? [parent.img]} video={parent.video} />
 
             <div className="buy">
               <button className="wish" aria-label="Wishlist">♡</button>
