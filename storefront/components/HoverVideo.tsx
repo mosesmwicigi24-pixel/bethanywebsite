@@ -17,13 +17,17 @@ const PLACEHOLDER = "/brand/placeholder.svg";
  *   • The clip fades over the still only once the first frame is actually
  *     playing (no black flash, no layout shift); on leave it pauses, rewinds
  *     and fades back, so re-entering restarts from the top like jojo's cards.
- *   • Touch devices (no hover), reduced-motion and Save-Data users never load
- *     a clip. They see a small ▶ chip so they know a clip is waiting on the
- *     product page, which plays it inline.
+ *   • Touch devices have no hover, so there the clip plays while the tile is
+ *     mostly (60%+) on screen and stops the moment it scrolls off — the
+ *     Instagram-feed behaviour — so a phone never plays more than the two or
+ *     three cards actually in view.
+ *   • Reduced-motion and Save-Data users never load a clip. They see a small
+ *     ▶ chip so they know a clip is waiting on the product page, which plays
+ *     it inline.
  *
- * The hover target is the element that WRAPS this component (the card's `.ph`
- * link), so the whole tile — padding included — triggers playback, and the
- * link's keyboard focus plays it too.
+ * The hover / visibility target is the element that WRAPS this component (the
+ * card's `.ph` link), so the whole tile — padding included — triggers
+ * playback, and the link's keyboard focus plays it too.
  */
 export default function HoverVideo({
   src,
@@ -52,35 +56,47 @@ export default function HoverVideo({
     const host = el?.parentElement ?? el;
     if (!el || !host || !hasClip) return;
 
-    const allowed = () =>
-      window.matchMedia("(hover:hover)").matches &&
-      !window.matchMedia("(prefers-reduced-motion:reduce)").matches &&
-      !(navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+    // Never load a clip for people who asked for less motion or less data.
+    const quiet =
+      window.matchMedia("(prefers-reduced-motion:reduce)").matches ||
+      Boolean((navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData);
+    if (quiet) return;
 
-    const enter = () => {
-      if (!allowed()) return;
-      window.clearTimeout(timer.current);
-      timer.current = window.setTimeout(() => { setArmed(true); setHover(true); }, 120);
-    };
-    const leave = () => {
-      window.clearTimeout(timer.current);
+    const start = () => { setArmed(true); setHover(true); };
+    const stop = () => {
       setHover(false);
       setOn(false);
       const v = vid.current;
       if (v) { v.pause(); try { v.currentTime = 0; } catch { /* not seekable yet */ } }
     };
 
-    host.addEventListener("pointerenter", enter);
-    host.addEventListener("pointerleave", leave);
-    host.addEventListener("focusin", enter);
-    host.addEventListener("focusout", leave);
-    return () => {
-      window.clearTimeout(timer.current);
-      host.removeEventListener("pointerenter", enter);
-      host.removeEventListener("pointerleave", leave);
-      host.removeEventListener("focusin", enter);
-      host.removeEventListener("focusout", leave);
-    };
+    if (window.matchMedia("(hover:hover)").matches) {
+      // Pointer devices: play on hover / keyboard focus, after a short arm
+      // delay so sweeping across the grid doesn't start every card's download.
+      const enter = () => { window.clearTimeout(timer.current); timer.current = window.setTimeout(start, 120); };
+      const leave = () => { window.clearTimeout(timer.current); stop(); };
+      host.addEventListener("pointerenter", enter);
+      host.addEventListener("pointerleave", leave);
+      host.addEventListener("focusin", enter);
+      host.addEventListener("focusout", leave);
+      return () => {
+        window.clearTimeout(timer.current);
+        host.removeEventListener("pointerenter", enter);
+        host.removeEventListener("pointerleave", leave);
+        host.removeEventListener("focusin", enter);
+        host.removeEventListener("focusout", leave);
+      };
+    }
+
+    // Touch devices: play while the tile is mostly on screen, stop when it
+    // scrolls away (rewinding, so it restarts from the top when it returns).
+    if (!("IntersectionObserver" in window)) return;
+    const io = new IntersectionObserver(
+      (entries) => { for (const e of entries) { if (e.isIntersecting) start(); else stop(); } },
+      { threshold: 0.6 },
+    );
+    io.observe(host);
+    return () => io.disconnect();
   }, [hasClip]);
 
   // Play (from the top) whenever the tile is hovered and the element exists.

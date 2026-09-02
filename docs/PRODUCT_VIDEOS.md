@@ -44,14 +44,20 @@ uploads are effectively an origin archive.
   segments' worth of buffering and starts faster.
 - A 120 ms arm delay so sweeping the cursor across a grid doesn't download a
   clip for every card crossed.
-- Reduced-motion and Save-Data users never load a clip; they (and touch users)
-  see a ▶ chip so they know the product page has a video.
+- On phones and tablets (no hover) a clip plays while its card is mostly on
+  screen and stops when it scrolls away — an Instagram-feed feel, and never
+  more than the two or three cards actually in view. jojo skips card video on
+  mobile entirely and runs a separate full-screen feed instead.
+- Reduced-motion and Save-Data users never load a clip; they see a ▶ chip so
+  they know the product page has a video.
 
 ## How it works here
 
 - `storefront/components/HoverVideo.tsx` — the client component. Renders the
   still (lazy, indexable) and layers the `<video>` over it. Its hover target is
-  the element wrapping it (the card's `.ph` link), so the whole tile triggers.
+  the element wrapping it (the card's `.ph` link), so the whole tile triggers;
+  on touch devices the same element is watched with an IntersectionObserver
+  (60% visible = play, less = pause and rewind).
 - `storefront/components/cards.tsx` — `ProductCard` and `MiniCard` pass
   `p.video` to it. Cards without a clip behave exactly as before.
 - `storefront/components/pdp.tsx` — `Gallery` takes `video`; the clip becomes
