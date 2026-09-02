@@ -16,6 +16,8 @@ export type BuyMode = "ready" | "custom";
 export interface MeasureCtx {
   template: Measurement[];
   sizes: string[];
+  /** Ready-made is offered (standard sizes exist, or the chosen variant already is the size). */
+  hasReady: boolean;
   garment?: string;
   mode: BuyMode;
   setMode: (m: BuyMode) => void;
@@ -33,13 +35,16 @@ const Ctx = createContext<MeasureCtx | null>(null);
 /** Null on non-producible products — callers must handle both. */
 export const useMeasure = () => useContext(Ctx);
 
-export function MeasureProvider({ template, sizes = [], garment, children }: {
+export function MeasureProvider({ template, sizes = [], readyWithoutSize = false, garment, children }: {
   template: Measurement[];
   sizes?: string[];
+  /** Offer Ready-made with no size to pick — a saved variant (colour + size)
+      is already the exact item; only made-to-measure needs numbers. */
+  readyWithoutSize?: boolean;
   garment?: string;
   children: ReactNode;
 }) {
-  const hasReady = sizes.length > 0;
+  const hasReady = sizes.length > 0 || readyWithoutSize;
   const [mode, setMode] = useState<BuyMode>(hasReady ? "ready" : "custom");
   const [size, setSize] = useState<string | null>(null);
   const [values, setValues] = useState<Record<string, string>>({});
@@ -50,10 +55,10 @@ export function MeasureProvider({ template, sizes = [], garment, children }: {
     [template, values],
   );
 
-  const valid = mode === "ready" ? size !== null : missing.length === 0;
+  const valid = mode === "ready" ? (readyWithoutSize || size !== null) : missing.length === 0;
 
   const ctx: MeasureCtx = {
-    template, sizes, garment, mode,
+    template, sizes, hasReady, garment, mode,
     setMode: (m) => { setMode(m); setTouched(false); },
     size, setSize,
     values,
@@ -159,7 +164,7 @@ export function MeasurePhoto({ garment, fields, onApply }: {
 export function MeasurementForm() {
   const m = useMeasure();
   if (!m) return null;
-  const hasReady = m.sizes.length > 0;
+  const hasReady = m.hasReady;
 
   return (
     <div className={`measure ${m.touched && !m.valid ? "invalid" : ""}`} id="measurements">
@@ -168,7 +173,7 @@ export function MeasurementForm() {
           <button type="button" role="radio" aria-checked={m.mode === "ready"}
             className={`mode-card ${m.mode === "ready" ? "active" : ""}`} onClick={() => m.setMode("ready")}>
             <b>Ready-made</b>
-            <span>Standard sizes · in stock · ships today</span>
+            <span>{m.sizes.length ? "Standard sizes · in stock · ships today" : "As pictured · in stock · ships today"}</span>
           </button>
           <button type="button" role="radio" aria-checked={m.mode === "custom"}
             className={`mode-card ${m.mode === "custom" ? "active" : ""}`} onClick={() => m.setMode("custom")}>
@@ -178,7 +183,9 @@ export function MeasurementForm() {
         </div>
       )}
 
-      {m.mode === "ready" ? (
+      {m.mode === "ready" && m.sizes.length === 0 ? (
+        <p className="m-note" style={{ marginTop: 0 }}>Ships as pictured in its standard size. Between sizes? Choose ✂ Made to measure and we&apos;ll sew it to your numbers at no extra cost.</p>
+      ) : m.mode === "ready" ? (
         <div className="size-pick">
           <div className="m-head">
             <b>Pick your size</b>
