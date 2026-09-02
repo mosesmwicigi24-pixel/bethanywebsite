@@ -63,9 +63,10 @@ uploads are effectively an origin archive.
 - `storefront/components/pdp.tsx` — `Gallery` takes `video`; the clip becomes
   the first slide (muted, autoplay, loop, with controls), the first still is
   its poster and its thumbnail wears a play badge.
-- `storefront/lib/products.ts` — `Product.video?: string`. Curated entries set
-  a local path; `lib/catalog.ts` prefers the hub's `video_url` if the hub ever
-  sends one, and falls back to the curated clip.
+- `storefront/lib/products.ts` — `Product.video?: string`. `lib/catalog.ts`
+  takes the hub's `video_url` first (the clip uploaded from the Hub's admin,
+  see below) and falls back to a curated local path for the few products
+  that have one in the repo.
 - `storefront/app/globals.css` — the `.hv` / `.hv-play` / `.vthumb` rules.
 
 The three clips shipped today (`public/products/video/*.mp4`) are motion
@@ -73,7 +74,21 @@ loops generated from the existing studio stills so the feature is visible.
 Replace them with real footage using the recipe below; the file names are
 what `lib/products.ts` points at.
 
-## Making a clip that fits
+## Uploading from the Hub (the normal way)
+
+The Hub's admin product form has a **Product Video** section under the
+Images tab (bethany-house: `POST /api/v1/admin/products/{id}/video`). Upload
+the clip straight from the phone — MP4, MOV or WebM, under 20 MB. The Hub
+runs the ffmpeg conversion below itself (H.264, 720 px, 30 fps, silent,
+first 12 s, faststart), stores the result under `products/{id}/` on its
+public disk and writes the URL to `products.video_url`. The public
+products API carries that field, the storefront's catalogue sync reads it,
+and the change pings the storefront's revalidate hook like any other
+product edit — so the clip shows on the card and product page within
+moments, no code change. Replacing uploads a new file and removes the old
+one; Remove clears it.
+
+## Making a clip by hand
 
 Target: **H.264 (Main), 720 px on the long side, 24–30 fps, 6–10 s, no audio,
 ≤ 1.5 MB**, `+faststart` so playback begins before the download finishes.
@@ -89,8 +104,8 @@ ffmpeg -i source.mov -t 8 \
 ```
 
 Then point the product at it: add `video: "/products/video/<slug>.mp4"` to its
-entry in `storefront/lib/products.ts` (or, once the hub exposes `video_url`,
-upload it there and the storefront picks it up on the next revalidate).
+entry in `storefront/lib/products.ts`. This is the fallback route; uploading
+in the Hub is simpler and wins over a curated path when both exist.
 
 A quick check of the result:
 
