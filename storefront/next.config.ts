@@ -56,7 +56,10 @@ const nextConfig: NextConfig = {
       { source: "/shops", destination: "/shop", permanent: true },
       { source: "/shop.I", destination: "/shop", permanent: true },
       { source: "/account/track", destination: "/orders", permanent: true },
-      { source: "/brand/:slug", destination: "/shop", permanent: true },
+      // Old-site brand landing pages only. The pattern must not swallow the
+      // storefront's own /brand/*.png|svg assets — it did, and 308'd the nav
+      // logo and Neema's mark to /shop on every page.
+      { source: "/brand/:slug([^.]+)", destination: "/shop", permanent: true },
       // Natural guess-URL (people type it; /categories/ covered via slash strip).
       { source: "/categories", destination: "/shop", permanent: true },
 

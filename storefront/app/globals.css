@@ -574,6 +574,20 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 .gallery .thumbs .vthumb{position:relative}
 .gallery .thumbs .vthumb::after{content:"▶";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;padding-left:2px;background:rgba(10,20,37,.32);border-radius:inherit;pointer-events:none}
 
+/* ---------- media guard (protected-content veil) ----------
+   Shown by <MediaGuard> for ~2.5s on right-click/drag of product media,
+   PrintScreen, the Mac screenshot keys, or Ctrl/Cmd+S / +U. Pointer
+   events pass through — it never traps anyone. */
+.guard{position:fixed;inset:0;z-index:2147483000;display:flex;align-items:center;justify-content:center;background:rgba(7,15,28,.42);-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);pointer-events:none;animation:guard-in .2s var(--ease)}
+.guard::before{content:"";position:absolute;inset:0;opacity:.22;background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><text x='4' y='150' font-family='Helvetica,Arial,sans-serif' font-size='21' font-weight='700' letter-spacing='4' fill='%23c9a227' transform='rotate(-30 130 130)'>BETHANY HOUSE</text></svg>");background-size:260px 260px}
+.guard-card{position:relative;display:flex;flex-direction:column;align-items:center;gap:8px;background:rgba(7,15,28,.8);border:1px solid rgba(255,255,255,.18);border-radius:12px;padding:22px 36px;color:#fff;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.guard-card img{width:54px;height:54px;object-fit:contain;margin-bottom:4px}
+.guard-card b{font-size:13px;letter-spacing:.22em;text-transform:uppercase}
+.guard-card span{font-size:12px;color:rgba(255,255,255,.72)}
+@keyframes guard-in{from{opacity:0}to{opacity:1}}
+/* product media: no long-press "save image", no drag ghost, no accidental selection */
+.hv img,.hv video,.gallery .main img,.gallery .main video,.thumbs img,.ps-main img,.ps-vthumbs img,.ps-variant-card img,.closer-look img,.chapter-bg,.poster-art img,.mega-cell img,.mega-feature img{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none}
+
 /* ---------- catalog premium ---------- */
 .filters{position:sticky;top:88px;align-self:start;max-height:calc(100vh - 110px);overflow-y:auto;padding-right:6px;scrollbar-width:thin}
 .cat-banner{grid-column:1/-1;background:radial-gradient(120% 160% at 20% 0%,#1b3050,var(--navy-950) 65%);border-radius:18px;color:#fff;display:flex;align-items:center;gap:34px;padding:30px 38px;overflow:hidden;position:relative}

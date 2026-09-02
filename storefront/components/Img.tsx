@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 const PLACEHOLDER = "/brand/placeholder.svg";
 
@@ -9,8 +9,15 @@ const PLACEHOLDER = "/brand/placeholder.svg";
     so the storefront never shows a broken image. */
 export default function Img({ src, alt = "", className }: { src: string; alt?: string; className?: string }) {
   const [failed, setFailed] = useState(false);
+  const ref = useRef<HTMLImageElement>(null);
+  // Failed before hydration → onError never fires; check on mount.
+  useEffect(() => {
+    const i = ref.current;
+    if (i && i.complete && i.naturalWidth === 0) setFailed(true);
+  }, []);
   return (
     <img
+      ref={ref}
       src={failed ? PLACEHOLDER : src}
       alt={alt}
       className={className}
