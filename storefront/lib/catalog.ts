@@ -38,6 +38,9 @@ interface HubProduct {
   aliases?: string[] | null;
   /** hub: products.features JSON — selling points {icon, text}, owner-edited in admin */
   features?: { icon?: string | null; text: string }[] | null;
+  /** hub: a short product clip (MP4 URL). Not in the hub API yet — read
+      defensively so it lights up the storefront the day the hub adds it. */
+  video_url?: string | null;
 }
 interface HubVariant {
   id: number; product_id: number; sku: string; variant_name: string;
@@ -162,6 +165,8 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     aliases: hp.aliases ?? undefined,
     img: gallery[0],
     gallery,
+    // Clip: hub first (owner-uploaded), curated local clip as the fallback.
+    video: hp.video_url?.trim() || c?.video,
     price: kes,
     oldPrice: oldKes,
     priceUsd: usd,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Product, badgeLabel } from "@/lib/products";
 import { Price, OldPrice } from "./Money";
 import CartButton from "./CartButton";
-import Img from "./Img";
+import HoverVideo from "./HoverVideo";
 import QuickActions from "./QuickActions";
 
 const Stars = ({ p }: { p: Product }) => (
@@ -35,7 +35,7 @@ export function ProductCard({ p }: { p: Product }) {
     <article className="pcard">
       <Link className="ph" href={href}>
         <BadgeTag p={p} />
-        <Img src={p.img} alt={p.name} />
+        <HoverVideo src={p.img} video={p.video} alt={p.name} />
         {p.reviews > 0 && <span className="rating"><Stars p={p} /></span>}
       </Link>
       <QuickActions slug={p.slug} />
@@ -69,7 +69,7 @@ export function MiniCard({ p }: { p: Product }) {
     <article className="mini-card">
       <Link className="ph" href={`/product/${p.slug}`}>
         <BadgeTag p={p} />
-        <Img src={p.img} alt={p.name} />
+        <HoverVideo src={p.img} video={p.video} alt={p.name} />
       </Link>
       {p.reviews > 0 && <div className="rating"><Stars p={p} /></div>}
       <h4>{p.name}</h4>

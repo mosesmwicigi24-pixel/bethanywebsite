@@ -60,6 +60,11 @@ export interface Product {
   tagline?: string;
   /** full gallery (falls back to [img]) */
   gallery?: string[];
+  /** Short, silent product clip (progressive MP4, H.264, ≤ ~1.5 MB — see
+      docs/PRODUCT_VIDEOS.md). Cards play it on hover over the still; the
+      product page gallery plays it inline. The hub's `video_url` wins when the
+      hub has one; a curated path is the fallback. */
+  video?: string;
   /** Opt OUT of hub images for this product: keep the curated gallery even when
       the hub has images of its own.
 
@@ -109,6 +114,7 @@ export const products: Product[] = [
     slug: "chalice-royale",
     tagline: "Set Apart for the Sacred",
     gallery: ["/products/Chalice_Cup.jpg", "/products/Chalice_Cup21.jpg", "/products/gold-wares.jpg", "/products/gold0_72.jpg"],
+    video: "/products/video/chalice-royale.mp4",
     closerLook: [
       { label: "24K gold finish", text: "Electroplated over solid brass and hand-polished for six hours per piece, then sealed with an anti-tarnish coat for weekly service.", img: "/products/Chalice_Cup.jpg" },
       { label: "Jewelled stem", text: "Four hand-set stones mark the cross at the node — a detail seen up close, at the rail.", img: "/products/Chalice_Cup21.jpg" },
@@ -211,6 +217,7 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL", "XXL"],
     tagline: "Preach with Presence",
     gallery: ["/products/preaching_gown1.jpg", "/products/live-ORDINATION2.png", "/products/live-ORDINATION6.png", "/products/live-preaching_gown_11.jpg", "/products/live-gown-back.jpg"],
+    video: "/products/video/preaching-gown.mp4",
     closerLook: [
       { label: "Made to measure", text: "Cut to the seven measurements you provide and sewn in our Nairobi workshop — 5–7 days from order to pulpit.", img: "/products/live-ORDINATION2.png" },
       { label: "Breathable fabric", text: "A wrinkle-free blend that holds its line through a full service and travels without ironing.", img: "/products/preaching_gown1.jpg" },
@@ -284,6 +291,7 @@ export const products: Product[] = [
     sizes: ["S", "M", "L", "XL", "XXL"],
     tagline: "Vested in Glory",
     gallery: ["/products/chasuble31.jpg", "/products/live-CHASUBLE_1.png", "/products/live-CHASUBLE_2.png", "/products/live-CHASUBLE_4.png"],
+    video: "/products/video/ornate-chasuble.mp4",
     closerLook: [
       { label: "Hand embroidery", text: "The emblem is embroidered by hand, panel by panel, before assembly.", img: "/products/live-CHASUBLE_1.png" },
       { label: "Matching stole", text: "Every chasuble ships with its matching stole, cut from the same cloth.", img: "/products/live-CHASUBLE_2.png" },
