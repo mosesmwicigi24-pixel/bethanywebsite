@@ -12,6 +12,7 @@ const SHOP_LINKS = [
   ["Church Essentials", "/category/church-essentials"],
   ["Bibles & Devotionals", "/category/bibles-devotionals"],
   ["Hot & New", "/shop"],
+  ["Clips ▶", "/clips"],
 ] as const;
 
 /** Slide-in navigation drawer for small screens. */
