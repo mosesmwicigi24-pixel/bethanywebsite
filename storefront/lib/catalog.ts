@@ -33,7 +33,7 @@ interface HubProduct {
   id: number; slug: string; sku: string; product_type: string; status: string;
   is_producible: boolean; is_featured?: boolean; measurements?: Measurement[] | null;
   category?: HubCategory | null; images?: HubImage[]; translations?: HubTranslation[]; prices?: HubPrice[];
-  in_stock?: boolean; available_qty?: number;
+  in_stock?: boolean; available_qty?: number; updated_at?: string;
   /** hub: products.aliases JSON — synonyms/Swahili/misspellings for search + Neema */
   aliases?: string[] | null;
   /** hub: products.features JSON — selling points {icon, text}, owner-edited in admin */
@@ -186,6 +186,7 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     seller: c?.seller,
     category: hp.category?.name_en ?? c?.category ?? "Church Supplies",
     inStock: hp.in_stock,
+    updatedAt: hp.updated_at,
   };
 }
 
