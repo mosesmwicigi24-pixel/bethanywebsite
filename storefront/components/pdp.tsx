@@ -52,7 +52,7 @@ export function Gallery({ images, video, kes, usd }: { images: string[]; video?:
           </>
         )}
         {kes !== undefined && usd !== undefined && (
-          <span className="price-chip">From <b><Money kes={kes} usd={usd} /></b></span>
+          <span className="price-chip"><b><Money kes={kes} usd={usd} /></b></span>
         )}
       </div>
       <div className="thumbs">
@@ -71,33 +71,27 @@ export function Gallery({ images, video, kes, usd }: { images: string[]; video?:
   );
 }
 
-export function FinishSwatches({ finishes, label = "Finish" }: { finishes: { label: string; css: string }[]; label?: string }) {
+export function FinishSwatches({ finishes, label = "Finish", bare = false, onChange }: {
+  finishes: { label: string; css: string }[];
+  label?: string;
+  /** Render just the swatch row (the caller draws the label). */
+  bare?: boolean;
+  onChange?: (label: string) => void;
+}) {
   const [active, setActive] = useState(0);
-  return (
-    <div className="opt">{label}
-      <div className="swatches">
-        {finishes.map((f, i) => (
-          <button key={f.label} aria-label={f.label} style={{ background: f.css }}
-            className={i === active ? "active" : ""} onClick={() => setActive(i)} />
-        ))}
-      </div>
+  const pick = (i: number) => { setActive(i); onChange?.(finishes[i].label); };
+  const row = (
+    <div className="swatches" role="radiogroup" aria-label={label}>
+      {finishes.map((f, i) => (
+        <button key={f.label} type="button" role="radio" aria-checked={i === active} aria-label={f.label} title={f.label}
+          style={{ background: f.css }} className={i === active ? "active" : ""} onClick={() => pick(i)} />
+      ))}
     </div>
   );
+  return bare ? row : <div className="opt">{label}{row}</div>;
 }
 
-export function Qty() {
-  const [n, setN] = useState(1);
-  return (
-    <div className="opt">Qty
-      <div className="qty">
-        <button aria-label="Decrease" onClick={() => setN((v) => Math.max(1, v - 1))}>‹</button>
-        <input id="pdp-qty" value={n} readOnly />
-        <button aria-label="Increase" onClick={() => setN((v) => v + 1)}>›</button>
-      </div>
-    </div>
-  );
-}
-
+/** Quantity is owned by <LookCard>, which renders the #pdp-qty input. */
 const readQty = () => {
   const el = document.getElementById("pdp-qty") as HTMLInputElement | null;
   return Math.max(1, Number(el?.value) || 1);
@@ -120,13 +114,13 @@ export function BundleAdd({ slugs }: { slugs: string[] }) {
   );
 }
 
-/** Sticky sub-header + bottom buy bar, revealed on scroll. */
-export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string; sku: string; kes: number; usd: number; img: string; slug: string }) {
+/** Add the product to the cart with the chosen quantity, size or
+    measurements — refusing (and scrolling to the card) while a producible
+    item's choice is incomplete. Shared by the inline buttons and the bar. */
+function useTryAdd(slug: string) {
   const { add } = useCart();
-  const router = useRouter();
   const measure = useMeasure();
-
-  const tryAdd = (): boolean => {
+  return (): boolean => {
     if (measure && !measure.valid) {
       measure.markTouched();
       document.getElementById("measurements")?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -139,6 +133,50 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
     }
     return true;
   };
+}
+
+/** Add to cart / Buy now, in the buy column (the page used to rely on the
+    scroll-revealed bar alone — at rest there was nothing to click). */
+export function BuyButtons({ slug }: { slug: string }) {
+  const tryAdd = useTryAdd(slug);
+  const router = useRouter();
+  const [added, setAdded] = useState(false);
+  return (
+    <div className="buy-actions">
+      <button type="button" className="pill pill-solid" onClick={() => { if (tryAdd()) { setAdded(true); setTimeout(() => setAdded(false), 2000); } }}>
+        {added ? "✓ Added to cart" : "Add to cart"}
+      </button>
+      <button type="button" className="pill pill-gold" onClick={() => { if (tryAdd()) router.push("/checkout"); }}>Buy now</button>
+    </div>
+  );
+}
+
+/** Product description, collapsed behind "Read more" past a few lines. */
+export function ReadMore({ text, limit = 180 }: { text: string; limit?: number }) {
+  const [open, setOpen] = useState(false);
+  const long = text.length > limit;
+  const shown = open || !long ? text : text.slice(0, limit).replace(/\s+\S*$/, "") + "…";
+  return (
+    <div className="desc" id="description">
+      <p>{shown}</p>
+      {long && (
+        <button type="button" className="desc-more" onClick={() => setOpen((o) => !o)} aria-expanded={open}>
+          {open ? "Read less" : "Read more"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/** Sticky sub-header + bottom buy bar, revealed on scroll. */
+export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string; sku: string; kes: number; usd: number; img: string; slug: string }) {
+  const router = useRouter();
+  const measure = useMeasure();
+  const tryAdd = useTryAdd(slug);
+  const [saved, setSaved] = useState(false);
+  const look = !measure ? "In stock · ships today"
+    : measure.mode === "ready" ? (measure.size ? `Ready-made · ${measure.size}` : "Ready-made")
+    : "Made to measure";
   const [scrolled, setScrolled] = useState(0);
   const [inReviews, setInReviews] = useState(false);
 
@@ -171,11 +209,12 @@ export function StickyChrome({ name, sku, kes, usd, img, slug }: { name: string;
         <div className="wrap">
           <div className="bb-info">
             <span className="im"><img src={img} alt="" /></span>
-            <span style={{ minWidth: 0 }}><b>{name}</b><span><Money kes={kes} usd={usd} /> · Free Nairobi CBD delivery</span></span>
+            <span style={{ minWidth: 0 }}><b>{name}</b><span><Money kes={kes} usd={usd} /> · Look: {look}</span></span>
           </div>
           <div className="bb-ctas">
-            <button className="pill pill-ghost" onClick={tryAdd}>Add to Cart</button>
-            <button className="pill pill-solid" onClick={() => { if (tryAdd()) router.push("/checkout"); }}>Buy It Now</button>
+            <button className="pill pill-ghost" onClick={tryAdd}>Add to cart</button>
+            <button className="pill pill-ghost bb-save" aria-pressed={saved} onClick={() => setSaved((v) => !v)}>{saved ? "♥ Saved" : "♡ Save"}</button>
+            <button className="pill pill-gold" onClick={() => { if (tryAdd()) router.push("/checkout"); }}>Buy now</button>
           </div>
         </div>
       </div>

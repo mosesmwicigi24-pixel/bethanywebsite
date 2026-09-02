@@ -316,7 +316,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
 .pheader{position:fixed;top:0;left:0;right:0;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-bottom:1px solid var(--line);z-index:130;transform:translateY(-100%);transition:.25s}
 .pheader.show{transform:none}
 .pheader .wrap{display:flex;align-items:center;height:62px}
-.pheader .name{font-size:21px;font-weight:800;letter-spacing:-.01em}
+.pheader .name{font-size:19px;font-weight:800;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:44%}
 .pheader .sku{font-size:13px;color:var(--muted);border-left:1px solid var(--line);margin-left:14px;padding-left:14px}
 .pheader .tabs{margin-left:auto;display:flex;gap:34px;font-size:14.5px}
 .pheader .tabs a{color:#666;font-weight:600;padding:20px 0}
@@ -588,6 +588,82 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 /* product media: no long-press "save image", no drag ghost, no accidental selection */
 .hv img,.hv video,.gallery .main img,.gallery .main video,.thumbs img,.ps-main img,.ps-vthumbs img,.ps-variant-card img,.closer-look img,.chapter-bg,.poster-art img,.mega-cell img,.mega-feature img{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;-webkit-user-drag:none}
 
+/* ---------- product page: hybrid layout ----------
+   jojo's structure (pill crumbs, one serif title, taller media, ONE "Choose
+   your look" card, collapsed description, dark sticky bar) on our substance
+   (currency, selling points, delivery promise, trust strip). */
+.pdp{grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:64px;align-items:start}
+.gallery .main{aspect-ratio:4/5;padding:28px}
+.crumb-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.cp{display:inline-flex;align-items:center;border:1.5px solid var(--line);border-radius:999px;padding:5px 12px;font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--ink)}
+.cp-gold{background:var(--gold-soft);border-color:var(--gold-soft);color:var(--navy-900);font-weight:800}
+.buy-title{display:flex;align-items:flex-start;justify-content:space-between;gap:20px}
+.buy h1{font-family:var(--serif);font-size:clamp(30px,3.1vw,44px);font-weight:600;letter-spacing:-.015em;line-height:1.08}
+.buy .wish{float:none;flex:none;width:40px;height:40px;border-radius:99px;border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:18px;color:#333;background:#fff;transition:.18s}
+.buy .wish:hover{border-color:var(--gold);color:var(--navy-900)}
+.buy .rrow{margin:10px 0 6px}
+.buy .rrow .muted{color:var(--muted)}
+.buy .pricerow{align-items:center;flex-wrap:wrap;margin:8px 0 18px}
+.save-tag{background:var(--green);color:#fff;font-size:11px;font-weight:800;letter-spacing:.04em;padding:4px 9px;border-radius:999px}
+/* the card */
+.look{border:1px solid var(--line);border-radius:16px;overflow:hidden;background:#fff}
+.look-head{display:flex;justify-content:space-between;align-items:center;gap:16px;padding:14px 18px;background:var(--gold-soft)}
+.look-head>div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.look-eyebrow{font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6f7480}
+.look-sub{font-size:13.5px;color:#3c3410}
+.look-total{font-size:18px;font-weight:800;white-space:nowrap}
+.look-sec{padding:16px 18px;border-top:1px solid var(--line)}
+.look-lbl{display:flex;justify-content:space-between;gap:12px;font-size:11px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:#6f7480;margin-bottom:10px}
+.look-lbl .val{color:var(--ink)}
+.look-qty{display:flex;align-items:center;justify-content:space-between;gap:20px}
+.look-qty .look-lbl{margin:0}
+.look-foot{padding:12px 18px;border-top:1px solid var(--line);background:#fafafb;font-size:12.5px;color:var(--muted)}
+.look-foot b{color:var(--ink)}
+/* the measurement form inside the card drops its own frame */
+.look .measure{border:0;background:transparent;padding:0;margin:0;border-radius:0}
+.look .measure.invalid{outline:1.5px solid var(--danger);outline-offset:8px;border-radius:8px}
+.look .mode-cards{margin-bottom:14px}
+.look .mode-card{border-color:var(--line)}
+.look .mode-card.active{border-color:var(--navy-900);background:#fff;box-shadow:none}
+.look .m-head b{font-size:14px}
+.look .m-grid{grid-template-columns:repeat(4,1fr);gap:8px}
+.look .m-field span{font-size:10.5px;color:var(--muted)}
+.look .m-field input{padding:8px 10px;border-color:var(--line);background:var(--tile);border-radius:10px}
+.look .m-field input:focus{border-color:var(--navy-900);background:#fff}
+.look .size-pills button{border-color:var(--line)}
+.look .m-note,.look .m-head span{color:var(--muted)}
+/* selling points sit right under the card */
+.look+.feat{margin-top:8px;border-top:0}
+/* inline actions */
+.buy-actions{display:flex;gap:12px;margin-top:18px}
+.buy-actions .pill{flex:1;padding:15px 0;font-size:15px}
+/* description behind Read more */
+.desc{margin-top:18px}
+.desc p{font-size:14.5px;line-height:1.65;color:#444}
+.desc-more{margin-top:6px;font-size:14px;font-weight:700;color:var(--ink);text-decoration:underline;text-underline-offset:3px;background:none;border:0;padding:0;cursor:pointer}
+.assure{margin-top:20px}
+.assure svg{stroke:var(--navy-700)}
+/* dark sticky bar with the chosen look */
+.buybar{background:var(--navy-900);color:#fff;padding:12px 0 14px;box-shadow:0 -10px 40px rgba(7,15,28,.25)}
+.buybar .bb-info .im{background:#fff}
+.buybar .bb-info b{color:#fff}
+.buybar .bb-info span{color:#a9b6c9}
+.buybar .bb-ctas .pill{min-width:0;padding:12px 22px;font-size:14px}
+.buybar .pill-ghost{border-color:rgba(255,255,255,.28);color:#fff;background:transparent}
+.buybar .pill-ghost:hover{border-color:#fff}
+.buybar .pill-gold{padding-left:28px;padding-right:28px}
+@media(max-width:900px){
+  .gallery .main{aspect-ratio:1/1;padding:18px}
+  .buybar .bb-ctas{width:100%}
+  .buybar .bb-ctas .pill{flex:1;padding:12px 8px;font-size:13.5px}
+}
+@media(max-width:640px){
+  .buy h1{font-size:30px}
+  .look .m-grid{grid-template-columns:repeat(3,1fr)}
+  .buy-actions{flex-direction:column}
+  .buybar .bb-save{display:none}
+}
+
 /* ---------- catalog premium ---------- */
 .filters{position:sticky;top:88px;align-self:start;max-height:calc(100vh - 110px);overflow-y:auto;padding-right:6px;scrollbar-width:thin}
 .cat-banner{grid-column:1/-1;background:radial-gradient(120% 160% at 20% 0%,#1b3050,var(--navy-950) 65%);border-radius:18px;color:#fff;display:flex;align-items:center;gap:34px;padding:30px 38px;overflow:hidden;position:relative}
@@ -776,7 +852,7 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
   .assure .a{font-size:11.5px;padding:14px 6px}
   .deliver{font-size:12.5px;padding:10px 13px}
   .pheader .sku{display:none}
-  .pheader .name{font-size:17px}
+  .pheader .name{font-size:15px;max-width:38%}
   .pheader .tabs{gap:20px;font-size:13.5px}
   .banner.dark,.banner.ivory{padding:40px 22px 0;border-radius:16px}
   .story-lede{padding:34px 0 18px}
