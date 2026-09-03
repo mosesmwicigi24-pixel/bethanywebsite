@@ -133,6 +133,7 @@ export function Footer() {
           <Link href={categoryHref("Clergy Apparel")}>Clergy Apparel</Link>
           <Link href={categoryHref("Gifts & Accessories")}>Gifts &amp; Accessories</Link>
           <Link href={categoryHref("Church Essentials")}>Church Essentials</Link>
+          <Link href="/guides/covenant-rings">Covenant Rings</Link>
           <Link href="/shop">Daily Offers</Link>
         </div>
         <div>

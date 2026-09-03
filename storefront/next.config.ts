@@ -62,6 +62,10 @@ const nextConfig: NextConfig = {
       { source: "/brand/:slug([^.]+)", destination: "/shop", permanent: true },
       // Natural guess-URL (people type it; /categories/ covered via slash strip).
       { source: "/categories", destination: "/shop", permanent: true },
+      // Short shareable URLs for the covenant rings guide (WhatsApp, print,
+      // and a net for covenant-family type-ins).
+      { source: "/covenant-rings", destination: "/guides/covenant-rings", permanent: true },
+      { source: "/covenant", destination: "/guides/covenant-rings", permanent: true },
 
       // Overrides for hub slug-redirects that point at the wrong product —
       // their hub records were reused for unrelated items, so the old slug
