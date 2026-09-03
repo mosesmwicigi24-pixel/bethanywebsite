@@ -38,8 +38,11 @@ interface HubProduct {
   aliases?: string[] | null;
   /** hub: products.features JSON — selling points {icon, text}, owner-edited in admin */
   features?: { icon?: string | null; text: string }[] | null;
-  /** hub: a short product clip (MP4 URL). Not in the hub API yet — read
-      defensively so it lights up the storefront the day the hub adds it. */
+  /** hub: products.video_url — the short silent clip the admin converts on
+      upload. It IS on the products payload (checked against the live feed);
+      what has been missing is uploaded clips, because until bethany-house#359
+      the conversion ran inside the upload request and the browser gave up
+      before ffmpeg finished. */
   video_url?: string | null;
 }
 interface HubVariant {
@@ -208,6 +211,11 @@ function toVariantOption(hp: HubProduct, v: HubVariant): VariantOption {
     oldPriceUsd: oldPriceOf(v.prices, "USD"),
     img: gallery[0],
     gallery,
+    // The clip belongs to the PRODUCT, so every variant of it shows the same
+    // one. Without this a variable product's variants each render as
+    // video-less — the parent plays a clip, and picking a size silently loses
+    // it, which reads as a broken card rather than a deliberate difference.
+    video: hp.video_url?.trim() || undefined,
     sku: v.sku,
   };
 }

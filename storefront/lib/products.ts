@@ -23,6 +23,9 @@ export interface VariantOption {
   oldPriceUsd?: number;
   img: string;
   gallery: string[];
+  /** The parent product's clip — video lives on the product, so every variant
+      of it shows the same one. */
+  video?: string;
   sku?: string;
   inStock?: boolean;
 }
