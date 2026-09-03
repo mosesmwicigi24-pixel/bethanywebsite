@@ -166,7 +166,79 @@ export const GUIDES: Guide[] = [
     ],
     productSlugs: ["communion-wafer-bread-200pcs", "holy-communion-bread-1000pcs", "communion-hosts", "bread-container", "altar-wine", "devai"],
     shopHref: "/category/communion-elements",
-    related: ["liturgical-colours", "covenant-rings"],
+    related: ["communion-wine-guide", "covenant-rings"],
+  },
+  {
+    slug: "communion-wine-guide",
+    title: "Communion Wine or Grape Juice? What Churches Use and Why",
+    metaTitle: "Communion Wine vs Grape Juice — What Churches Use & Why",
+    description:
+      "Why some churches pour communion wine and others grape juice, what Scripture calls the cup, and how much your congregation needs — from Bethany House, Nairobi.",
+    category: "The Lord's Table",
+    published: "2026-09-03",
+    updated: "2026-09-03",
+    minutes: 5,
+    intro: [
+      "Every church that comes to the Lord's Table answers one practical question first: what goes in the cup? Some congregations pour communion wine, others unfermented grape juice — and whoever keeps the vestry cupboard simply needs to know what to buy, how much, and why the traditions differ. Here is the whole picture.",
+    ],
+    sections: [
+      {
+        h: "What Scripture calls the cup",
+        p: [
+          "The Gospels never actually say \"wine\" at the Last Supper. Jesus takes the cup and calls it \"this fruit of the vine\" (Matthew 26:29; Mark 14:25; Luke 22:18) — the produce of the grape, given its meaning by his own words: \"this is my blood of the covenant.\" Paul hands the practice on with the same emphasis: as often as you drink the cup, you proclaim the Lord's death until he comes (1 Corinthians 11:26).",
+          "Swahili Scripture reaches for the word divai — the wine of the wedding at Cana — which is why our locally made 1-litre communion wine carries the name Devai. The Bible's weight falls on what the cup proclaims rather than on its chemistry, which is exactly why sincere traditions have room to differ.",
+        ],
+      },
+      {
+        h: "Why many churches pour wine",
+        p: [
+          "Fermented grape wine is the historic practice: from the church's earliest centuries the communion cup held wine, and Catholic, Orthodox and many Anglican congregations require it to this day as continuity with the Last Supper itself. In these churches the wine fills the common cup or the tray of individual cups, as the liturgy directs.",
+          "For congregations of this conviction we stock Devai — locally made from grapes in a generous 1-litre bottle that fills tray after tray — classic altar wine, and Efrat communion wine from Israel: wine carried from the land of the Bible, a meaningful pour for the great days such as confirmations, weddings and ordinations.",
+        ],
+      },
+      {
+        h: "Why many churches pour grape juice",
+        p: [
+          "The unfermented cup has its own history. In 1869 a Methodist communion steward named Thomas Welch pasteurised grape juice precisely so his congregation could receive the Lord's Supper without fermented wine, and the practice spread wherever churches shared that conviction. Today many Methodist, Baptist, Pentecostal and independent congregations use unfermented grape juice as a matter of teaching and of pastoral care — for members recovering from alcohol, for children, for whole-congregation participation with a clear conscience.",
+          "It is still the fruit of the vine — the same sign, kept within the church's conviction. We stock unfermented grape juice alongside the wines, so either practice is fully served from one order.",
+        ],
+      },
+      {
+        h: "So which should your church buy?",
+        p: [
+          "The honest answer: your church has already answered this. Follow your tradition's teaching — a supplier's job is to serve the conviction, not to settle it, which is why both sides of the cupboard are stocked here. If you are newly responsible for the vestry, ask your bishop, pastor or church council which cup the congregation uses before ordering.",
+          "Then match the bottle to the calendar. A 1-litre bottle like Devai is the workhorse for congregations that gather at the Table often; Efrat from Israel suits the great days where the story in the cup matters; and pre-packed communion cups — one sealed serving of bread and 10ml of wine — carry the Table to hospital beds, home visits, crusades and travel.",
+        ],
+      },
+      {
+        h: "How much does the cup need?",
+        p: [
+          "Individual communion cups take 10–15ml each — our refiller bottle dispenses exactly that, cup after cup, without a drop on the linen. The arithmetic follows: a 1-litre bottle fills roughly 66–100 individual cups, so one bottle of Devai can serve a congregation of that size in a single service, and a church of 300 should plan on three to four litres per communion Sunday.",
+          "Order the cup's supplies with the bread's and save a delivery: trays, cups, a refiller and both elements travel well in one box — same-day or next-day within Nairobi for orders placed before 2 PM, across Kenya and East Africa in 2–4 working days, and worldwide on request.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "Does communion wine contain alcohol?",
+        a: "Traditionally yes — communion wine is a fermented grape wine, while grape juice is unfermented. Bottles vary, so tell us your church's requirement when ordering and we will point you to the right one, including unfermented options: both are stocked side by side.",
+      },
+      {
+        q: "Is grape juice acceptable for Holy Communion?",
+        a: "Many Methodist, Baptist, Pentecostal and independent churches use unfermented grape juice — a practice widespread since the nineteenth century — while Catholic, Orthodox and many Anglican churches require fermented wine. Scripture's own phrase is \"the fruit of the vine\" (Matthew 26:29); follow your church's teaching.",
+      },
+      {
+        q: "How many cups does a bottle of communion wine fill?",
+        a: "Individual cups take 10–15ml each, so a 1-litre bottle such as Devai fills roughly 66–100 cups. A refiller bottle makes the pouring fast and spill-free, and pre-packed cups carry bread and 10ml of wine in one sealed serving for visits and crusades.",
+      },
+      {
+        q: "Can I buy communion wine in Nairobi?",
+        a: "Yes — Devai (locally made, 1 litre), classic altar wine and Efrat communion wine from Israel, plus unfermented grape juice, at Sonalux Building, Moi Avenue, Nairobi CBD — delivered across Kenya, East Africa and worldwide.",
+      },
+    ],
+    productSlugs: ["devai", "altar-wine", "efrat-communion-wine", "refiller", "pre-packed-communion-cups", "golden-communion-tray"],
+    shopHref: "/category/communion-elements",
+    related: ["communion-bread-guide", "liturgical-colours"],
   },
   {
     slug: "liturgical-colours",
