@@ -62,7 +62,7 @@ export default function ProductStudio({ product, preselect, sku }: {
   const kesShown = active.price > 0 ? active.price : product.price;
   const usdShown = active.priceUsd > 0 ? active.priceUsd : product.priceUsd;
   const gallery = active.gallery.length ? active.gallery : [active.img];
-  const mainImg = gallery[Math.min(imgIdx, gallery.length - 1)] ?? active.img;
+  const mainImg = gallery[Math.min(Math.max(imgIdx, 0), gallery.length - 1)] ?? active.img;
 
   const showMeasure = producible && mode === "custom";
   const missing = showMeasure
@@ -80,7 +80,18 @@ export default function ProductStudio({ product, preselect, sku }: {
   const pickVariant = (v: VariantOption) => { setActive(v); setImgIdx(0); };
 
   const chooseCustom = () => { setMode("custom"); setMeasureOpen(true); };
-  const stepImg = (d: number) => setImgIdx((i) => (i + d + gallery.length) % gallery.length);
+  // The clip sits at index -1 so adding it never renumbers the photos — a
+  // product that loses its video keeps every image on the slide it was on.
+  const VIDEO_SLIDE = -1;
+  const [videoDead, setVideoDead] = useState(false);
+  const hasVideo   = Boolean(active.video) && !videoDead;
+  const showVideo  = hasVideo && imgIdx === VIDEO_SLIDE;
+
+  const stepImg = (d: number) => setImgIdx((i) => {
+    const slides = hasVideo ? [VIDEO_SLIDE, ...gallery.map((_, n) => n)] : gallery.map((_, n) => n);
+    const at = Math.max(0, slides.indexOf(i));
+    return slides[(at + d + slides.length) % slides.length];
+  });
 
   const commit = (): boolean => {
     if (!detailsOk) {
@@ -101,8 +112,21 @@ export default function ProductStudio({ product, preselect, sku }: {
     <div className="pstudio">
       <div className="ps-gallery-col">
         <div className="ps-gallery">
-          {gallery.length > 1 && (
+          {(gallery.length > 1 || hasVideo) && (
             <div className="ps-vthumbs">
+              {hasVideo && (
+                // Slide zero. The still behind it is the product's own photo, so
+                // the strip reads as pictures even though this one moves.
+                <button type="button" className={imgIdx === VIDEO_SLIDE ? "on" : ""}
+                        style={{ position: "relative" }}
+                        onClick={() => setImgIdx(VIDEO_SLIDE)} aria-label="Play the product video">
+                  <img src={gallery[0]} alt="" />
+                  <span aria-hidden="true" style={{
+                    position: "absolute", inset: 0, display: "grid", placeItems: "center",
+                    color: "#fff", textShadow: "0 1px 3px rgba(0,0,0,.6)", fontSize: 18,
+                  }}>▶</span>
+                </button>
+              )}
               {gallery.map((img, i) => (
                 <button key={i} type="button" className={i === imgIdx ? "on" : ""} onClick={() => setImgIdx(i)} aria-label={`View image ${i + 1}`}>
                   <img src={img} alt="" />
@@ -111,8 +135,17 @@ export default function ProductStudio({ product, preselect, sku }: {
             </div>
           )}
           <div className="ps-main">
-            <img src={mainImg} alt={product.name} />
-            {gallery.length > 1 && (
+            {showVideo ? (
+              <video
+                src={active.video}
+                autoPlay muted loop playsInline controls
+                onError={() => setVideoDead(true)}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
+              />
+            ) : (
+              <img src={mainImg} alt={product.name} />
+            )}
+            {(gallery.length > 1 || hasVideo) && (
               <>
                 <button className="gnav prev" aria-label="Previous image" onClick={() => stepImg(-1)}>‹</button>
                 <button className="gnav next" aria-label="Next image" onClick={() => stepImg(1)}>›</button>

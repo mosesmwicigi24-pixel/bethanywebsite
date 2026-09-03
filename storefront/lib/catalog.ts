@@ -38,6 +38,8 @@ interface HubProduct {
   aliases?: string[] | null;
   /** hub: products.features JSON — selling points {icon, text}, owner-edited in admin */
   features?: { icon?: string | null; text: string }[] | null;
+  /** hub: products.video_url — the short silent clip the admin converts on upload */
+  video_url?: string | null;
 }
 interface HubVariant {
   id: number; product_id: number; sku: string; variant_name: string;
@@ -162,6 +164,9 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     aliases: hp.aliases ?? undefined,
     img: gallery[0],
     gallery,
+    // One short silent clip per product, converted by the hub on upload. It is
+    // product-level, so every variant shows the same clip.
+    video: hp.video_url ?? undefined,
     price: kes,
     oldPrice: oldKes,
     priceUsd: usd,
@@ -202,6 +207,7 @@ function toVariantOption(hp: HubProduct, v: HubVariant): VariantOption {
     oldPriceUsd: oldPriceOf(v.prices, "USD"),
     img: gallery[0],
     gallery,
+    video: hp.video_url ?? undefined,
     sku: v.sku,
   };
 }

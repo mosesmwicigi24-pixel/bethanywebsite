@@ -23,6 +23,9 @@ export interface VariantOption {
   oldPriceUsd?: number;
   img: string;
   gallery: string[];
+  /** The parent product's clip — video lives on the product, not the variant,
+      so every variant of a product shows the same one. */
+  video?: string;
   sku?: string;
   inStock?: boolean;
 }
@@ -60,6 +63,10 @@ export interface Product {
   tagline?: string;
   /** full gallery (falls back to [img]) */
   gallery?: string[];
+  /** hub: products.video_url — short, silent, looping clip. Plays on the card
+      when it is hovered (or scrolled into view on a phone) and leads the
+      gallery on the product page. */
+  video?: string;
   /** Opt OUT of hub images for this product: keep the curated gallery even when
       the hub has images of its own.
 
