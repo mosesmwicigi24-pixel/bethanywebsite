@@ -200,17 +200,21 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "church-gifts",
     root: "Gifts & Accessories",
     name: "Church Gifts & Accessories",
-    title: "Church Gifts in Nairobi, Kenya — Crosses, Keepsakes & Prayer Wear",
+    title: "Church Gifts in Nairobi, Kenya — Covenant Rings, Crosses & Keepsakes",
     description:
-      "Meaningful church gifts in Nairobi, Kenya — crosses, keepsakes, tallits and prayer shawls for ordinations, confirmations and pastor appreciation, delivered countrywide.",
+      "Meaningful church gifts in Nairobi, Kenya — covenant rings, crosses, keepsakes, tallits and prayer shawls for ordinations, confirmations and pastor appreciation, delivered countrywide.",
     intro: [
-      "Gifts with meaning for the moments that matter: ordinations and inductions, confirmations, pastor and elder appreciation, church anniversaries and thanksgiving. Browse crosses and keepsakes, tallits and prayer shawls, and accessories that serve daily ministry.",
+      "Gifts with meaning for the moments that matter: ordinations and inductions, consecrations, confirmations, pastor and elder appreciation, church anniversaries and thanksgiving. Browse covenant rings for bishops, apostles and overseers, crosses and keepsakes, tallits and prayer shawls, and accessories that serve daily ministry.",
       "Unsure what to give? Tell us the occasion on WhatsApp (+254 727 891 989) and we will suggest options within your budget. Free engraving is offered on communion ware, and every order can be delivered — free within Nairobi CBD above KES 10,000, across Kenya and East Africa, and worldwide on request.",
     ],
     faqs: [
       {
         q: "What is a good gift for an ordination or induction?",
         a: "Crosses, tallits and prayer shawls, quality Bibles and communion ware are all fitting. Tell us the occasion and budget on WhatsApp and we will suggest options.",
+      },
+      {
+        q: "Do you stock covenant rings?",
+        a: "Yes — bishopric rings in all sizes and apostolic rings for overseers and senior ministers, fitted in store at Moi Avenue, Nairobi and delivered across Kenya and worldwide. Congregations often present one at a consecration; our covenant rings guide explains the meaning and how to choose.",
       },
       {
         q: "Do you offer engraving?",
