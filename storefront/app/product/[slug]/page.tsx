@@ -20,7 +20,7 @@ import { getProductReviews } from "@/lib/hub";
 import { bySlug as curatedBySlug } from "@/lib/products";
 import { SITE } from "@/lib/site";
 import { rootCategory } from "@/lib/categories";
-import { productJsonLd, breadcrumbJsonLd } from "@/lib/seo";
+import { productJsonLd, breadcrumbJsonLd, videoJsonLd } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 
 export const revalidate = 300; // ISR — pages rebuild as the hub catalog changes
@@ -49,7 +49,19 @@ export async function generateMetadata(
   // campaign URLs don't dilute the primary product page.
   const canonicalSlug = p.variantId ? (p.baseSlug ?? p.slug) : p.slug;
   const path = `/product/${canonicalSlug}`;
-  const description = (p.tagline || p.short || `${p.name} from ${SITE.name}. ${SITE.tagline}`).slice(0, 160);
+  // The description is the SERP pitch: lead with the live price (refreshes
+  // with the catalog via ISR), close with the delivery + payment promise —
+  // the two facts Kenyan "price"/"near me" searchers are deciding on.
+  const priceBit = p.price > 0
+    ? `${p.variants?.length ? "From " : ""}KES ${Math.round(p.price).toLocaleString("en-KE")} · `
+    : "";
+  const pitch = " · Same-day Nairobi delivery — M-Pesa & card.";
+  const core = p.tagline || p.short || `${p.name} from ${SITE.name}.`;
+  const budget = Math.max(40, 160 - priceBit.length - pitch.length);
+  const cut = core.length > budget
+    ? core.slice(0, budget).replace(/\s+\S*$/, "").replace(/[,;:—·-]$/, "")
+    : core;
+  const description = `${priceBit}${cut}${pitch}`;
   const images = (p.gallery?.length ? p.gallery : [p.img]).filter(Boolean);
 
   return {
@@ -151,6 +163,7 @@ export default async function ProductPage(
   const body = (
     <main className="pdp-page">
       <JsonLd data={productJsonLd(parent, { sku, path: `/product/${parent.slug}`, reviews: hubReviews })} />
+      {parent.video ? <JsonLd data={videoJsonLd(parent)!} /> : null}
       <JsonLd data={breadcrumbJsonLd([
         { name: "Home", path: "/" },
         { name: "Shop", path: "/shop" },

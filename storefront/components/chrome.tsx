@@ -58,7 +58,7 @@ export function Nav() {
                       <img src="/products/Chalice_Cup.jpg" alt="" />
                       Chalice Royale
                     </Link>
-                    <Link className="mega-cell" href="/product/communion-ware-deluxe"><span className="tag tag-gold">Best Seller</span><img src="/products/gold-wares.jpg" alt="" />Communion Ware Set</Link>
+                    <Link className="mega-cell" href="/product/golden-communion-tray"><span className="tag tag-gold">Best Seller</span><img src="/products/gold-wares.jpg" alt="" />Communion Cup Trays</Link>
                     <Link className="mega-cell" href="/product/altar-wine"><span className="tag tag-green">New Arrival</span><img src="/products/Altar_wine.png" alt="" />Altar Wine</Link>
                     <Link className="mega-cell" href="/product/communion-hosts"><img src="/products/Hosts.png" alt="" />Hosts &amp; Wafers</Link>
                     <Link className="mega-cell" href="/product/altar-bell"><img src="/products/bell.jpg" alt="" />Altar Bells</Link>
@@ -125,7 +125,7 @@ export function Footer() {
         <div className="brand">
           <img src="/brand/logo-light.png" alt={SITE.name} />
           <p>{SITE.tagline}</p>
-          <div className="newsletter"><input placeholder="Email for offers & new arrivals" /><button>Subscribe</button></div>
+          <div className="newsletter"><a href={`${SITE.whatsapp}?text=${encodeURIComponent("Hello Bethany House! Please add me to your offers and new arrivals list.")}`} target="_blank" rel="noopener">Get offers &amp; new arrivals on WhatsApp</a></div>
         </div>
         <div>
           <h5>Shop</h5>

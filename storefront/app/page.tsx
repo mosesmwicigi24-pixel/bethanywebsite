@@ -8,6 +8,7 @@ import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
 import { categoryHref } from "@/lib/categories";
+import { SITE } from "@/lib/site";
 import type { Product } from "@/lib/products";
 
 export const revalidate = 300;
@@ -202,8 +203,8 @@ export default async function Home() {
       <section className="vespers">
         <Reveal>
           <h2>Grace in <em>every</em> detail.</h2>
-          <p>New arrivals, seasonal collections and parish offers — a short letter, once a month.</p>
-          <div className="newsletter"><input placeholder="Your email address" aria-label="Email address" /><button>Subscribe</button></div>
+          <p>New arrivals, seasonal collections and parish offers — a short letter, once a month, on WhatsApp.</p>
+          <div className="newsletter"><a href={`${SITE.whatsapp}?text=${encodeURIComponent("Hello Bethany House! Please send me your monthly letter — new arrivals, seasonal collections and parish offers.")}`} target="_blank" rel="noopener">Get the monthly letter on WhatsApp</a></div>
         </Reveal>
       </section>
     </main>

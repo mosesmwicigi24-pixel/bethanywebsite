@@ -105,6 +105,9 @@ export const SLUG_REDIRECTS: Record<string, string> = {
   "silver-communion-tray-with-40-silver-cups": "silver-communion-tray",
   "golden-tray-without-lid": "golden-communion-tray",
   "gold-communion-tray-cover": "golden-communion-tray",
+  // Curated flagship slug that never existed in the hub; the nav mega-menu
+  // linked it (404) until 2026-09-16 and it may sit in indexes/bookmarks.
+  "communion-ware-deluxe": "golden-communion-tray",
   "stackable-goden-bread-tray": "gold-bread-tray",
   "aluminium-cover": "aluminium-tray",
   "wooden-tray-bigger": "wooden-tray",
