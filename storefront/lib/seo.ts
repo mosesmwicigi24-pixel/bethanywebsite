@@ -53,6 +53,31 @@ function attributesToSchema(attrs: Record<string, string> | undefined): Record<s
 
 const seller = { "@type": "Organization", name: SITE.name } as const;
 
+/* Delivery + returns facts carried on every Offer — mirrors the live
+   /policies/shipping and /policies/returns pages (same-day/next-day Nairobi,
+   2–4 working days countrywide; 7-day returns on unused ready-made goods,
+   return carriage on the customer unless the item arrived faulty). Keeping
+   them in the Offer makes merchant listings eligible for the richer
+   shipping/returns result treatments. */
+const shippingDetails = {
+  "@type": "OfferShippingDetails",
+  shippingDestination: { "@type": "DefinedRegion", addressCountry: "KE" },
+  deliveryTime: {
+    "@type": "ShippingDeliveryTime",
+    handlingTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 1, unitCode: "DAY" },
+    transitTime: { "@type": "QuantitativeValue", minValue: 0, maxValue: 4, unitCode: "DAY" },
+  },
+} as const;
+
+const returnPolicy = {
+  "@type": "MerchantReturnPolicy",
+  applicableCountry: "KE",
+  returnPolicyCategory: "https://schema.org/MerchantReturnFiniteReturnWindow",
+  merchantReturnDays: 7,
+  returnMethod: ["https://schema.org/ReturnInStore", "https://schema.org/ReturnByMail"],
+  returnFees: "https://schema.org/ReturnFeesCustomerResponsibility",
+} as const;
+
 function offer(price: number, currency: "KES" | "USD", url: string, availability: string) {
   return {
     "@type": "Offer",
@@ -61,6 +86,8 @@ function offer(price: number, currency: "KES" | "USD", url: string, availability
     availability,
     url,
     seller,
+    shippingDetails,
+    hasMerchantReturnPolicy: returnPolicy,
   };
 }
 
@@ -148,6 +175,23 @@ export function productJsonLd(
     category: p.category,
     offers: offersFor(p.price, p.priceUsd, url),
     ...ratingBits,
+  };
+}
+
+/** VideoObject for a product's clip. The PDP is the clip's watch page —
+    without this markup Search Console's video report flags every clip as
+    "Video isn't on a watch page" and it can't appear in video results. */
+export function videoJsonLd(p: Product): Record<string, unknown> | null {
+  if (!p.video) return null;
+  const poster = (p.gallery?.length ? p.gallery : [p.img]).filter(Boolean)[0];
+  return {
+    "@context": "https://schema.org",
+    "@type": "VideoObject",
+    name: `${p.name} — product clip`,
+    description: p.short || p.name,
+    contentUrl: abs(p.video),
+    ...(poster ? { thumbnailUrl: [abs(poster)] } : {}),
+    ...(p.updatedAt ? { uploadDate: p.updatedAt } : {}),
   };
 }
 
