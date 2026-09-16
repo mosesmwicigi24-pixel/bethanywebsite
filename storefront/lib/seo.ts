@@ -255,13 +255,31 @@ export function organizationJsonLd(): Record<string, unknown> {
     "@type": "Organization",
     "@id": `${SITE.url}/#organization`,
     name: SITE.name,
+    // Entity disambiguation for search and AI assistants: the registered
+    // company, the former trading name (bethanygiftshop.com era) and the
+    // social handle spelling all resolve to this one organization.
+    legalName: "Bethany House Creations Limited",
+    alternateName: ["Bethany Gift Shop", "Bethany House Creative"],
     url: SITE.url,
     logo: abs("/brand/logo-light.png"),
     email: SITE.email,
     telephone: SITE.phone,
-    description: SITE.tagline,
+    description:
+      "Church-supplies store in Nairobi, Kenya — Holy Communion elements, made-to-measure clergy vestments, covenant rings, Bibles and church gifts, delivered across Kenya, East Africa and worldwide.",
+    slogan: SITE.tagline,
     foundingDate: "2019",
     founder: { "@type": "Person", name: "Moses Mwicigi", honorificPrefix: "Pastor" },
+    areaServed: ["Kenya", "East Africa", "Worldwide"],
+    knowsAbout: [
+      "Holy Communion elements",
+      "communion wafers and altar wine",
+      "clergy vestments and cassocks",
+      "made-to-measure church garments",
+      "covenant rings and episcopal regalia",
+      "church supplies",
+      "Bibles and devotionals",
+      "anointing oil",
+    ],
     sameAs: [...SITE.socials],
     contactPoint: [
       {
@@ -288,6 +306,9 @@ export function organizationJsonLd(): Record<string, unknown> {
     url: SITE.url,
     telephone: SITE.phone,
     email: SITE.email,
+    description:
+      "The Bethany House store — Sonalux Building, 7th Floor, Room 18, Moi Avenue, Nairobi CBD. Communion elements, clergy wear and church gifts over the counter, with in-person fittings.",
+    areaServed: ["Kenya", "East Africa", "Worldwide"],
     priceRange: "$$",
     currenciesAccepted: "KES, USD",
     paymentAccepted: SITE.payments,
