@@ -10,7 +10,7 @@ import { Money } from "./Money";
 
 type Slide = { kind: "video" | "image"; src: string };
 
-export function Gallery({ images, video, kes, usd }: { images: string[]; video?: string; kes?: number; usd?: number }) {
+export function Gallery({ images, video, kes, usd, name }: { images: string[]; video?: string; kes?: number; usd?: number; name?: string }) {
   // The clip leads the gallery when the product has one (as on jojosfashion.com):
   // it is the richest view of the piece, and the first still is its poster so
   // the frame never flashes black. Every still keeps its own thumbnail.
@@ -36,12 +36,12 @@ export function Gallery({ images, video, kes, usd }: { images: string[]; video?:
             loop
             playsInline
             preload="metadata"
-            aria-label="Product video"
+            aria-label={name ? `${name} — product video` : "Product video"}
           />
         ) : (
           <img
             src={cur.src}
-            alt="Product view"
+            alt={name || "Product view"}
             onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
           />
         )}

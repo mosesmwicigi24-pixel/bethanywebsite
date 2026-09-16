@@ -179,7 +179,7 @@ function Studio({ product, preselect, sku }: { product: Product; preselect?: str
       <StickyChrome name={product.name} sku={active.sku || sku} kes={kes} usd={usd} img={active.img} slug={active.slug} variant={cardName(active)} />
 
       <div className="pdp">
-        <Gallery key={active.slug} images={gallery} video={product.video} kes={kes} usd={usd} />
+        <Gallery key={active.slug} images={gallery} video={product.video} kes={kes} usd={usd} name={product.name} />
 
         <div className="buy">
           <div className="crumb-pills">
