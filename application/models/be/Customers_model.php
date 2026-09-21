@@ -9,6 +9,15 @@ class Customers_model extends CI_Model {
 		return $this->db->get()->result();
 	}
 
+	function get_customers_for_google_contacts(){
+		$this->db->select("first_name, last_name, phone_number, billing_phone_number, shipping_phone_number, birth_date");
+		$this->db->from('customers');
+		$this->db->where(array('is_deleted' => 0));
+		$this->db->order_by('first_name', 'ASC');
+		$this->db->order_by('last_name', 'ASC');
+		return $this->db->get()->result();
+	}
+
 	function generate_loyalty_number($length = 9) {
     	$characters = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ';
     	$randomString = '';

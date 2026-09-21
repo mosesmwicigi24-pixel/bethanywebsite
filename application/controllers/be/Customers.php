@@ -123,6 +123,79 @@ class Customers extends CI_Controller {
 
 		echo json_encode($resp);
 	}
+	function export_google_contacts(){
+		if(!$this->session->userdata('bgs_be_active')) {
+			redirect('be/auth');
+		}
+		if ($this->auth_model->validate_user_access('customers_view', $this->session->userdata('system_user_id')) == false){
+			redirect('be/auth/access_denied');
+		}
+
+		$customers = $this->customers_model->get_customers_for_google_contacts();
+
+		$columns = array(
+			'First Name', 'Middle Name', 'Last Name',
+			'Phonetic First Name', 'Phonetic Middle Name', 'Phonetic Last Name',
+			'Name Prefix', 'Name Suffix', 'Nickname', 'File As',
+			'Organization Name', 'Organization Title', 'Organization Department',
+			'Birthday', 'Notes', 'Photo', 'Labels',
+			'Phone 1 - Label', 'Phone 1 - Value'
+		);
+
+		$filename = 'bethany-house-contacts-' . date('Y-m-d') . '.csv';
+
+		header('Content-Type: text/csv; charset=utf-8');
+		header('Content-Disposition: attachment; filename="' . $filename . '"');
+		header('Pragma: no-cache');
+		header('Expires: 0');
+
+		$out = fopen('php://output', 'w');
+		fputcsv($out, $columns);
+
+		foreach ($customers as $row) {
+			$phones = array();
+			foreach (array($row->phone_number, $row->billing_phone_number, $row->shipping_phone_number) as $phone) {
+				$phone = $this->clean_contact_phone($phone);
+				if ($phone !== '' && !in_array($phone, $phones)) {
+					$phones[] = $phone;
+				}
+			}
+			if (count($phones) == 0) {
+				continue; // a contact without a number has nothing to import
+			}
+
+			$birthday = '';
+			if (!empty($row->birth_date) && $row->birth_date != '0000-00-00') {
+				$birthday = $row->birth_date;
+			}
+
+			fputcsv($out, array(
+				trim($row->first_name),
+				'',
+				trim($row->last_name),
+				'', '', '', '', '', '', '',
+				'', '', '',
+				$birthday,
+				'',
+				'',
+				'* myContacts',
+				'Mobile',
+				implode(' ::: ', $phones)
+			));
+		}
+
+		fclose($out);
+		exit;
+	}
+
+	private function clean_contact_phone($phone){
+		$phone = trim((string) $phone);
+		// keep digits and a leading plus only
+		$phone = preg_replace('/[^0-9+]/', '', $phone);
+		$phone = preg_replace('/(?!^)\+/', '', $phone);
+		return $phone;
+	}
+
 	function load_js(){
 		$data['customers'] = $this->customers_model->get_customers_list();
 		$data['sbr_customers_edit'] = $this->auth_model->validate_user_access('customers_edit', $this->session->userdata('system_user_id'));
