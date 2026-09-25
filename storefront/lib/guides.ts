@@ -42,6 +42,76 @@ export type Guide = {
 
 export const GUIDES: Guide[] = [
   {
+    slug: "church-setup-checklist",
+    title: "Setting Up a New Church: The Complete Supplies Checklist",
+    metaTitle: "New Church Setup — the Complete Supplies Checklist",
+    description:
+      "Everything a new church needs, area by area — the Lord's Table, the minister, the sanctuary, the door — with what to order first and when, from Bethany House, Nairobi.",
+    category: "Church Essentials",
+    published: "2026-09-25",
+    updated: "2026-09-25",
+    minutes: 6,
+    intro: [
+      "A church plant runs on faith, a preaching calendar — and a surprisingly practical shopping list. Whoever holds that list (a founding pastor, a launch committee, a mother church's treasurer) faces the same question: what does the new sanctuary actually need, what can wait, and where does one order it all without ten suppliers and ten deliveries? Here is the whole list, area by area, in the order most churches build it.",
+    ],
+    sections: [
+      {
+        h: "Start with the Lord's Table",
+        p: [
+          "Communion is the first service most new churches furnish for, and the Table needs both vessels and elements. For congregations serving individual cups: a communion tray (our golden tray seats 40 cups and stacks as you grow), cups (glass and silver are washable and last years; plastic serves large gatherings), and a refiller bottle that fills each cup with 10–15ml without a drop on the linen. Churches using the common cup begin instead with a chalice — or a chalice-and-paten set for the full traditional form.",
+          "Then the elements: communion bread in 200, 500 or 1,000-piece packs (one piece per communicant plus about ten percent margin — a fellowship of 150 uses a 200-pack per service), and the cup's filling — communion wine such as Devai (a 1-litre bottle fills 66–100 cups) or unfermented grape juice, both stocked, poured as your tradition directs. An airtight bread container keeps opened stock fresh between services.",
+        ],
+      },
+      {
+        h: "The minister and the pulpit",
+        p: [
+          "The vestments take the longest lead time, so order them first: a made-to-measure cassock or preaching gown is sewn in our Nairobi workshop in 5–7 working days from confirmed measurements — order about two weeks before the launch service to leave room for fitting and delivery. Ready-made sizes ship immediately when the calendar cannot wait.",
+          "Most ministers start with the daily cassock, a clergy shirt and collar, and two stoles — green for ordinary time and white for the feasts — adding the other liturgical colours as the church year comes round. A large-print Bible completes the lectern: our NKJV Giant Print is the volume made for reading aloud.",
+        ],
+      },
+      {
+        h: "The sanctuary itself",
+        p: [
+          "The room finds its voice with a few well-chosen pieces: an altar bell (single to four-bell styles) for the solemn moments; offering baskets — light, dignified, one per aisle or section, with the large basket for combined services; candles and holders for the altar; and, in traditions that use incense, a chain-swung thurible. Altar linens and general church ware round out the room as the congregation settles in.",
+        ],
+      },
+      {
+        h: "The door and the aisle",
+        p: [
+          "Order flows from the door. Uniform usher belts identify the welcome team at a glance, so guests know who to turn to and the service moves in good order — from first greeting to the offering to the final blessing. It is the least expensive item on this list and among the most visible every single Sunday.",
+        ],
+      },
+      {
+        h: "Dedication day — and buying in phases",
+        p: [
+          "For the dedication of the building, churches reach for anointing oil (kept ready thereafter for prayer, blessings and hospital visits, after James 5:14) — and many congregations mark the day with a gift for the presiding minister.",
+          "The honest sequencing: phase one is the Table, the baskets, the minister's vestment and a Bible — a modest sanctuary serves its first communion from a few thousand shillings of individual cups, a wafer pack and one bottle. Phase two adds the bell, candles, more stole colours and larger trays as the congregation grows. Send your situation on WhatsApp (+254 727 891 989) and we will build a complete, budget-conscious list with you — we do it for new churches every week, with parish accounts and delivery across Kenya, East Africa and worldwide.",
+        ],
+      },
+    ],
+    faqs: [
+      {
+        q: "What does a new church need for its first service?",
+        a: "The essentials: a communion set (tray and cups, or a chalice), communion bread and wine or grape juice, offering baskets, a lectern Bible and the minister's vestment. Everything else — bells, candles, more stole colours, larger trays — phases in as the congregation grows.",
+      },
+      {
+        q: "How early should we order before the launch service?",
+        a: "Order made-to-measure vestments about two weeks ahead — they are sewn in our Nairobi workshop in 5–7 working days from confirmed measurements. Stocked items ship same-day or next-day within Nairobi and reach the rest of Kenya and East Africa in 2–4 working days.",
+      },
+      {
+        q: "Can Bethany House help us plan the full list?",
+        a: "Yes — send your congregation size, tradition and budget on WhatsApp (+254 727 891 989) or visit Sonalux Building, Moi Avenue, Nairobi (Mon–Sat, 8:00 AM–5:00 PM) and we will build a complete, budget-conscious list. We serve parish and diocese accounts and deliver countrywide and worldwide.",
+      },
+      {
+        q: "Roughly what does it cost to equip a new church in Kenya?",
+        a: "It scales with size and tradition. The Table itself can be served from a few thousand shillings — individual cups, a 200-piece wafer pack and a 1-litre bottle of communion wine — while a fully furnished sanctuary with vestments, trays, bells and regalia grows from there. Tell us your budget and we will fit the list to it, not the other way round.",
+      },
+    ],
+    productSlugs: ["golden-communion-tray", "communion-wafer-bread-200pcs", "devai", "offering-basket", "altar-bell", "usher-belt"],
+    shopHref: "/category/church-essentials",
+    related: ["communion-bread-guide", "communion-wine-guide"],
+  },
+  {
     slug: "covenant-rings",
     title: "Covenant Rings: What a Bishop's Ring Means",
     metaTitle: "Covenant Rings — the Meaning of a Bishop's Ring",
