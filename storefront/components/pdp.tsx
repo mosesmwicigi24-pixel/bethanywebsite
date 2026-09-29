@@ -63,7 +63,7 @@ export function Gallery({ images, video, kes, usd, name }: { images: string[]; v
             aria-label={s.kind === "video" ? "Play product video" : undefined}
             onClick={() => setActive(i)}
           >
-            <img src={s.kind === "video" ? images[0] : s.src} alt="" />
+            <img src={s.kind === "video" ? images[0] : s.src} alt="" loading="lazy" decoding="async" />
           </button>
         ))}
       </div>

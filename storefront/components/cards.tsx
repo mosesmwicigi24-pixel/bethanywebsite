@@ -92,7 +92,7 @@ export function LineupCard({
 }) {
   return (
     <article className="lineup-card">
-      <Link className="art" href={href}><img src={img} alt={title} /></Link>
+      <Link className="art" href={href}><img src={img} alt={title} loading="lazy" decoding="async" /></Link>
       <div className="dots">{dots.map((d, i) => <i key={i} style={{ background: d }} />)}</div>
       <h3>{title}</h3>
       <p>{blurb}</p>
@@ -113,7 +113,7 @@ export function EditorialCard({
 }) {
   return (
     <article className="edit-card">
-      <div className="ph"><img src={img} alt="" style={focus ? { objectPosition: focus } : undefined} /></div>
+      <div className="ph"><img src={img} alt="" loading="lazy" decoding="async" style={focus ? { objectPosition: focus } : undefined} /></div>
       <div className="txt">
         <div className="eyebrow">{eyebrow}</div>
         <h3>{title.map((t, i) => <span key={i}>{t}<br /></span>)}</h3>

@@ -53,34 +53,34 @@ export default async function Home() {
         </div>
         <div className="cat-tiles">
           <Link className="cat-tile" href={categoryHref("Communion Elements")}>
-            <span className="im"><img src="/products/Chalice_Cup.jpg" alt="Communion elements" /></span>
+            <span className="im"><img src="/products/Chalice_Cup.jpg" alt="Communion elements" loading="lazy" decoding="async" /></span>
             <span className="lbl">Communion <i>›</i></span>
             <span className="sub">Chalices · wine · hosts</span>
           </Link>
           <Link className="cat-tile" href={categoryHref("Clergy Apparel")}>
-            <span className="im"><img src="/products/preaching_gown1.jpg" alt="Clergy apparel" /></span>
+            <span className="im"><img src="/products/preaching_gown1.jpg" alt="Clergy apparel" loading="lazy" decoding="async" /></span>
             <span className="lbl">Clergy Apparel <i>›</i></span>
             <span className="newdot">New arrivals</span>
           </Link>
           <Link className="cat-tile" href={categoryHref("Bibles & Devotionals")}>
-            <span className="im"><img src="/products/niv_bible.jpg" alt="Bibles" /></span>
+            <span className="im"><img src="/products/niv_bible.jpg" alt="Bibles" loading="lazy" decoding="async" /></span>
             <span className="lbl">Bibles <i>›</i></span>
             <span className="sub">Study · children's · gift</span>
           </Link>
           <Link className="cat-tile" href={categoryHref("Gifts & Accessories")}>
-            <span className="im"><img src="/products/cross1.jpg" alt="Gifts" /></span>
+            <span className="im"><img src="/products/cross1.jpg" alt="Gifts" loading="lazy" decoding="async" /></span>
             <span className="lbl">Gifts <i>›</i></span>
             <span className="sub">Crosses · keepsakes</span>
           </Link>
           <Link className="cat-tile" href={categoryHref("Church Essentials")}>
-            <span className="im"><img src="/products/bell.jpg" alt="Church essentials" /></span>
+            <span className="im"><img src="/products/bell.jpg" alt="Church essentials" loading="lazy" decoding="async" /></span>
             <span className="lbl">Essentials <i>›</i></span>
             <span className="sub">Bells · linens · ware</span>
           </Link>
           {/* Prayer wear is a leaf of Clergy Apparel in lib/categories.ts, so it
               links to that department's category page rather than a root of its own. */}
           <Link className="cat-tile" href={categoryHref("Clergy Apparel")}>
-            <span className="im"><img src="/products/tallit.jpg" alt="Prayer wear" /></span>
+            <span className="im"><img src="/products/tallit.jpg" alt="Prayer wear" loading="lazy" decoding="async" /></span>
             <span className="lbl">Prayer Wear <i>›</i></span>
             <span className="sub">Tallits · shawls</span>
           </Link>
@@ -97,7 +97,7 @@ export default async function Home() {
               <p>Chalice, altar wine and 1,000 hosts — bundled from KES 21,800.</p>
               <Link className="pill pill-gold" href="/product/chalice-royale">Shop the bundle</Link>
             </div>
-            <img src="/products/gold-wares.jpg" alt="" />
+            <img src="/products/gold-wares.jpg" alt="" loading="lazy" decoding="async" />
           </div>
           <div className="promo-b ivory">
             <div className="txt">
@@ -106,7 +106,7 @@ export default async function Home() {
               <p>Gowns, cassocks and chasubles measured in Nairobi — ready in 5–7 days.</p>
               <Link className="pill pill-solid" href="/shop">Book a fitting</Link>
             </div>
-            <img src="/products/preaching_gown1.jpg" alt="" />
+            <img src="/products/preaching_gown1.jpg" alt="" loading="lazy" decoding="async" />
           </div>
         </div>
       </Reveal>
@@ -128,7 +128,7 @@ export default async function Home() {
             <LineupCard href="/shop" img="/products/Stoles5.jpg"
               dots={["#2f7d4f", "#6b3fa0", "#b0312f", "#c9a227"]} title="Stoles & Vestments"
               blurb="Every liturgical colour, embroidered by hand." />
-            <LineupCard href="/shop" img="/products/365days.png"
+            <LineupCard href="/shop" img="/products/365days.jpg"
               dots={["#16355e"]} title="Bibles & Devotionals"
               blurb="From children's Bibles to 365-day devotionals." />
           </Rail>
