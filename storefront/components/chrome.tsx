@@ -55,13 +55,13 @@ export function Nav() {
                   <Link className="head" href="/shop">View All Chalices &amp; Patens <svg viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6" /></svg></Link>
                   <div className="mega-grid">
                     <Link className="mega-feature" href="/product/chalice-royale">
-                      <img src="/products/Chalice_Cup.jpg" alt="" />
+                      <img src="/products/Chalice_Cup.jpg" alt="" loading="lazy" decoding="async" />
                       Chalice Royale
                     </Link>
-                    <Link className="mega-cell" href="/product/golden-communion-tray"><span className="tag tag-gold">Best Seller</span><img src="/products/gold-wares.jpg" alt="" />Communion Cup Trays</Link>
-                    <Link className="mega-cell" href="/product/altar-wine"><span className="tag tag-green">New Arrival</span><img src="/products/Altar_wine.png" alt="" />Altar Wine</Link>
-                    <Link className="mega-cell" href="/product/communion-hosts"><img src="/products/Hosts.png" alt="" />Hosts &amp; Wafers</Link>
-                    <Link className="mega-cell" href="/product/altar-bell"><img src="/products/bell.jpg" alt="" />Altar Bells</Link>
+                    <Link className="mega-cell" href="/product/golden-communion-tray"><span className="tag tag-gold">Best Seller</span><img src="/products/gold-wares.jpg" alt="" loading="lazy" decoding="async" />Communion Cup Trays</Link>
+                    <Link className="mega-cell" href="/product/altar-wine"><span className="tag tag-green">New Arrival</span><img src="/products/Altar_wine.jpg" alt="" loading="lazy" decoding="async" />Altar Wine</Link>
+                    <Link className="mega-cell" href="/product/communion-hosts"><img src="/products/Hosts.jpg" alt="" loading="lazy" decoding="async" />Hosts &amp; Wafers</Link>
+                    <Link className="mega-cell" href="/product/altar-bell"><img src="/products/bell.jpg" alt="" loading="lazy" decoding="async" />Altar Bells</Link>
                   </div>
                 </div>
                 <div className="mega-promo">
