@@ -8,6 +8,7 @@ import { ProductCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { CATEGORY_PAGES, categoryPage, rootCategory } from "@/lib/categories";
 import { breadcrumbJsonLd, itemListJsonLd, faqPageJsonLd } from "@/lib/seo";
+import { GUIDES_FOR_ROOT, guideBySlug } from "@/lib/guides";
 import { SITE } from "@/lib/site";
 
 /* Category landing pages — the indexable department hubs. The /shop query
@@ -127,6 +128,10 @@ export default async function CategoryPage(
         {related.map((r) => (
           <Link key={r.slug} href={`/category/${r.slug}`}>{r.name}</Link>
         ))}
+        {(GUIDES_FOR_ROOT[def.root] ?? []).map((s) => {
+          const g = guideBySlug(s);
+          return g ? <Link key={s} href={`/guides/${g.slug}`}>Guide: {g.title}</Link> : null;
+        })}
       </section>
 
       <section className="cat-cta">

@@ -73,9 +73,11 @@ const nextConfig: NextConfig = {
       // a collar). Config redirects win over the dynamic resolver.
       { source: "/product/preaching-gown-1", destination: "/product/preaching-gown-843glv9rc", permanent: true },
       { source: "/product/anointing-oil-eliad-olive-oil-750ml", destination: "/product/eliad-anointing-oil", permanent: true },
-      { source: "/product/the-carry-along-bible", destination: "/category/bibles-devotionals", permanent: true },
-      { source: "/product/the-carry-along-bible-9co393v3r", destination: "/category/bibles-devotionals", permanent: true },
-      { source: "/product/the-carry-along-bible-9co393v3r--v:id", destination: "/category/bibles-devotionals", permanent: true },
+      // the-carry-along-bible returned to the live catalog (2026-09) — its
+      // legacy suffixed URLs now go to the product itself, and the base slug
+      // must NOT be redirected (that hid the live page: the Preaching Gown bug).
+      { source: "/product/the-carry-along-bible-9co393v3r", destination: "/product/the-carry-along-bible", permanent: true },
+      { source: "/product/the-carry-along-bible-9co393v3r--v:id", destination: "/product/the-carry-along-bible", permanent: true },
     ];
   },
 };

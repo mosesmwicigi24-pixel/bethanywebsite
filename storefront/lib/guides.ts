@@ -426,5 +426,16 @@ export const GUIDES: Guide[] = [
   },
 ];
 
+/** Guides that support each shop department — rendered as cluster links on
+    category pages and product pages so the topical hierarchy is explicit
+    to crawlers and useful to shoppers. */
+export const GUIDES_FOR_ROOT: Record<string, string[]> = {
+  "Communion Elements": ["communion-bread-guide", "communion-wine-guide"],
+  "Clergy Apparel": ["cassock-measurements", "liturgical-colours"],
+  "Gifts & Accessories": ["covenant-rings"],
+  "Church Essentials": ["church-setup-checklist"],
+  "Bibles & Devotionals": ["church-setup-checklist"],
+};
+
 const BY_SLUG = new Map(GUIDES.map((g) => [g.slug, g]));
 export const guideBySlug = (slug: string) => BY_SLUG.get(slug);

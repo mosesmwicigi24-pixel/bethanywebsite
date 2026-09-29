@@ -19,7 +19,8 @@ import { getSiteContent } from "@/lib/theme";
 import { getProductReviews } from "@/lib/hub";
 import { bySlug as curatedBySlug } from "@/lib/products";
 import { SITE } from "@/lib/site";
-import { rootCategory } from "@/lib/categories";
+import { rootCategory, categoryHref } from "@/lib/categories";
+import { GUIDES_FOR_ROOT, guideBySlug } from "@/lib/guides";
 import { productJsonLd, breadcrumbJsonLd, videoJsonLd } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
 
@@ -167,7 +168,7 @@ export default async function ProductPage(
       <JsonLd data={breadcrumbJsonLd([
         { name: "Home", path: "/" },
         { name: "Shop", path: "/shop" },
-        { name: parent.category, path: "/shop" },
+        { name: rootCategory(parent.category), path: categoryHref(rootCategory(parent.category)) },
         { name: parent.name },
       ])} />
       {!isVariable && (
@@ -177,8 +178,8 @@ export default async function ProductPage(
       <div className="wrap">
         <Crumbs items={[
           { label: "Home", href: "/" },
-          { label: "Product", href: "/shop" },
-          { label: parent.category, href: "/shop" },
+          { label: "Shop", href: "/shop" },
+          { label: rootCategory(parent.category), href: categoryHref(rootCategory(parent.category)) },
           { label: parent.name },
         ]} />
 
@@ -276,6 +277,16 @@ export default async function ProductPage(
       </div>
 
       <ProductRail title="You May Also Like" products={also} small tight />
+
+        {(GUIDES_FOR_ROOT[rootCategory(parent.category)] ?? []).length > 0 && (
+          <section className="cat-related">
+            <span>Buying guides:</span>
+            {(GUIDES_FOR_ROOT[rootCategory(parent.category)] ?? []).map((s) => {
+              const g = guideBySlug(s);
+              return g ? <Link key={s} href={`/guides/${g.slug}`}>{g.title}</Link> : null;
+            })}
+          </section>
+        )}
 
       <PosterBanner p={parent} override={posterOverride} />
       {cmsHighlights.length > 0 && <Highlights items={cmsHighlights} />}
