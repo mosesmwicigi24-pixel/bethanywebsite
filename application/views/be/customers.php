@@ -25,6 +25,7 @@
 							<div class="card-header bg-transparent header-elements-inline p-2">
 								<h5 class="card-title font-weight-bold"><i class="icon-users4"></i> Customers</h5>			
 								<div class="header-elements">
+									<a href="<?php echo base_url();?>be/customers/export_google_contacts" class="btn btn-sm btn-light mr-1" title="Download all customers as a Google Contacts CSV"><i class="icon-file-download"></i> Export Google Contacts CSV</a>
 									<?php if ($sbr_customers_add == true): ?>
 										<a href="<?php echo base_url();?>be/customers/add" class="btn btn-sm btn-primary"><i class="icon-plus-circle2"></i> New Customer</a>
 									<?php endif; ?>
