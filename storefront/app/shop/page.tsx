@@ -40,6 +40,10 @@ export default async function Shop({ searchParams }: { searchParams: Promise<{ c
   return (
     <main className="wrap">
       <Crumbs items={[{ label: "Home", href: "/" }, { label: active ?? "Communion & Clergy Store" }]} />
+      <header className="cat-head">
+        <h1>Church Supplies, Communion Ware &amp; Clergy Vestments</h1>
+        <p>The full Bethany House catalogue — {all.length} products from our Nairobi store, delivered across Kenya, East Africa and worldwide.</p>
+      </header>
       <div className="toolbar">
         <div></div>
         <div className="sort">Sort by

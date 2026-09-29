@@ -107,7 +107,7 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "clergy-vestments",
     root: "Clergy Apparel",
     name: "Clergy Vestments & Apparel",
-    title: "Clergy Vestments in Nairobi, Kenya — Cassocks, Gowns & Stoles",
+    title: "Clergy Vestments in Nairobi, Kenya — Cassocks & Gowns",
     description:
       "Cassocks, preaching and ordination gowns, albs, stoles, clergy shirts and collars in Nairobi, Kenya — ready-made or made to measure in 5–7 days, delivered countrywide.",
     intro: [
@@ -138,7 +138,7 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "communion-elements",
     root: "Communion Elements",
     name: "Holy Communion Elements & Supplies",
-    title: "Holy Communion Elements in Nairobi, Kenya — Wafers, Wine & Trays",
+    title: "Holy Communion Elements in Nairobi, Kenya — Wafers & Wine",
     description:
       "Buy communion wafers, altar wine and grape juice, trays, cups and chalices in Nairobi, Kenya — M-Pesa or card, free CBD delivery, countrywide and worldwide shipping.",
     intro: [
@@ -169,7 +169,7 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "bibles-devotionals",
     root: "Bibles & Devotionals",
     name: "Bibles & Devotionals",
-    title: "Buy Bibles in Nairobi, Kenya — Study, Children's & Gift Bibles",
+    title: "Buy Bibles in Nairobi, Kenya — Study & Children's Bibles",
     description:
       "Buy Bibles and devotionals in Nairobi, Kenya — study Bibles, children's Bibles and daily devotionals, with bulk orders for churches and schools welcome.",
     intro: [
@@ -200,7 +200,7 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "church-gifts",
     root: "Gifts & Accessories",
     name: "Church Gifts & Accessories",
-    title: "Church Gifts in Nairobi, Kenya — Covenant Rings, Crosses & Keepsakes",
+    title: "Church Gifts in Nairobi, Kenya — Covenant Rings & Crosses",
     description:
       "Meaningful church gifts in Nairobi, Kenya — covenant rings, crosses, keepsakes, tallits and prayer shawls for ordinations, confirmations and pastor appreciation, delivered countrywide.",
     intro: [
@@ -235,7 +235,7 @@ export const CATEGORY_PAGES: CategoryPage[] = [
     slug: "church-essentials",
     root: "Church Essentials",
     name: "Church Essentials & Supplies",
-    title: "Church Supplies in Nairobi, Kenya — Bells, Candles & Incense",
+    title: "Church Supplies in Nairobi, Kenya — Bells & Candles",
     description:
       "Church supplies in Nairobi, Kenya — bells, candles, incense and sanctuary ware, with parish and diocese accounts and delivery across East Africa.",
     intro: [

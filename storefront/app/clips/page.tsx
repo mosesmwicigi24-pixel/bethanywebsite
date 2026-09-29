@@ -32,5 +32,10 @@ export default async function ClipsPage() {
       producible: Boolean(p.producible),
     }));
 
-  return <ClipFeed items={items} />;
+  return (
+    <>
+      <h1 className="sr-only">Product clips — communion ware, vestments and gifts from Bethany House</h1>
+      <ClipFeed items={items} />
+    </>
+  );
 }

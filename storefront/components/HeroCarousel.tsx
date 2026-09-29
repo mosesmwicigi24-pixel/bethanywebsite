@@ -21,7 +21,7 @@ interface Mark { b?: string; t?: string }
     the built-in slides; the styles JSON carries the eyebrow, theme, a second
     CTA, the "marks" row and an optional price plate (plate_kes → currency-aware
     via <Money>, else plate_price text). */
-function CmsSlide({ s, active }: { s: ContentBlock; active: boolean }) {
+function CmsSlide({ s, active, first }: { s: ContentBlock; active: boolean; first?: boolean }) {
   const st = (s.styles ?? {}) as Record<string, unknown>;
   const str = (k: string) => (typeof st[k] === "string" ? (st[k] as string) : "");
   const theme = str("theme") === "light" ? " light" : str("theme") === "slate" ? " slate" : "";
@@ -36,7 +36,7 @@ function CmsSlide({ s, active }: { s: ContentBlock; active: boolean }) {
         <div className="wrap">
           <div className="hero-copy">
             {str("eyebrow") ? <span className="eyebrow">{str("eyebrow")}</span> : null}
-            {s.title ? <h1>{headline(s.title)}</h1> : null}
+            {s.title ? (first ? <h1>{headline(s.title)}</h1> : <h2>{headline(s.title)}</h2>) : null}
             {s.subtitle ? <p className="sub">{s.subtitle}</p> : null}
             <div className="ctas">
               {s.link_url ? (
@@ -127,7 +127,7 @@ export default function HeroCarousel({ cmsSlides }: { cmsSlides?: ContentBlock[]
     >
       <div className="hero-track" ref={track} onScroll={onScroll}>
         {slides ? (
-          slides.map((s, idx) => <CmsSlide key={s.id ?? idx} s={s} active={i === idx} />)
+          slides.map((s, idx) => <CmsSlide key={s.id ?? idx} s={s} active={i === idx} first={idx === 0} />)
         ) : (
           <>
             {/* Slide 1 — cathedral */}
@@ -169,7 +169,7 @@ export default function HeroCarousel({ cmsSlides }: { cmsSlides?: ContentBlock[]
                 <div className="wrap">
                   <div className="hero-copy">
                     <span className="eyebrow">Holy Week Offer</span>
-                    <h1>The Lord&apos;s Table, <em>complete</em>.</h1>
+                    <h2>The Lord&apos;s Table, <em>complete</em>.</h2>
                     <p className="sub">
                       Chalice, altar wine and 1,000 hosts — one bundle, one delivery,
                       ready before Holy Week. From KES 21,800.
@@ -202,7 +202,7 @@ export default function HeroCarousel({ cmsSlides }: { cmsSlides?: ContentBlock[]
                 <div className="wrap">
                   <div className="hero-copy">
                     <span className="eyebrow">Made to Measure</span>
-                    <h1>Tailored for the <em>pulpit</em>.</h1>
+                    <h2>Tailored for the <em>pulpit</em>.</h2>
                     <p className="sub">
                       Preaching gowns, cassocks and chasubles — measured in Nairobi,
                       sewn to your order, ready in 5–7 days.
