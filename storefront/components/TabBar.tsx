@@ -71,7 +71,7 @@ export default function TabBar() {
           <svg viewBox="0 0 24 24"><path d="M10 3.5 11.6 8a3 3 0 0 0 1.9 1.9L18 11.5l-4.5 1.6a3 3 0 0 0-1.9 1.9L10 19.5 8.4 15a3 3 0 0 0-1.9-1.9L2 11.5 6.5 10A3 3 0 0 0 8.4 8z" /><path d="M18.5 2.5v4M16.5 4.5h4M19 16v3M17.5 17.5h3" /></svg>
           <span>New Arrivals</span>
         </Link>
-        <button type="button" onClick={openNeema}>
+        <button type="button" onClick={() => openNeema()}>
           <svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4.1A8 8 0 1 1 20 12z" /><path d="M8.5 11h.01M12 11h.01M15.5 11h.01" /></svg>
           <span>Help</span>
         </button>

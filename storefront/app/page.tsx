@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import Rail from "@/components/Rail";
-import HomeReel, { type ReelFrame } from "@/components/HomeReel";
+import HomeReel from "@/components/HomeReel";
+import { buildReelShelves } from "@/lib/reel";
 import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
@@ -30,55 +31,12 @@ export default async function Home() {
     return [...seed, ...catalog.filter((p) => !have.has(p.slug))].slice(0, n);
   };
   const bestSellers = topUp(pick("chalice-royale", "preaching-gown-843glv9rc", "altar-wine", "pectoral-cross"), 4);
-  // ---- The opening reel: products with a clip first, then the curated
-  // flagships, then whatever the hub marks featured — real photos only.
-  const shootable = (p: Product) => p.price > 0 && Boolean(p.img) && !p.img.includes("placeholder");
-  const reelProducts: Product[] = [];
-  for (const p of [
-    ...catalog.filter((p) => p.video),
-    ...pick("chalice-royale", "ornate-chasuble", "preaching-gown-843glv9rc", "clergy-cassock", "tallit-prayer-shawl-medium", "altar-wine", "golden-communion-tray", "pectoral-cross"),
-    ...catalog.filter((p) => p.badge === "best"),
-  ]) {
-    if (reelProducts.length >= 8) break;
-    if (shootable(p) && !reelProducts.some((q) => q.slug === p.slug)) reelProducts.push(p);
-  }
-  const productFrames: ReelFrame[] = reelProducts.map((p) => ({
-    key: p.slug,
-    kind: "product",
-    slug: p.slug,
-    href: `/product/${p.slug}`,
-    eyebrow: p.category,
-    title: p.name,
-    sub: p.tagline || p.short,
-    img: p.img,
-    alt: p.name,
-    video: p.video,
-    price: p.price,
-    oldPrice: p.oldPrice,
-    producible: Boolean(p.producible),
-  }));
-  // CMS hero slides (home_hero) that carry a photo ride along as campaign
-  // frames after the second product, so the admin still steers the opener.
-  // A slide promoting a product (or photo) the reel already shows is skipped.
-  const shown = new Set(productFrames.flatMap((f) => [f.href, f.img]));
-  const campaignFrames: ReelFrame[] = (content.home_hero ?? [])
-    .filter((b) => b.image_url && b.title && !shown.has(b.link_url ?? "") && !shown.has(b.image_url))
-    .slice(0, 2)
-    .map((b, n) => {
-      const st = (b.styles ?? {}) as Record<string, unknown>;
-      return {
-        key: `cms-${b.id ?? n}`,
-        kind: "campaign",
-        href: b.link_url || "/shop",
-        eyebrow: typeof st.eyebrow === "string" && st.eyebrow ? st.eyebrow : "Bethany House",
-        title: b.title!,
-        sub: b.subtitle || undefined,
-        img: b.mobile_image_url || b.image_url!,
-        alt: b.title!.replace(/\*/g, ""),
-        cta: b.link_text || undefined,
-      };
-    });
-  const frames = [...productFrames.slice(0, 2), ...campaignFrames, ...productFrames.slice(2)];
+  // ---- The opening reel: "All" plus a story ring per department.
+  const shelves = buildReelShelves(
+    catalog,
+    ["chalice-royale", "ornate-chasuble", "preaching-gown-843glv9rc", "clergy-cassock", "tallit-prayer-shawl-medium", "altar-wine", "golden-communion-tray", "pectoral-cross"],
+    content.home_hero,
+  );
 
   const fresh = topUp(pick("ornate-chasuble", "clergy-shirt", "communion-hosts", "altar-bell", "devotional-365", "tallit-prayer-shawl"), 8);
 
@@ -86,7 +44,7 @@ export default async function Home() {
     <main>
       <h1 className="sr-only">Bethany House — Holy Communion elements, clergy apparel and Christian gifts, Nairobi</h1>
       {/* ---- Opening reel: one product per screen, feed-app style ---- */}
-      <HomeReel frames={frames} />
+      <HomeReel shelves={shelves} />
       <div className="creed">
         <div className="wrap">
           <span><i>✦</i> Free Nairobi CBD delivery over KES 10,000</span>

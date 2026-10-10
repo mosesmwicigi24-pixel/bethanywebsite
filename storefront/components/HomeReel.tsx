@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import { useCart } from "@/lib/cart";
 import { Money } from "./Money";
+import { openNeema } from "@/lib/ui-events";
 
 /** One full-screen frame of the home reel: a product, or a CMS campaign. */
 export interface ReelFrame {
@@ -24,6 +25,19 @@ export interface ReelFrame {
   producible?: boolean;
   /** campaign button text */
   cta?: string;
+  /** a line of scripture for the frame's department */
+  verse?: { text: string; ref: string };
+  /** data-backed reassurance chips (stock, tailoring, reviews) */
+  trust?: string[];
+}
+
+/** One story ring: "All" or a department, and the frames it plays. */
+export interface ReelShelf {
+  key: string;
+  label: string;
+  /** ring photo — "All" draws its own */
+  ring?: string;
+  frames: ReelFrame[];
 }
 
 const STILL_MS = 6000;
@@ -76,7 +90,7 @@ const reducedStore = {
  *
  * Only the current frame mounts its clip; every other frame is its still.
  */
-export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
+export default function HomeReel({ shelves }: { shelves: ReelShelf[] }) {
   const router = useRouter();
   const { add } = useCart();
   const root = useRef<HTMLElement>(null);
@@ -94,6 +108,9 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
   const [added, setAdded] = useState<string | null>(null);
   const [nudge, setNudge] = useState(false);
   const reduced = useSyncExternalStore(reducedStore.sub, reducedStore.get, () => false);
+  const [s, setS] = useState(0); // which story ring is playing
+  const [seen, setSeen] = useState<string[]>([]);
+  const frames = shelves[s]?.frames ?? [];
   const N = frames.length;
   const f = frames[i] ?? frames[0];
 
@@ -105,6 +122,33 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
     el.scrollTo({ left: idx * el.clientWidth, behavior: smooth ? "smooth" : "auto" });
     if (idx === iRef.current) setRound((r) => r + 1);
   }, [N]);
+
+  // Switch story ring: the feed swaps in place and starts from its first frame.
+  const pick = useCallback((n: number) => {
+    const shelf = shelves[n];
+    if (!shelf) return;
+    if (track.current) track.current.scrollLeft = 0;
+    setSeen((prev) => (prev.includes(shelves[s].key) ? prev : [...prev, shelves[s].key]));
+    setS(n);
+    setI(0);
+    setRound((r) => r + 1);
+  }, [shelves, s]);
+
+  // Keep the playing ring in view in the (horizontally scrolling) ring row.
+  const rings = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const row = rings.current;
+    const on = row?.querySelector<HTMLElement>(".ring.on");
+    if (!row || !on) return;
+    const left = on.offsetLeft - (row.clientWidth - on.offsetWidth) / 2;
+    row.scrollTo({ left: Math.max(0, left), behavior: "smooth" });
+  }, [s]);
+
+  // A ring that plays to its end flows into the next one, as stories do.
+  const advance = useCallback(() => {
+    if (i === N - 1 && shelves.length > 1) pick((s + 1) % shelves.length);
+    else go(i + 1);
+  }, [i, N, s, shelves.length, pick, go]);
 
   const onScroll = useCallback(() => {
     const el = track.current;
@@ -229,6 +273,24 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
       onPointerEnter={(e) => { if (e.pointerType === "mouse") setHold(true); }}
       onPointerLeave={(e) => { if (e.pointerType === "mouse") setHold(false); }}
     >
+      {/* story rings — one per department; the ring is the liturgical year's colours */}
+      {shelves.length > 1 ? (
+        <div className="reel-rings" ref={rings} role="tablist" aria-label="Browse by department">
+          {shelves.map((sh, n) => (
+            <button key={sh.key} type="button" role="tab" aria-selected={n === s}
+              aria-controls="reel-feed"
+              className={`ring${n === s ? " on" : ""}${seen.includes(sh.key) && n !== s ? " seen" : ""}`}
+              onClick={() => (n === s ? go(0) : pick(n))}>
+              <span className="ring-disc" aria-hidden="true">
+                {sh.ring ? <img src={sh.ring} alt="" loading="lazy" decoding="async" /> : <b>All</b>}
+              </span>
+              <span className="ring-lbl">{sh.label}</span>
+            </button>
+          ))}
+        </div>
+      ) : null}
+
+      <div className="reel-body" id="reel-feed">
       <div
         className={`reel-track${nudge ? " nudge" : ""}`}
         ref={track}
@@ -284,6 +346,9 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
               </div>
 
               <div className="reel-info">
+                {fr.verse ? (
+                  <p className="reel-verse"><q>{fr.verse.text}</q> <cite>{fr.verse.ref}</cite></p>
+                ) : null}
                 <span className="reel-eyebrow">{fr.eyebrow}</span>
                 <h2 className="reel-title">
                   <Link href={fr.href} tabIndex={cur ? 0 : -1}>{headline(fr.title)}</Link>
@@ -298,6 +363,15 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
                         <span className="reel-save">−{Math.round((1 - fr.price / fr.oldPrice) * 100)}%</span>
                       </>
                     ) : null}
+                  </div>
+                ) : null}
+                {fr.kind === "product" ? (
+                  <div className="reel-chips">
+                    {fr.trust?.map((t) => <span key={t} className="reel-chip">{t}</span>)}
+                    <button type="button" className="reel-chip ask" tabIndex={cur ? 0 : -1}
+                      onClick={() => openNeema(`Tell me about the ${fr.title}`)}>
+                      <img src="/brand/mark-gold.png" alt="" />Ask Neema
+                    </button>
                   </div>
                 ) : null}
                 <div className="reel-ctas">
@@ -324,7 +398,7 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
               <i
                 key={`${i}-${round}`}
                 style={{ animationDuration: `${dur}ms`, animationPlayState: running ? "running" : "paused" }}
-                onAnimationEnd={() => go(i + 1)}
+                onAnimationEnd={advance}
               />
             ) : <i />}
           </span>
@@ -383,6 +457,7 @@ export default function HomeReel({ frames }: { frames: ReelFrame[] }) {
       </div>
 
       {toast ? <div className="reel-toast" role="status">{toast}</div> : null}
+      </div>
     </section>
   );
 }

@@ -6,4 +6,6 @@ export const OPEN_SEARCH = "bh:open-search";
 export const OPEN_NEEMA = "bh:open-neema";
 
 export const openSearch = () => window.dispatchEvent(new Event(OPEN_SEARCH));
-export const openNeema = () => window.dispatchEvent(new Event(OPEN_NEEMA));
+/** Open Neema, optionally with a question ready in the box (not sent). */
+export const openNeema = (draft?: string) =>
+  window.dispatchEvent(new CustomEvent<string | undefined>(OPEN_NEEMA, { detail: draft }));

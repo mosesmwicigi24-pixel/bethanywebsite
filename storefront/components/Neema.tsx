@@ -103,7 +103,11 @@ export default function Neema() {
 
   // The mobile tab bar's Help tab (and anything else) opens the panel by event.
   useEffect(() => {
-    const onOpen = () => setOpen(true);
+    const onOpen = (e: Event) => {
+      const draft = (e as CustomEvent<string | undefined>).detail;
+      if (typeof draft === "string" && draft) setInput(draft);
+      setOpen(true);
+    };
     window.addEventListener(OPEN_NEEMA, onOpen);
     return () => window.removeEventListener(OPEN_NEEMA, onOpen);
   }, []);
