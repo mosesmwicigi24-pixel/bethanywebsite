@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { useMeasure } from "./measure";
 import { Money } from "./Money";
+import { openNeema } from "@/lib/ui-events";
 
 /* Client-side pieces of the product page. */
 
@@ -19,7 +20,13 @@ export function Gallery({ images, video, kes, usd, name }: { images: string[]; v
     ...images.map((src) => ({ kind: "image" as const, src })),
   ];
   const [active, setActive] = useState(0);
+  const [paused, setPaused] = useState(false);
   const step = (d: number) => setActive((a) => (a + d + slides.length) % slides.length);
+  const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
+    const v = e.currentTarget.parentElement?.querySelector("video");
+    if (!v) return;
+    if (v.paused) { v.play().catch(() => {}); setPaused(false); } else { v.pause(); setPaused(true); }
+  };
   const cur = slides[Math.min(active, slides.length - 1)];
 
   return (
@@ -30,7 +37,6 @@ export function Gallery({ images, video, kes, usd, name }: { images: string[]; v
             key={cur.src}
             src={cur.src}
             poster={images[0]}
-            controls
             muted
             autoPlay
             loop
@@ -44,6 +50,13 @@ export function Gallery({ images, video, kes, usd, name }: { images: string[]; v
             alt={name || "Product view"}
             onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
           />
+        )}
+        {cur.kind === "video" && (
+          <button type="button" className="gplay" onClick={toggle} aria-label={paused ? "Play video" : "Pause video"}>
+            {paused
+              ? <svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" /></svg>
+              : <svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z" /></svg>}
+          </button>
         )}
         {slides.length > 1 && (
           <>
@@ -214,10 +227,16 @@ export function StickyChrome({ name, sku, kes, usd, img, slug, variant }: {
         <div className="wrap">
           <div className="bb-info">
             <span className="im"><img src={img} alt="" /></span>
-            <span style={{ minWidth: 0 }}><b>{name}</b><span><Money kes={kes} usd={usd} /> · Look: {look}</span></span>
+            <span style={{ minWidth: 0 }}><b>{name}</b><span className="bb-meta"><Money kes={kes} usd={usd} /> · {look}</span></span>
           </div>
           <div className="bb-ctas">
-            <button className="pill pill-ghost" onClick={tryAdd}>Add to cart</button>
+            <button className="bb-ico" aria-label="Add to cart" onClick={tryAdd}>
+              <svg viewBox="0 0 24 24"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8L5 8z" /><path d="M9 10V6.5a3 3 0 0 1 6 0V10" /></svg>
+            </button>
+            <button className="bb-ico bb-neema" aria-label={`Ask Neema about the ${name}`} onClick={() => openNeema(`Tell me about the ${name}`)}>
+              <img src="/brand/mark-gold.png" alt="" />
+            </button>
+            <button className="pill pill-ghost bb-add" onClick={tryAdd}>Add to cart</button>
             <button className="pill pill-ghost bb-save" aria-pressed={saved} onClick={() => setSaved((v) => !v)}>{saved ? "♥ Saved" : "♡ Save"}</button>
             <button className="pill pill-gold" onClick={() => { if (tryAdd()) router.push("/checkout"); }}>Buy now</button>
           </div>

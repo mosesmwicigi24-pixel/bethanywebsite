@@ -73,6 +73,7 @@ export function MiniCard({ p }: { p: Product }) {
       </Link>
       {p.reviews > 0 && <div className="rating"><Stars p={p} /></div>}
       <h4>{p.name}</h4>
+      <span className="mc-cat">{p.category}</span>
       <div className="row">
         <div className="price">
           <b><Price p={p} /></b>

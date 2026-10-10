@@ -35,9 +35,7 @@ export default function LookCard({
   const modeLabel = !m ? null
     : m.mode === "ready" ? (m.size ? `Ready-made · ${m.size}` : "Ready-made")
     : "Made to measure";
-  const sub = subtitle ?? (producible
-    ? "Pick how it is made, add your size or measurements, choose a colour."
-    : "Pick a finish and quantity, then add to cart.");
+  const sub = subtitle ?? "Choose, confirm, checkout.";
 
   return (
     <section className="look" id="look" aria-label="Choose your look">
@@ -68,9 +66,9 @@ export default function LookCard({
       <div className="look-sec look-qty">
         <div className="look-lbl"><span>Quantity</span></div>
         <div className="qty">
-          <button type="button" aria-label="Decrease" onClick={() => setQty((v) => Math.max(1, v - 1))}>‹</button>
+          <button type="button" aria-label="Decrease" onClick={() => setQty((v) => Math.max(1, v - 1))}>−</button>
           <input id="pdp-qty" value={qty} readOnly aria-label="Quantity" />
-          <button type="button" aria-label="Increase" onClick={() => setQty((v) => v + 1)}>›</button>
+          <button type="button" aria-label="Increase" onClick={() => setQty((v) => v + 1)}>+</button>
         </div>
       </div>
 
