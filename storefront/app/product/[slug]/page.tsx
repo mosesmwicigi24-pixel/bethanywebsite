@@ -4,6 +4,7 @@ import { SLUG_REDIRECTS, resolveLegacySlug } from "@/lib/slug-redirects";
 import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
+import FitTitle from "@/components/FitTitle";
 import { Gallery, StickyChrome, RateInput, Helpful, BundleAdd, BuyButtons, ReadMore } from "@/components/pdp";
 import LookCard from "@/components/LookCard";
 import { MeasureProvider } from "@/components/measure";
@@ -199,7 +200,7 @@ export default async function ProductPage(
                   : "In stock · ships today"}</span>
               </div>
               <div className="buy-title">
-                <h1>{parent.name}</h1>
+                <FitTitle>{parent.name}</FitTitle>
                 <button className="wish" aria-label="Save to wishlist">♡</button>
               </div>
               <div className="rrow">

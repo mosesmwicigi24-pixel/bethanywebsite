@@ -173,18 +173,18 @@ export function MeasurementForm() {
           <button type="button" role="radio" aria-checked={m.mode === "ready"}
             className={`mode-card ${m.mode === "ready" ? "active" : ""}`} onClick={() => m.setMode("ready")}>
             <b>Ready-made</b>
-            <span>{m.sizes.length ? "Standard sizes · in stock · ships today" : "As pictured · in stock · ships today"}</span>
+            <span>In stock · ships today</span>
           </button>
           <button type="button" role="radio" aria-checked={m.mode === "custom"}
             className={`mode-card ${m.mode === "custom" ? "active" : ""}`} onClick={() => m.setMode("custom")}>
-            <b>✂ Made to measure</b>
-            <span>Your measurements · sewn in Nairobi · 5–7 days</span>
+            <b>Made to measure</b>
+            <span>Sewn in Nairobi · 5–7 days</span>
           </button>
         </div>
       )}
 
       {m.mode === "ready" && m.sizes.length === 0 ? (
-        <p className="m-note" style={{ marginTop: 0 }}>Ships as pictured in its standard size. Between sizes? Choose ✂ Made to measure and we&apos;ll sew it to your numbers at no extra cost.</p>
+        <p className="m-note" style={{ marginTop: 0 }}>Ships as pictured in its standard size. Between sizes? Choose Made to measure and we&apos;ll sew it to your numbers at no extra cost.</p>
       ) : m.mode === "ready" ? (
         <div className="size-pick">
           <div className="m-head">
@@ -200,12 +200,12 @@ export function MeasurementForm() {
             ))}
           </div>
           {m.touched && !m.valid && <p className="m-warn">Please pick a size — or switch to made-to-measure.</p>}
-          <p className="m-note">Between sizes? Choose ✂ Made to measure and we&apos;ll sew it to your numbers at no extra cost.</p>
+          <p className="m-note">Between sizes? Choose Made to measure and we&apos;ll sew it to your numbers at no extra cost.</p>
         </div>
       ) : (
         <>
           <div className="m-head">
-            <b>✂ Made to order — your measurements</b>
+            <b>Made to order — your measurements</b>
             <span>Sewn to these numbers in Nairobi · 5–7 days</span>
           </div>
           <MeasurePhoto garment={m.garment} fields={m.template.map((t) => t.name)} onApply={(name, value) => m.set(name, value)} />
