@@ -1,6 +1,7 @@
 "use client";
 
 import { ReactNode, useMemo, useState } from "react";
+import FitTitle from "./FitTitle";
 import { MeasureProvider } from "./measure";
 import { Gallery, StickyChrome, BuyButtons, ReadMore } from "./pdp";
 import LookCard from "./LookCard";
@@ -193,7 +194,7 @@ function Studio({ product, preselect, sku }: { product: Product; preselect?: str
             </span>
           </div>
           <div className="buy-title">
-            <h1>{product.name}</h1>
+            <FitTitle>{product.name}</FitTitle>
             <button className="wish" aria-label="Save to wishlist">♡</button>
           </div>
           <div className="rrow">
