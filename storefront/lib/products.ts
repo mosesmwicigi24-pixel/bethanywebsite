@@ -45,6 +45,8 @@ export interface Product {
   /** hub: products.updated_at — feeds the sitemap's lastModified so Google
       schedules recrawls when catalog content actually changes */
   updatedAt?: string;
+  /** hub: products.created_at — orders "New Arrivals" (newest listing first) */
+  createdAt?: string;
   /** hub: products.aliases — synonyms/Swahili/misspellings, searched by Neema + the search box */
   aliases?: string[];
   name: string;

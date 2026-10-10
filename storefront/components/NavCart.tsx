@@ -7,7 +7,7 @@ import { CartIcon } from "./icons";
 export default function NavCart() {
   const { count, setOpen } = useCart();
   return (
-    <button aria-label={`Cart, ${count} items`} onClick={() => setOpen(true)} style={{ display: "flex", position: "relative" }}>
+    <button className="nav-ico" aria-label={`Cart, ${count} items`} onClick={() => setOpen(true)}>
       <CartIcon />
       {count > 0 && <span className="cart-dot">{count}</span>}
     </button>

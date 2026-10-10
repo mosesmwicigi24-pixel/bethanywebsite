@@ -9,6 +9,7 @@ import { useCatalog } from "@/lib/catalogClient";
 import { useCart } from "@/lib/cart";
 import { useCurrency } from "@/lib/currency";
 import type { NeemaReply } from "@/lib/neema";
+import { OPEN_NEEMA } from "@/lib/ui-events";
 
 /* Neema — the customer-facing chat widget (advisory §3.1).
    Renders Neema's structured replies as real UI: product cards, one-tap
@@ -99,6 +100,13 @@ export default function Neema() {
   useEffect(() => {
     if (open) inputRef.current?.focus();
   }, [open]);
+
+  // The mobile tab bar's Help tab (and anything else) opens the panel by event.
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_NEEMA, onOpen);
+    return () => window.removeEventListener(OPEN_NEEMA, onOpen);
+  }, []);
 
   useEffect(() => {
     scroller.current?.scrollTo({ top: scroller.current.scrollHeight, behavior: "smooth" });

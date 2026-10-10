@@ -9,6 +9,7 @@ import { CatalogProvider } from "@/lib/catalogClient";
 import { getCatalog } from "@/lib/catalog";
 import { getSiteTheme } from "@/lib/theme";
 import CartDrawer from "@/components/CartDrawer";
+import TabBar from "@/components/TabBar";
 import MediaGuard from "@/components/MediaGuard";
 import JsonLd from "@/components/JsonLd";
 import { SITE } from "@/lib/site";
@@ -85,6 +86,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           {children}
           <Footer />
           <ChatFab />
+          <Suspense fallback={null}><TabBar /></Suspense>
           <CartDrawer />
           <MediaGuard />
         </CartProvider>
