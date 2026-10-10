@@ -279,7 +279,7 @@ export default async function ProductPage(
       <ProductRail title="You May Also Like" products={also} small tight />
 
         {(GUIDES_FOR_ROOT[rootCategory(parent.category)] ?? []).length > 0 && (
-          <section className="cat-related">
+          <section className="cat-related wrap">
             <span>Buying guides:</span>
             {(GUIDES_FOR_ROOT[rootCategory(parent.category)] ?? []).map((s) => {
               const g = guideBySlug(s);
