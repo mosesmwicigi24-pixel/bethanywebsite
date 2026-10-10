@@ -2227,3 +2227,166 @@ button{color:inherit}
 }
 /* the buy column must not grow to its content, or a one-line title widens it */
 .pdp>*,.buy,.buy-title{min-width:0}
+
+/* ============================================================
+   TABLET & DESKTOP HEADER + SLIDER (≥768px) — jojosfashion.com
+   × ke.oraimo.com, in Bethany navy and gold, set in Manrope.
+   Phones (<768px) keep the reel, glass header and tab bar as-is.
+   ============================================================ */
+.dhero,.topbar,.nav-find,.nav-depts,.nav-lbl,.nav-icons .nav-help{display:none}
+
+@media(min-width:768px){
+  :root{--nav-h:108px}
+  .reel{display:none}
+  body:has(.dhero) .creed{display:none}
+
+  /* ---- top bar ---- */
+  .utility{display:none}
+  .topbar{display:block;background:#04080f;color:#aeb9cb;font-family:var(--font-manrope),var(--font);font-size:12px;letter-spacing:.04em}
+  .topbar .wrap{display:flex;align-items:center;height:34px}
+  .tb-gap,.tb-end{flex:1}
+  .tb-msg{flex:2;position:relative;height:34px;overflow:hidden}
+  .tb-msg span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;white-space:nowrap;opacity:0;transform:translateY(8px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+  .tb-msg span.on{opacity:1;transform:none}
+  .tb-msg b{color:var(--gold-bright);font-weight:700;margin:0 4px}
+  .tb-end{display:flex;justify-content:flex-end;align-items:center;gap:16px}
+  .tb-end a{color:#fff;font-weight:600}
+  .tb-end a:hover{color:var(--gold-bright)}
+  .tb-end button{color:#7d8aa0;font-size:17px;line-height:1;padding:2px 4px}
+  .tb-end button:hover{color:#fff}
+
+  /* ---- header: two rows, Manrope, transparent over the slider ---- */
+  .nav,html[data-reel-past] body:has(.reel) .nav,body:has(.reel) .nav{background:transparent!important;border-bottom:0!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;font-family:var(--font-manrope),var(--font);pointer-events:none}
+  .nav::before{display:none!important}
+  .nav-main,.nav-depts{pointer-events:auto;background:rgba(10,20,37,.97);transition:background .35s var(--ease),transform .35s var(--ease),opacity .35s}
+  .nav .wrap.nav-main{height:64px;gap:22px;width:100%;padding:0 5.5vw}
+  .nav .logo{margin-right:0}
+  .nav .logo img{height:34px}
+  body:has(.dhero) .nav-main,body:has(.dhero) .nav-depts{background:transparent}
+  html[data-scrolled] body:has(.dhero) .nav-main,html[data-scrolled] body:has(.dhero) .nav-depts{background:rgba(10,20,37,.9);-webkit-backdrop-filter:saturate(1.4) blur(16px);backdrop-filter:saturate(1.4) blur(16px)}
+
+  .nav-find{display:flex;align-items:center;gap:10px;flex:1;max-width:560px;margin:0 auto;height:42px;padding:0 16px;border-radius:99px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);color:rgba(232,237,245,.66);font-size:13.5px;text-align:left;transition:background .2s,border-color .2s}
+  .nav-find:hover{background:rgba(255,255,255,.13);border-color:rgba(255,255,255,.3)}
+  .nav-find svg{width:17px;height:17px;flex:none;fill:none;stroke:#e8edf5;stroke-width:1.8}
+  .nav-find span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nav-find kbd{font-family:inherit;font-size:11px;color:rgba(232,237,245,.5);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:1px 6px}
+
+  .nav-icons{gap:4px}
+  .nav-icons>button[aria-label^="Search"],.nav .nav-burger,.cur-toggle{display:none!important}
+  .nav-help{order:1}.nav-acct{order:2}.nav-icons .nav-ico[aria-label^="Cart"]{order:3}
+  .nav-ico{display:flex;align-items:center;gap:8px;height:40px;padding:0 10px;border-radius:99px;color:#e8edf5;transition:background .2s}
+  .nav-ico:hover{background:rgba(255,255,255,.08)}
+  .nav-ico svg{width:19px!important;height:19px!important;fill:none;stroke:#e8edf5;stroke-width:1.7}
+  .nav-icons .nav-help{display:flex}
+  .nav-icons .cart-dot{top:3px;right:2px}
+  .cur-chip{display:block;margin-right:6px}
+  .cur-chip>button{height:40px;padding:0 14px;border:1px solid rgba(255,255,255,.2);border-radius:99px;font-size:12.5px;letter-spacing:.06em}
+  .cur-chip>button svg{display:block}
+
+  .nav-depts{display:block;border-top:1px solid rgba(255,255,255,.07)}
+  .nav-depts .wrap{display:flex;justify-content:center;align-items:center;height:44px;gap:0;width:100%;padding:0 5.5vw}
+  .nav-depts .nav-links{display:flex;flex:0 1 auto;justify-content:flex-start;gap:clamp(16px,2.3vw,36px);max-width:100%;overflow-x:auto;scrollbar-width:none}
+  .nav-depts .nav-links::-webkit-scrollbar{display:none}
+  .nav-depts .nav-links>li>a{font-size:12px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:rgba(232,237,245,.84);padding:13px 0;white-space:nowrap;border-bottom:2px solid transparent}
+  .nav-depts .nav-links>li>a:hover{color:#fff;border-bottom-color:var(--gold)}
+  .nav-depts .nav-links>li{display:list-item}
+  html[data-scroll-dir=down] .nav-depts{transform:translateY(-100%);opacity:0;pointer-events:none}
+  .nav-main{position:relative;z-index:2}
+}
+/* the big menus need the width — from small laptops up */
+@media(min-width:1024px){
+  .nav-depts .nav-links{overflow:visible}
+  .nav-depts .nav-links>li.has-mega{position:static}
+  .nav-depts .mega{display:block;position:absolute;top:100%}
+  .nav-depts .drop{display:flex;top:44px}
+}
+@media(min-width:768px) and (max-width:1099px){
+  .nav-lbl{display:none!important}
+  .nav-find kbd{display:none}
+}
+@media(min-width:1100px){.nav-lbl{display:inline;font-size:12px;font-weight:600;letter-spacing:.12em;text-transform:uppercase}}
+
+/* ---- the slider ---- */
+@media(min-width:768px){
+  .dhero{--top:calc(var(--nav-h) + env(safe-area-inset-top));--dh-h:clamp(560px,min(calc(100svh - 72px),62vw),900px);--gut:5.5vw;display:block;position:relative;height:var(--dh-h);margin:calc(-1 * var(--top)) 0 64px;background:var(--navy-950);color:#fff;font-family:var(--font-manrope),var(--font);isolation:isolate}
+  .dh-stage{position:absolute;inset:0;overflow:hidden}
+  .dh-photo{position:absolute;inset:0;opacity:0;transition:opacity 1.1s var(--ease)}
+  .dh-photo.on{opacity:1}
+  .dh-photo img{width:100%;height:100%;object-fit:cover;object-position:50% 50%;transform:scale(1.03)}
+  .dh-photo.on img{animation:dhZoom 16s linear both}
+  @keyframes dhZoom{from{transform:scale(1.03)}to{transform:scale(1.1)}}
+  .dh-scrim{position:absolute;inset:0;pointer-events:none;background:
+    linear-gradient(180deg,rgba(7,15,28,.78) 0,rgba(7,15,28,0) calc(var(--top) + 90px)),
+    linear-gradient(90deg,rgba(7,15,28,.92) 0,rgba(7,15,28,.7) 28%,rgba(7,15,28,.18) 54%,rgba(7,15,28,0) 66%),
+    linear-gradient(0deg,rgba(7,15,28,.75) 0,rgba(7,15,28,0) 36%),
+    radial-gradient(60% 70% at 100% 85%,rgba(7,15,28,.62),rgba(7,15,28,0) 70%)}
+
+  .dh-copy{position:absolute;z-index:2;left:var(--gut);bottom:110px;max-width:min(640px,50vw)}
+  .dh-copy>*{animation:dhIn .8s var(--ease) both}
+  .dh-copy>*:nth-child(2){animation-delay:.06s}.dh-copy>*:nth-child(3){animation-delay:.12s}
+  .dh-copy>*:nth-child(4){animation-delay:.18s}.dh-copy>*:nth-child(5){animation-delay:.24s}
+  @keyframes dhIn{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+  .dh-eyebrow{display:flex;align-items:center;gap:14px;font-size:11.5px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:rgba(255,255,255,.86)}
+  .dh-eyebrow i{width:46px;height:1px;background:rgba(255,255,255,.45)}
+  .dh-title{font-size:clamp(40px,5.1vw,82px);font-weight:600;line-height:1.02;letter-spacing:-.025em;margin:16px 0 14px;text-wrap:balance}
+  .dh-from{font-size:clamp(18px,1.55vw,24px);font-weight:500;letter-spacing:-.01em}
+  .dh-line{font-size:15px;line-height:1.55;color:rgba(255,255,255,.76);margin-top:8px;max-width:46ch}
+  .dh-ctas{display:flex;flex-wrap:wrap;gap:12px;margin-top:26px}
+  .dh-btn{display:inline-flex;align-items:center;gap:12px;height:52px;padding:0 26px;font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;border-radius:2px;transition:background .2s,border-color .2s,transform .15s}
+  .dh-btn:active{transform:scale(.97)}
+  .dh-btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.9}
+  .dh-gold{background:var(--gold);color:var(--navy-950);box-shadow:0 14px 34px rgba(201,162,39,.32)}
+  .dh-gold:hover{background:var(--gold-bright)}
+  .dh-ghost{border:1px solid rgba(255,255,255,.5);color:#fff;background:rgba(7,15,28,.25);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .dh-ghost:hover{border-color:#fff;background:rgba(255,255,255,.1)}
+
+  .dh-stack{position:absolute;z-index:2;right:var(--gut);bottom:110px;width:300px;display:none}
+  .dh-stack-h{font-size:11px;font-weight:600;letter-spacing:.24em;text-transform:uppercase;color:rgba(255,255,255,.75);margin-bottom:4px}
+  .dh-stack-h b{color:var(--gold-bright);font-weight:700;margin-left:6px}
+  .dh-card{position:relative;display:flex;align-items:center;gap:14px;width:100%;margin-top:10px;padding:9px;border:1px solid rgba(255,255,255,.16);border-radius:2px;background:rgba(7,15,28,.38);-webkit-backdrop-filter:blur(12px);backdrop-filter:blur(12px);color:#fff;text-align:left;overflow:hidden;transition:border-color .25s,background .25s}
+  .dh-card:hover{border-color:rgba(255,255,255,.4)}
+  .dh-card.on{border-color:rgba(230,191,71,.75);background:rgba(7,15,28,.62)}
+  .dh-card img{width:50px;height:62px;object-fit:cover;flex:none;display:block}
+  .dh-card-t{min-width:0}
+  .dh-card-t small{display:block;font-size:9.5px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+  .dh-card-t b{display:block;font-size:14px;font-weight:600;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dh-prog{position:absolute;left:0;bottom:0;height:2px;width:0;background:var(--gold);animation:dhProg linear forwards}
+  @keyframes dhProg{to{width:100%}}
+
+  .dh-arrow{position:absolute;z-index:2;top:calc(50% + var(--top) / 2);transform:translateY(-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;border:1px solid rgba(255,255,255,.22);border-radius:2px;background:rgba(7,15,28,.3);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:background .2s,border-color .2s}
+  .dh-arrow:hover{background:#fff;border-color:#fff}
+  .dh-arrow svg{width:18px;height:18px;fill:none;stroke:#fff;stroke-width:2}
+  .dh-arrow:hover svg{stroke:var(--navy-950)}
+  .dh-arrow.prev{left:18px}.dh-arrow.next{right:18px}
+
+  .dh-bars{position:absolute;z-index:2;left:50%;bottom:58px;transform:translateX(-50%);display:flex;align-items:center;gap:8px}
+  .dh-bars>button:not(.dh-pause){width:clamp(36px,4.5vw,64px);height:22px;display:flex;align-items:center}
+  .dh-bars i{display:block;width:100%;height:2px;background:linear-gradient(var(--gold-bright),var(--gold-bright)) no-repeat left/0 100%,rgba(255,255,255,.3)}
+  .dh-bars .done i{background-size:100% 100%}
+  .dh-bars .now i{animation:dhBar linear forwards}
+  @keyframes dhBar{from{background-size:0 100%}to{background-size:100% 100%}}
+  .dh-pause{width:30px;height:30px;margin-left:6px;border-radius:99px;border:1px solid rgba(255,255,255,.35);display:flex;align-items:center;justify-content:center}
+  .dh-pause svg{width:12px;height:12px;fill:#fff}
+
+  .dh-trust{position:absolute;z-index:3;left:50%;bottom:0;transform:translate(-50%,50%);width:min(1120px,89vw);display:grid;grid-template-columns:repeat(4,1fr);list-style:none;background:#fff;color:var(--ink);border-radius:4px;box-shadow:0 22px 50px rgba(7,15,28,.18);padding:0 8px}
+  .dh-trust li{display:flex;align-items:center;justify-content:center;gap:11px;padding:18px 10px;font-size:13px;font-weight:600;line-height:1.3}
+  .dh-trust li+li{border-left:1px solid var(--line)}
+  .dh-trust svg{width:22px;height:22px;flex:none;fill:none;stroke:var(--navy-700);stroke-width:1.6}
+}
+@media(min-width:1100px){.dh-stack{display:block}}
+@media(min-width:768px) and (max-width:1099px){.dh-arrow{display:none}}
+/* Neema's pill waits off-screen while the slider's trust card is in view;
+   HELP in the header opens her meanwhile */
+@media(min-width:768px){
+  body:has(.dhero) .chat-fab{transition:transform .35s var(--ease),opacity .35s}
+  html:not([data-scrolled]) body:has(.dhero) .chat-fab{transform:translateY(140%);opacity:0;pointer-events:none}
+}
+@media(min-width:768px) and (max-width:1099px){
+  .dh-photo img{object-position:16% 50%}
+}
+@media(min-width:768px) and (max-width:1023px){
+  .dh-copy{max-width:72vw}
+  .dh-trust li{font-size:11.5px;padding:14px 6px;gap:8px}
+  .dh-trust svg{width:18px;height:18px}
+}
+@media(min-width:768px) and (prefers-reduced-motion:reduce){.dh-photo.on img{animation:none}}

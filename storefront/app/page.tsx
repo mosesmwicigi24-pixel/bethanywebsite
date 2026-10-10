@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import Rail from "@/components/Rail";
 import HomeReel from "@/components/HomeReel";
+import DeskHero, { type HeroSlide } from "@/components/DeskHero";
 import { buildReelShelves } from "@/lib/reel";
 import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
@@ -38,6 +39,34 @@ export default async function Home() {
     content.home_hero,
   );
 
+  // ---- Tablet/desktop slider: designed wide photos of real Bethany pieces;
+  // titles and "From" prices come live from the catalogue.
+  const live = (slug: string) => catalog.find((p) => p.slug === slug);
+  const gowns = catalog.filter((p) => /gown/i.test(p.name) && p.price > 0);
+  const fromGown = gowns.length ? Math.min(...gowns.map((p) => p.price)) : undefined;
+  const heroSlides: HeroSlide[] = [
+    { key: "chalice", eyebrow: "Communion", title: live("chalice-royale")?.name ?? "The Golden Chalice",
+      line: "Hand-polished 24K gold with a fitted paten — the centre of the Lord's Table.",
+      from: live("chalice-royale")?.price, href: "/product/chalice-royale",
+      collection: categoryHref("Communion Elements"), img: "/hero/chalice.jpg", thumb: "/hero/chalice-thumb.jpg",
+      alt: "Golden chalice with paten on a grey studio set" },
+    { key: "cope", eyebrow: "Vestments", title: live("cope-complete-set")?.name ?? "The Cope, complete",
+      line: "Embroidered copes and mitres, made for the high days of the church year.",
+      from: live("cope-complete-set")?.price, href: live("cope-complete-set") ? "/product/cope-complete-set" : categoryHref("Clergy Apparel"),
+      collection: categoryHref("Clergy Apparel"), img: "/hero/cope.jpg", thumb: "/hero/cope-thumb.jpg",
+      alt: "Bishop in a red and gold cope and mitre with a thurible" },
+    { key: "gown", eyebrow: "Made to measure", title: "Preaching Gowns",
+      line: "Measured in Nairobi, sewn to your order, ready in 5–7 days.",
+      from: fromGown, href: categoryHref("Clergy Apparel"),
+      collection: categoryHref("Clergy Apparel"), img: "/hero/preaching-gown.jpg", thumb: "/hero/preaching-gown-thumb.jpg",
+      alt: "Minister seated in a white embroidered preaching gown" },
+    { key: "thurible", eyebrow: "Church essentials", title: live("incense-burner")?.name ?? "The Thurible",
+      line: "Gold-finished censers for incense at the altar — chain and stand included.",
+      from: live("incense-burner")?.price, href: live("incense-burner") ? "/product/incense-burner" : categoryHref("Church Essentials"),
+      collection: categoryHref("Church Essentials"), img: "/hero/thurible.jpg", thumb: "/hero/thurible-thumb.jpg",
+      alt: "Gold thurible with its chain on a grey studio set" },
+  ];
+
   const fresh = topUp(pick("ornate-chasuble", "clergy-shirt", "communion-hosts", "altar-bell", "devotional-365", "tallit-prayer-shawl"), 8);
 
   return (
@@ -45,6 +74,7 @@ export default async function Home() {
       <h1 className="sr-only">Bethany House — Holy Communion elements, clergy apparel and Christian gifts, Nairobi</h1>
       {/* ---- Opening reel: one product per screen, feed-app style ---- */}
       <HomeReel shelves={shelves} />
+      <DeskHero slides={heroSlides} />
       <div className="creed">
         <div className="wrap">
           <span><i>✦</i> Free Nairobi CBD delivery over KES 10,000</span>

@@ -7,25 +7,15 @@ import { SITE } from "@/lib/site";
 import { categoryHref } from "@/lib/categories";
 import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
 import Neema from "./Neema";
+import { NavFind, NavHelp, TopBar } from "./NavExtras";
 
 /* Shared site chrome: utility bar, nav (CSS-hover mega menu), footer, chat fab.
    All server components — interactivity is pure CSS.
    Business facts (phones, address, delivery promise) come from lib/site.ts. */
 
+/** Announcement strip above the header (tablets and up). */
 export function UtilityBar() {
-  return (
-    <div className="utility">
-      <div className="wrap">
-        <div className="promo">
-          Free delivery in Nairobi CBD for orders above <b>KES 10,000</b> — we ship across East Africa
-        </div>
-        <div className="meta">
-          <Link href="/contact">{SITE.address}</Link>
-          <a href={SITE.phoneHref}>{SITE.phone}</a>
-        </div>
-      </div>
-    </div>
-  );
+  return <TopBar />;
 }
 
 // categoryHref lives in lib/categories.ts — one definition shared by the nav, the
@@ -34,8 +24,21 @@ export function UtilityBar() {
 export function Nav() {
   return (
     <nav className="nav">
-      <div className="wrap">
+      <div className="wrap nav-main">
         <Link className="logo" href="/"><img src="/brand/logo-light.png" alt={SITE.name} /></Link>
+        <NavFind />
+        <div className="nav-icons">
+          <CurrencyToggle />
+          <CurrencyChip />
+          <Search />
+          <NavHelp />
+          <NavCart />
+          <Link className="nav-ico nav-acct" href="/orders" aria-label="My orders"><UserIcon /><span className="nav-lbl">Account</span></Link>
+          <MobileMenu />
+        </div>
+      </div>
+      <div className="nav-depts">
+       <div className="wrap">
         <ul className="nav-links">
           <li><Link href="/shop">Offers <span className="flame">🔥</span></Link></li>
           <li className="has-mega">
@@ -94,14 +97,7 @@ export function Nav() {
           <li><Link href="/shop">Hot &amp; New</Link></li>
           <li><Link className="clips-link" href="/clips">Clips <i aria-hidden="true">▶</i></Link></li>
         </ul>
-        <div className="nav-icons">
-          <CurrencyToggle />
-          <CurrencyChip />
-          <Search />
-          <NavCart />
-          <Link className="nav-ico" href="/orders" aria-label="My orders"><UserIcon /></Link>
-          <MobileMenu />
-        </div>
+       </div>
       </div>
     </nav>
   );
