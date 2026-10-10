@@ -1,7 +1,8 @@
 import Link from "next/link";
 import type { Metadata } from "next";
 import Rail from "@/components/Rail";
-import HeroCarousel from "@/components/HeroCarousel";
+import HomeReel from "@/components/HomeReel";
+import { buildReelShelves } from "@/lib/reel";
 import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
@@ -30,12 +31,20 @@ export default async function Home() {
     return [...seed, ...catalog.filter((p) => !have.has(p.slug))].slice(0, n);
   };
   const bestSellers = topUp(pick("chalice-royale", "preaching-gown-843glv9rc", "altar-wine", "pectoral-cross"), 4);
+  // ---- The opening reel: "All" plus a story ring per department.
+  const shelves = buildReelShelves(
+    catalog,
+    ["chalice-royale", "ornate-chasuble", "preaching-gown-843glv9rc", "clergy-cassock", "tallit-prayer-shawl-medium", "altar-wine", "golden-communion-tray", "pectoral-cross"],
+    content.home_hero,
+  );
+
   const fresh = topUp(pick("ornate-chasuble", "clergy-shirt", "communion-hosts", "altar-bell", "devotional-365", "tallit-prayer-shawl"), 8);
 
   return (
     <main>
-      {/* ---- Rotating campaign hero ---- */}
-      <HeroCarousel cmsSlides={content.home_hero} />
+      <h1 className="sr-only">Bethany House — Holy Communion elements, clergy apparel and Christian gifts, Nairobi</h1>
+      {/* ---- Opening reel: one product per screen, feed-app style ---- */}
+      <HomeReel shelves={shelves} />
       <div className="creed">
         <div className="wrap">
           <span><i>✦</i> Free Nairobi CBD delivery over KES 10,000</span>

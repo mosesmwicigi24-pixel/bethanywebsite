@@ -20,8 +20,17 @@ const colours = [
   ["Black", "#111"],
 ] as const;
 
-export default async function Shop({ searchParams }: { searchParams: Promise<{ category?: string }> }) {
-  const { category } = await searchParams;
+/* The phone tab bar's "Hot Now" and "New Arrivals" land here as sort orders. */
+const SORTS = {
+  hot: { label: "Hot now", lede: "What parishes are ordering most this season" },
+  new: { label: "New arrivals", lede: "The latest additions to the shelves" },
+} as const;
+type Sort = keyof typeof SORTS;
+const time = (iso?: string) => (iso ? Date.parse(iso) || 0 : 0);
+
+export default async function Shop({ searchParams }: { searchParams: Promise<{ category?: string; sort?: string }> }) {
+  const { category, sort: sortParam } = await searchParams;
+  const sort = sortParam && sortParam in SORTS ? (sortParam as Sort) : null;
   // Show parents + simple products only — variants are selected in place on
   // the product page, not listed as their own cards.
   const all = (await getCatalog()).filter((p) => !p.variantId);
@@ -35,14 +44,25 @@ export default async function Shop({ searchParams }: { searchParams: Promise<{ c
   const roots = ROOT_CATEGORIES.filter((r) => (counts.get(r) ?? 0) > 0);
   const active = roots.find((r) => r === category) ?? null;
 
-  const products = active ? all.filter((p) => rootCategory(p.category) === active) : all;
+  const filtered = active ? all.filter((p) => rootCategory(p.category) === active) : all;
+  const products = sort === "new"
+    ? [...filtered].sort((a, b) => time(b.createdAt) - time(a.createdAt))
+    : sort === "hot"
+      ? [...filtered].sort((a, b) =>
+        Number(b.badge === "best") - Number(a.badge === "best")
+        || Number(Boolean(b.video)) - Number(Boolean(a.video))
+        || b.reviews - a.reviews)
+      : filtered;
 
   return (
     <main className="wrap">
-      <Crumbs items={[{ label: "Home", href: "/" }, { label: active ?? "Communion & Clergy Store" }]} />
+      <Crumbs items={[{ label: "Home", href: "/" }, { label: active ?? (sort ? SORTS[sort].label : "Communion & Clergy Store") }]} />
       <header className="cat-head">
         <h1>Church Supplies, Communion Ware &amp; Clergy Vestments</h1>
-        <p>The full Bethany House catalogue — {all.length} products from our Nairobi store, delivered across Kenya, East Africa and worldwide.</p>
+        <p>
+          {sort ? <><b>{SORTS[sort].label}.</b> {SORTS[sort].lede} — </> : "The full Bethany House catalogue — "}
+          {all.length} products from our Nairobi store, delivered across Kenya, East Africa and worldwide.
+        </p>
       </header>
       <div className="toolbar">
         <div></div>

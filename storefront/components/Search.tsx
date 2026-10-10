@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCatalog } from "@/lib/catalogClient";
 import { Price } from "./Money";
+import { OPEN_SEARCH } from "@/lib/ui-events";
 
 const POPULAR = ["Chalice", "Preaching gown", "Altar wine", "Stole", "Communion hosts", "Tallit"];
 
@@ -46,8 +47,13 @@ export default function Search() {
         setOpen((o) => !o);
       } else if (e.key === "Escape") close();
     };
+    const onOpen = () => setOpen(true);
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    window.addEventListener(OPEN_SEARCH, onOpen);
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      window.removeEventListener(OPEN_SEARCH, onOpen);
+    };
   }, [close]);
 
   useEffect(() => {
@@ -64,7 +70,7 @@ export default function Search() {
 
   return (
     <>
-      <button aria-label="Search (⌘K)" onClick={() => setOpen(true)} style={{ display: "flex" }}>
+      <button className="nav-ico" aria-label="Search (⌘K)" onClick={() => setOpen(true)}>
         <svg viewBox="0 0 24 24" style={{ width: 20, height: 20, stroke: "#e8edf5", fill: "none", strokeWidth: 1.7 }}>
           <circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5" />
         </svg>

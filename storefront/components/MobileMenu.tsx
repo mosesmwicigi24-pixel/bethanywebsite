@@ -32,7 +32,7 @@ export default function MobileMenu() {
 
   return (
     <>
-      <button className="nav-burger" aria-label="Open menu" aria-expanded={open} onClick={() => setOpen(true)}>
+      <button className="nav-burger nav-ico" aria-label="Open menu" aria-expanded={open} onClick={() => setOpen(true)}>
         <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16" /></svg>
       </button>
 

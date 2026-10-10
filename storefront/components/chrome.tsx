@@ -2,7 +2,7 @@ import Link from "next/link";
 import Search from "./Search";
 import MobileMenu from "./MobileMenu";
 import NavCart from "./NavCart";
-import { CurrencyToggle } from "./Money";
+import { CurrencyToggle, CurrencyChip } from "./Money";
 import { SITE } from "@/lib/site";
 import { categoryHref } from "@/lib/categories";
 import { UserIcon, TruckIcon, CardIcon, ShieldIcon } from "./icons";
@@ -35,7 +35,6 @@ export function Nav() {
   return (
     <nav className="nav">
       <div className="wrap">
-        <MobileMenu />
         <Link className="logo" href="/"><img src="/brand/logo-light.png" alt={SITE.name} /></Link>
         <ul className="nav-links">
           <li><Link href="/shop">Offers <span className="flame">🔥</span></Link></li>
@@ -97,9 +96,11 @@ export function Nav() {
         </ul>
         <div className="nav-icons">
           <CurrencyToggle />
+          <CurrencyChip />
           <Search />
           <NavCart />
-          <Link href="/orders" aria-label="My orders"><UserIcon /></Link>
+          <Link className="nav-ico" href="/orders" aria-label="My orders"><UserIcon /></Link>
+          <MobileMenu />
         </div>
       </div>
     </nav>
