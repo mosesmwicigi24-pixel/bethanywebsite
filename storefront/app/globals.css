@@ -2137,3 +2137,68 @@ html[data-reel-past] body:has(.reel) .nav::before{opacity:0}
   .buybar .bb-add,.buybar .bb-save{display:none}
   .buybar .pill-gold{flex:1;height:48px;padding:0;border-radius:12px;font-size:14px;font-weight:800;letter-spacing:.08em;text-transform:uppercase}
 }
+
+/* ---- product page, round two: JoJo's tailored detailing ---- */
+.section-eyebrow{display:block;font-size:11px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.mini-card .mc-cat{display:none}
+
+@media(max-width:767px){
+  /* photo in a thin frame; square thumbnails, gold on the chosen one */
+  .gallery .main{border:1px solid var(--line);border-radius:6px;background:#fff}
+  .thumbs button{border-radius:4px;border:1.5px solid var(--line);background:#fff}
+  .thumbs button.active{border-color:var(--gold)}
+  .gallery .gnav{border-radius:4px}
+
+  /* the look card: crisp edges, one hairline per section, label left · value right */
+  .look{border-radius:4px;border-color:#e6e2d8}
+  .look-head{background:#faf5e8;padding:16px 16px 14px;align-items:flex-start}
+  .look-sub{font-size:14px;color:var(--ink);margin-top:4px}
+  .look-total{font-size:22px;font-weight:700;letter-spacing:-.01em}
+  .look-sec{padding:18px 16px;border-top-color:#ece8df}
+  .look-lbl{font-size:11px;letter-spacing:.24em;margin-bottom:14px;align-items:baseline}
+  .look-lbl .val{font-size:13px;letter-spacing:0;text-transform:none;font-weight:600}
+  .look .mode-card{border-radius:4px}
+  .look .mode-card.active{border-color:var(--gold);background:#fffbf0}
+  .look .size-pills button{border-radius:4px;height:42px}
+  .look .size-pills button.on,.look .size-pills button[aria-pressed=true]{border-color:var(--gold);background:#fffbf0}
+  .look .m-field input{border-radius:4px}
+  .look-foot{background:#fff;border-top-color:#ece8df}
+
+  /* colour: big swatches with a check badge on the chosen one */
+  .swatches{gap:12px;overflow-x:auto;padding:4px 2px 6px;scrollbar-width:none}
+  .swatches::-webkit-scrollbar{display:none}
+  .swatches button{flex:none;width:46px;height:46px;position:relative;outline:none;border:3px solid #fff;box-shadow:0 0 0 1px #e0dcd2}
+  .swatches button.active{box-shadow:0 0 0 2px var(--gold)}
+  .swatches button.active::after{content:"";position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:99px;background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23070f1c' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E") center/11px no-repeat;border:2px solid #fff}
+
+  /* quantity: square − 1 + */
+  .look-qty .qty{background:none;gap:10px;border-radius:0;overflow:visible}
+  .look-qty .qty button{width:42px;height:42px;border:1px solid #dcd8cf;border-radius:4px;font-size:18px;color:var(--ink);background:#fff}
+  .look-qty .qty input{width:30px;font-size:17px;font-weight:600}
+
+  /* description: airy, quiet, underlined Read more */
+  .desc p{font-size:15px;line-height:1.85;color:#5c6170}
+  .desc-more{font-size:14px;font-weight:600;color:var(--ink);text-decoration:none;border-bottom:1.5px solid var(--ink);padding-bottom:1px;margin-top:10px}
+
+  /* tailored corners on every action */
+  .buy-actions .pill,.buybar .pill-gold,.bb-ico{border-radius:4px}
+  .assure{border-radius:4px}
+  .cp{border-radius:4px}
+
+  /* "You may also like": eyebrow + a two-column grid of tall cards */
+  .pdp-related .section-head{margin-bottom:18px}
+  .pdp-related .section-head h2{font-family:var(--font);font-weight:700;font-size:24px;letter-spacing:-.02em}
+  .pdp-related .section-head>a{display:none}
+  .pdp-related .rail{display:grid;grid-template-columns:1fr 1fr;gap:26px 14px;overflow:visible;padding:0;scroll-snap-type:none}
+  .pdp-related .rail-nav{display:none}
+  .pdp-related .mini-card{flex:none;width:auto;border:0;border-radius:0;padding:0}
+  .pdp-related .mini-card .ph{aspect-ratio:3/4;border-radius:2px;padding:0;background:var(--tile)}
+  .pdp-related .mini-card .ph img{object-fit:cover}
+  .pdp-related .mini-card .rating{display:none}
+  .pdp-related .mini-card h4{font-size:15px;font-weight:600;padding:12px 0 0;white-space:normal;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+  .pdp-related .mini-card .mc-cat{display:block;font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted);margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pdp-related .mini-card .row{padding:8px 0 0}
+  .pdp-related .mini-card .price b{font-size:15px;font-weight:600}
+  .pdp-related .mini-card .cartbtn{display:none}
+}
+@media(max-width:767px){.pdp-related .mini-card:nth-child(n+5){display:none}}

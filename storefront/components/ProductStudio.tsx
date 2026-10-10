@@ -213,9 +213,7 @@ function Studio({ product, preselect, sku }: { product: Product; preselect?: str
             usd={usd}
             producible={producible}
             before={variantRow}
-            subtitle={multiAxis
-              ? `Pick ${varyingKeys.slice(0, 2).map((k) => k.toLowerCase()).join(" and ")} — the photos and price follow — then ${producible ? "how it is made and " : ""}quantity.`
-              : `Pick a ${axisLabel.toLowerCase()} — the photos and price follow — then ${producible ? "how it is made and " : ""}quantity.`}
+            subtitle="Choose, confirm, checkout."
             footnote={producible
               ? <>Ready-made ships <b>today in Nairobi</b> · made to measure in <b>5–7 days</b> · free Nairobi CBD delivery over KES 10,000</>
               : <>Order before <b>2 PM</b> for same-day Nairobi delivery · free in the CBD over KES 10,000</>}

@@ -11,6 +11,8 @@ export default function ProductRail({
   href = "/shop",
   small = false,
   tight = false,
+  eyebrow,
+  className = "",
 }: {
   title: string;
   products: Product[];
@@ -18,11 +20,17 @@ export default function ProductRail({
   href?: string;
   small?: boolean;
   tight?: boolean;
+  /** small tracked label above the title */
+  eyebrow?: string;
+  className?: string;
 }) {
   return (
-    <section className={`section wrap ${tight ? "section-tight" : ""}`}>
+    <section className={`section wrap ${tight ? "section-tight" : ""} ${className}`}>
       <div className="section-head">
-        <h2 className={small ? "sm" : ""}>{title}</h2>
+        <div>
+          {eyebrow ? <span className="section-eyebrow">{eyebrow}</span> : null}
+          <h2 className={small ? "sm" : ""}>{title}</h2>
+        </div>
         {cta && <Link href={href}>{cta} →</Link>}
       </div>
       <Rail navInWrap>

@@ -141,7 +141,9 @@ export default async function ProductPage(
   const related = catalog.filter((x) => !x.variantId && x.slug !== parent.slug);
   const sameCat = related.filter((x) => x.category === parent.category);
   const others = related.filter((x) => x.category !== parent.category);
-  const also = [...sameCat, ...others].slice(0, 8);
+  // Photographed products first — a placeholder tile reads as a gap in the shelf.
+  const photographed = (q: { img: string }) => Boolean(q.img) && !q.img.includes("placeholder");
+  const also = [...sameCat, ...others].sort((a, b) => Number(photographed(b)) - Number(photographed(a))).slice(0, 8);
   const isFlagship = parent.slug === "chalice-royale";
   const isCurated = Boolean(curatedBySlug(parent.baseSlug ?? parent.slug));
   const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
@@ -276,7 +278,7 @@ export default async function ProductPage(
         {isFlagship && <BoughtTogether />}
       </div>
 
-      <ProductRail title="You May Also Like" products={also} small tight />
+      <ProductRail eyebrow="Complete the altar" title="You May Also Like" products={also} small tight className="pdp-related" />
 
         {(GUIDES_FOR_ROOT[rootCategory(parent.category)] ?? []).length > 0 && (
           <section className="cat-related wrap">
