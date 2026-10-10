@@ -167,6 +167,7 @@ export default function HomeReel({ shelves }: { shelves: ReelShelf[] }) {
     if (!el) return;
     const html = document.documentElement;
     const io = new IntersectionObserver(([e]) => {
+      if (!el.getClientRects().length) { setAway(true); return; } // hidden (tablet/desktop)
       setAway(!e.isIntersecting);
       if (e.intersectionRatio < 0.12) html.dataset.reelPast = "1";
       else delete html.dataset.reelPast;

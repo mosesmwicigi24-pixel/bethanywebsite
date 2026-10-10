@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Plus_Jakarta_Sans, Fraunces } from "next/font/google";
+import { Plus_Jakarta_Sans, Fraunces, Manrope } from "next/font/google";
 import { UtilityBar, Nav, Footer, ChatFab } from "@/components/chrome";
 import SeasonRibbon from "@/components/SeasonRibbon";
 import { CartProvider } from "@/lib/cart";
@@ -10,6 +10,7 @@ import { getCatalog } from "@/lib/catalog";
 import { getSiteTheme } from "@/lib/theme";
 import CartDrawer from "@/components/CartDrawer";
 import TabBar from "@/components/TabBar";
+import { NavScroll } from "@/components/NavExtras";
 import MediaGuard from "@/components/MediaGuard";
 import JsonLd from "@/components/JsonLd";
 import { SITE } from "@/lib/site";
@@ -20,6 +21,13 @@ const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-jakarta",
+});
+
+// Tablet/desktop header and hero type (jojosfashion.com's face).
+const manrope = Manrope({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-manrope",
 });
 
 const fraunces = Fraunces({
@@ -74,7 +82,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const [catalog, siteTheme] = await Promise.all([getCatalog(), getSiteTheme()]);
   return (
-    <html lang="en" className={`${jakarta.variable} ${fraunces.variable}`}>
+    <html lang="en" className={`${jakarta.variable} ${fraunces.variable} ${manrope.variable}`}>
       <body>
         <JsonLd data={organizationJsonLd()} />
         <CurrencyProvider>
@@ -87,6 +95,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <Footer />
           <ChatFab />
           <Suspense fallback={null}><TabBar /></Suspense>
+          <NavScroll />
           <CartDrawer />
           <MediaGuard />
         </CartProvider>

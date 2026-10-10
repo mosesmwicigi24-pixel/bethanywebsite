@@ -9,6 +9,7 @@ export default function NavCart() {
   return (
     <button className="nav-ico" aria-label={`Cart, ${count} items`} onClick={() => setOpen(true)}>
       <CartIcon />
+      <span className="nav-lbl">Cart</span>
       {count > 0 && <span className="cart-dot">{count}</span>}
     </button>
   );
