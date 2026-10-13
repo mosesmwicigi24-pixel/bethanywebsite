@@ -52,7 +52,7 @@ export function ProductCard({ p }: { p: Product }) {
       <div className={`avail ${p.producible && !p.sizes ? "mto" : ""}`}>
         {p.producible
           ? p.sizes ? "Ready-made & made to measure" : "Made to order · 5–7 days"
-          : "In stock · ships today"}
+          : p.inStock === false ? "Out of stock" : "In stock · ships today"}
       </div>
       {p.seller && (
         <div className="seller">

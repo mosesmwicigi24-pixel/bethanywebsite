@@ -188,7 +188,9 @@ function toProduct(hp: HubProduct, variant?: HubVariant): Product {
     badge: hp.is_featured ? "best" : c?.badge,
     seller: c?.seller,
     category: hp.category?.name_en ?? c?.category ?? "Church Supplies",
-    inStock: hp.in_stock,
+    // Made-to-measure products are sewn to order, so a zero stock count never
+    // makes them unorderable — they must not advertise out-of-stock to Google.
+    inStock: hp.in_stock || hp.is_producible,
     updatedAt: hp.updated_at,
     createdAt: hp.created_at,
   };
