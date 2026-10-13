@@ -182,8 +182,9 @@ export function ReadMore({ text, limit = 180 }: { text: string; limit?: number }
 }
 
 /** Sticky sub-header + bottom buy bar, revealed on scroll. */
-export function StickyChrome({ name, sku, kes, usd, img, slug, variant }: {
+export function StickyChrome({ name, sku, kes, usd, img, slug, variant, inStock }: {
   name: string; sku: string; kes: number; usd: number; img: string; slug: string;
+  inStock?: boolean;
   /** The chosen variant's name, shown ahead of the mode on a variable product. */
   variant?: string;
 }) {
@@ -191,7 +192,7 @@ export function StickyChrome({ name, sku, kes, usd, img, slug, variant }: {
   const measure = useMeasure();
   const tryAdd = useTryAdd(slug);
   const [saved, setSaved] = useState(false);
-  const modeLook = !measure ? "In stock · ships today"
+  const modeLook = !measure ? (inStock === false ? "Out of stock" : "In stock · ships today")
     : measure.mode === "ready" ? (measure.size ? `Ready-made · ${measure.size}` : "Ready-made")
     : "Made to measure";
   const look = [variant, modeLook].filter(Boolean).join(" · ");

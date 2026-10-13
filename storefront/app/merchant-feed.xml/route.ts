@@ -38,6 +38,7 @@ export async function GET() {
 ${extra.slice(0, 10).map((u) => `    <g:additional_image_link>${esc(u)}</g:additional_image_link>`).join("\n")}
     <g:price>${p.price.toFixed(2)} KES</g:price>
     <g:availability>${availability}</g:availability>
+${p.producible && !p.sizes ? "    <g:min_handling_time>5</g:min_handling_time>\n    <g:max_handling_time>7</g:max_handling_time>" : ""}
     <g:condition>new</g:condition>
     <g:brand>${esc(SITE.name)}</g:brand>
     <g:identifier_exists>no</g:identifier_exists>

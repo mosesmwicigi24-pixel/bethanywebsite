@@ -175,7 +175,7 @@ export default async function ProductPage(
         { name: parent.name },
       ])} />
       {!isVariable && (
-        <StickyChrome name={parent.name} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} />
+        <StickyChrome name={parent.name} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} inStock={parent.inStock} />
       )}
 
       <div className="wrap">
@@ -197,7 +197,7 @@ export default async function ProductPage(
                 <span className="cp cp-gold">{parent.category}</span>
                 <span className="cp">{parent.producible
                   ? parent.sizes ? "Ready-made & made to measure" : "Made to measure"
-                  : "In stock · ships today"}</span>
+                  : parent.inStock === false ? "Out of stock · WhatsApp us for availability" : "In stock · ships today"}</span>
               </div>
               <div className="buy-title">
                 <FitTitle>{parent.name}</FitTitle>
