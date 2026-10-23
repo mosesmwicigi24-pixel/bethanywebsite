@@ -108,6 +108,9 @@ export const SLUG_REDIRECTS: Record<string, string> = {
   // Curated flagship slug that never existed in the hub; the nav mega-menu
   // linked it (404) until 2026-09-16 and it may sit in indexes/bookmarks.
   "communion-ware-deluxe": "golden-communion-tray",
+  // Duplicate pectoral-cross records were removed from the hub (2026-10); the
+  // bare slug still sits in Google's index.
+  "pectoral-cross": "pectoral-cross-gold",
   "stackable-goden-bread-tray": "gold-bread-tray",
   "aluminium-cover": "aluminium-tray",
   "wooden-tray-bigger": "wooden-tray",

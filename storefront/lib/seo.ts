@@ -268,7 +268,7 @@ export function organizationJsonLd(): Record<string, unknown> {
       "Church-supplies store in Nairobi, Kenya — Holy Communion elements, made-to-measure clergy vestments, covenant rings, Bibles and church gifts, delivered across Kenya, East Africa and worldwide.",
     slogan: SITE.tagline,
     foundingDate: "2019",
-    founder: { "@type": "Person", name: "Moses Mwicigi", honorificPrefix: "Pastor" },
+    founder: { "@type": "Person", "@id": `${SITE.url}/#founder`, name: "Moses Mwicigi", honorificPrefix: "Pastor", jobTitle: "Founder, Bethany House", url: abs("/about") },
     areaServed: ["Kenya", "East Africa", "Worldwide"],
     knowsAbout: [
       "Holy Communion elements",

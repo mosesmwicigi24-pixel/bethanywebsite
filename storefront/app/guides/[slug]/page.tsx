@@ -74,7 +74,18 @@ export default async function GuidePage(
         datePublished: g.published,
         dateModified: g.updated,
         image: abs("/brand/logo-light.png"),
-        author: { "@type": "Organization", name: SITE.name, url: SITE.url },
+        // The founder is the subject-matter expert behind every guide — a named
+        // author with a real public profile (About page, Daily Nation feature)
+        // is the E-E-A-T signal an organisation-as-author cannot give.
+        author: {
+          "@type": "Person",
+          "@id": `${SITE.url}/#founder`,
+          name: "Moses Mwicigi",
+          honorificPrefix: "Pastor",
+          jobTitle: "Founder, Bethany House",
+          url: abs("/about"),
+          worksFor: { "@id": `${SITE.url}/#organization` },
+        },
         publisher: { "@id": `${SITE.url}/#organization` },
         mainEntityOfPage: abs(`/guides/${g.slug}`),
       }} />
@@ -88,6 +99,7 @@ export default async function GuidePage(
       <header className="cat-head guide-head">
         <span className="eyebrow">{g.category} · {g.minutes} min read · Updated {prettyDate(g.updated)}</span>
         <h1>{g.title}</h1>
+        <p className="lede"><b>In short:</b> {g.description}</p>
         {g.intro.map((p, i) => <p key={i}>{p}</p>)}
       </header>
 
