@@ -75,3 +75,30 @@ jobs:
           GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GHCR_ACTOR: ${{ github.actor }}
           IMAGE_SHA: ${{ github.sha }}
+
+      # Tell Bing (and every IndexNow participant) which pages changed, straight
+      # after the roll-out. Bing's index feeds Copilot and is the most likely
+      # source for ChatGPT search; Google ignores IndexNow and uses the sitemap.
+      # The key is deliberately public — it only proves the host made the call.
+      - name: Ping IndexNow with the live sitemap
+        if: success()
+        run: |
+          sleep 120
+          python3 - <<'PY'
+          import json, re, urllib.request
+          sm = urllib.request.urlopen("https://bethanyhouse.co.ke/sitemap.xml", timeout=60).read().decode()
+          urls = re.findall(r"<loc>([^<]+)</loc>", sm)[:10000]
+          body = json.dumps({
+              "host": "bethanyhouse.co.ke",
+              "key": "c2be1d03679d41cfb2d29b91b636e63e",
+              "keyLocation": "https://bethanyhouse.co.ke/c2be1d03679d41cfb2d29b91b636e63e.txt",
+              "urlList": urls,
+          }).encode()
+          req = urllib.request.Request("https://api.indexnow.org/indexnow", data=body,
+                                       headers={"Content-Type": "application/json; charset=utf-8"})
+          try:
+              r = urllib.request.urlopen(req, timeout=60)
+              print("IndexNow:", r.status, "for", len(urls), "URLs")
+          except urllib.error.HTTPError as e:
+              print("IndexNow HTTP", e.code, e.read()[:200])
+          PY

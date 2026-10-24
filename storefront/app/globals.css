@@ -2390,3 +2390,6 @@ button{color:inherit}
   .dh-trust svg{width:18px;height:18px}
 }
 @media(min-width:768px) and (prefers-reduced-motion:reduce){.dh-photo.on img{animation:none}}
+
+/* guide 'In short' answer line — the one-sentence takeaway above the intro */
+.guide-head .lede{font-size:16px;line-height:1.55;border-left:3px solid var(--gold);padding-left:14px;margin:4px 0 10px}
