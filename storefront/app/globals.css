@@ -2480,3 +2480,24 @@ button{color:inherit}
   .gallery.multi .thumbs::-webkit-scrollbar{display:none}
   .gallery .main{max-height:min(calc(100vh - 190px),880px)}
 }
+
+/* ---- tablets and desktop: the whole photo, never cropped ----
+   The frame takes the photo's own shape at the largest size that fits both
+   the column and the screen, so nothing is trimmed and nothing sits below
+   the fold; a photo of a different shape is shown whole over its wash. */
+@media(min-width:768px){
+  .gallery{container-type:inline-size;--rail:0px;--gh:max(400px,min(80vh,880px))}
+  .gallery .main{width:auto;max-width:100%;max-height:none;aspect-ratio:var(--r);height:min(var(--gh),calc((100cqw - var(--rail)) / var(--r)));margin-inline:auto}
+  .gallery .main [data-fit=fill]{object-fit:contain}
+}
+@media(min-width:981px){
+  /* less air above the photo, so it can stand taller and still fit the first screen */
+  .pdp-page .crumbs{padding:14px 0 12px}
+  .pdp{padding-top:6px}
+  .gallery{--gh:max(400px,min(calc(100vh - 220px),880px))}
+  body:has(.season-ribbon) .gallery{--gh:max(400px,min(calc(100vh - 258px),880px))}
+  /* rail + photo sit together, centred in their half of the page */
+  .gallery.multi{--rail:82px;grid-template-columns:68px auto;justify-content:center}
+  .gallery.multi .main{margin-inline:0}
+  .gallery.multi .thumbs{max-height:var(--gh)}
+}
