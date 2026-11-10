@@ -190,7 +190,7 @@ export default async function ProductPage(
           <ProductStudio product={parent} preselect={p.slug} sku={sku} />
         ) : (
           <div className="pdp">
-            <Gallery kes={parent.price} usd={parent.priceUsd} images={parent.gallery ?? [parent.img]} video={parent.video} name={parent.name} />
+            <Gallery images={parent.gallery ?? [parent.img]} video={parent.video} name={parent.name} />
 
             <div className="buy">
               <div className="crumb-pills">
