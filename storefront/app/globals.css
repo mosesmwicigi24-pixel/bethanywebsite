@@ -283,8 +283,6 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;-webkit-ta
    aspect ratio, and a 1:1 source fills the frame edge-to-edge with no bands. */
 .gallery .main{background:var(--tile);border-radius:18px;aspect-ratio:1/1;width:min(100%,760px);margin-inline:auto;display:flex;align-items:center;justify-content:center;padding:36px;position:relative;overflow:hidden}
 .gallery .main img{width:100%;height:100%;object-fit:contain}
-.gallery .gnav{position:absolute;top:50%;transform:translateY(-50%);width:40px;height:40px;border-radius:99px;background:rgba(255,255,255,.9);box-shadow:var(--shadow);display:flex;align-items:center;justify-content:center;font-size:18px}
-.gallery .gnav.prev{left:14px}.gallery .gnav.next{right:14px}
 .thumbs{display:flex;gap:10px;margin-top:14px}
 .thumbs button{width:86px;height:86px;border-radius:10px;background:var(--tile);border:1.6px solid transparent;padding:8px;display:flex;align-items:center;justify-content:center}
 .thumbs button img{width:100%;height:100%;object-fit:contain}
@@ -1193,8 +1191,6 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
    why-buy band, chapter eyebrow colors
    ============================================================ */
 .pheader .ph-buy{margin-left:26px;padding:9px 20px;font-size:13.5px;white-space:nowrap;gap:5px}
-.price-chip{position:absolute;left:16px;bottom:14px;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border:1px solid var(--line);border-radius:999px;padding:8px 16px;font-size:13px;color:#555;box-shadow:var(--shadow)}
-.price-chip b{color:var(--ink);font-weight:800;margin-left:3px}
 
 /* highlights strip */
 .hilite{position:relative;background:radial-gradient(130% 140% at 20% 0%,#1b3050,var(--navy-950) 65%);border-radius:20px;color:#fff;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:20px;padding:44px 48px 74px;overflow:hidden;margin-bottom:28px}
@@ -2013,9 +2009,6 @@ html[data-reel-past] body:has(.reel) .nav::before{opacity:0}
   /* gallery */
   .gallery .main{border-radius:16px;padding:0;aspect-ratio:1/1;background:var(--tile)}
   .gallery .main img,.gallery .main video{object-fit:contain}
-  .gallery .gnav{width:34px;height:34px;font-size:16px;background:rgba(255,255,255,.85)}
-  .gallery .gnav.prev{left:10px}.gallery .gnav.next{right:10px}
-  .price-chip{display:none}
   .thumbs{gap:8px;margin-top:10px;overflow-x:auto;scrollbar-width:none}
   .thumbs::-webkit-scrollbar{display:none}
   .thumbs button{width:56px;height:56px;flex:none;padding:0;border-radius:10px;overflow:hidden;border-width:1.5px}
@@ -2147,7 +2140,6 @@ html[data-reel-past] body:has(.reel) .nav::before{opacity:0}
   .gallery .main{border:1px solid var(--line);border-radius:6px;background:#fff}
   .thumbs button{border-radius:4px;border:1.5px solid var(--line);background:#fff}
   .thumbs button.active{border-color:var(--gold)}
-  .gallery .gnav{border-radius:4px}
 
   /* the look card: crisp edges, one hairline per section, label left · value right */
   .look{border-radius:4px;border-color:#e6e2d8}
@@ -2393,3 +2385,98 @@ button{color:inherit}
 
 /* guide 'In short' answer line — the one-sentence takeaway above the intro */
 .guide-head .lede{font-size:16px;line-height:1.55;border-left:3px solid var(--gold);padding-left:14px;margin:4px 0 10px}
+
+/* ============================================================
+   PRODUCT PAGE — THE PHOTO OWNS THE SCREEN
+   One swipe track for every screen: no arrows over the picture.
+   Phones: the photo runs edge to edge from the very top (the
+   header floats over it) down to the buy bar. Desktop: the photo
+   fills its frame, thumbnails stand in a rail beside it, and the
+   gallery stays put while the buy column scrolls.
+   ============================================================ */
+.pdp-page{--top:calc(var(--nav-h) + env(safe-area-inset-top))}
+.gallery .main{--r:.8;position:relative;padding:0;overflow:hidden;background:#e9eaee;border:0;border-radius:6px;aspect-ratio:var(--r);width:100%;max-height:min(80vh,880px);display:block;margin-inline:auto}
+.gtrack{display:flex;height:100%;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;outline-offset:-3px}
+.gtrack::-webkit-scrollbar{display:none}
+.gslide{position:relative;flex:0 0 100%;height:100%;scroll-snap-align:start;scroll-snap-stop:always;overflow:hidden}
+.gallery .main .gwash{position:absolute;inset:-12%;width:124%;height:124%;object-fit:cover;filter:blur(34px) saturate(1.15);opacity:.9}
+.gallery .main .gphoto,.gallery .main video{position:relative;display:block;width:100%;height:100%;object-fit:contain;background:none}
+.gallery .main [data-fit=fill]{object-fit:cover;object-position:50% 32%}
+.gzone{position:absolute;top:0;bottom:0;width:38%;z-index:1;background:none}
+.gzone.prev{left:0;cursor:w-resize}.gzone.next{right:0;cursor:e-resize}
+@media(hover:none){.gzone{display:none}}
+.gsegs{position:absolute;z-index:2;left:50%;bottom:14px;transform:translateX(-50%);display:flex;gap:5px;padding:7px 9px;border-radius:99px;background:rgba(7,15,28,.32);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px)}
+.gsegs button{width:16px;height:3px;border-radius:99px;background:rgba(255,255,255,.5);transition:width .25s var(--ease),background .25s}
+.gsegs button.on{width:28px;background:#fff}
+.gcount{position:absolute;z-index:2;right:14px;bottom:14px;font-size:11px;font-weight:700;letter-spacing:.14em;color:#fff;padding:6px 10px;border-radius:99px;background:rgba(7,15,28,.42);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);font-variant-numeric:tabular-nums}
+.gallery .gplay{right:auto;left:14px;bottom:14px}
+.gallery .thumbs button{border-radius:4px;border:1.5px solid var(--line);background:#fff;padding:0;overflow:hidden;flex:none}
+.gallery .thumbs button img{object-fit:cover}
+.gallery .thumbs button.active{border-color:var(--gold)}
+
+/* ---- phones: full-bleed from the top of the screen to the buy bar ---- */
+@media(max-width:767px){
+  .pdp-page{--bar:calc(123px + env(safe-area-inset-bottom));--rib:0px;padding-bottom:var(--bar)}
+  body:has(.season-ribbon) .pdp-page{--rib:38px}
+  .pdp-page .crumbs{display:none}
+  .pdp{padding-top:0}
+  .gallery .main{--H:min(calc(100svh - var(--bar) - var(--rib)),calc(100vw / var(--r) + var(--top)));width:100vw;max-width:none;margin:calc(-1 * var(--top)) 0 0 calc(50% - 50vw);height:var(--H);max-height:none;aspect-ratio:auto;border:0;border-radius:0;background:var(--navy-950)}
+  .gslide{padding-top:clamp(0px,calc(var(--H) - 100vw / var(--r)),var(--top))}
+  .gallery .main::before{content:"";position:absolute;z-index:1;left:0;right:0;top:0;height:calc(var(--top) + 46px);background:linear-gradient(to bottom,rgba(5,10,20,.6),rgba(5,10,20,0));pointer-events:none}
+  .gallery .thumbs{display:none}
+  .gsegs{bottom:16px}.gcount{bottom:16px}
+  /* the header floats over the photo, and turns solid once the page moves */
+  body:has(.pdp-page) .nav{background:transparent;border-bottom-color:transparent;transition:background .3s var(--ease),border-color .3s}
+  html[data-scrolled] body:has(.pdp-page) .nav{background:rgba(10,20,37,.92);-webkit-backdrop-filter:saturate(1.4) blur(16px);backdrop-filter:saturate(1.4) blur(16px);border-bottom-color:rgba(255,255,255,.06)}
+  /* the buy bar is there from the first second, as on jojosfashion.com */
+  .buybar{transform:none}
+  .crumb-pills{margin-top:16px}
+}
+
+/* ---- tablets and desktop ---- */
+@media(min-width:768px){
+  .gallery .thumbs{gap:10px;margin-top:12px}
+  .gallery .thumbs button{width:68px;height:84px}
+  /* the buy column picks up the quiet detailing phones already have */
+  .buy h1{font-size:clamp(28px,2.5vw,40px);line-height:1.12}
+  .pricerow b{font-size:28px;font-weight:700}
+  .cp{border-radius:4px}
+  .look{border-radius:6px;border-color:#e6e2d8}
+  .look-head{background:#faf5e8;padding:16px 20px}
+  .look-sub{font-size:14.5px;color:var(--ink)}
+  .look-total{font-size:22px;font-weight:700}
+  .look-sec{padding:18px 20px;border-top-color:#ece8df}
+  .look-lbl{font-size:11px;letter-spacing:.22em;font-weight:700}
+  .look-lbl .val{font-size:13px;letter-spacing:0;text-transform:none;font-weight:600}
+  .look-foot{background:#fff;border-top-color:#ece8df;padding:12px 20px}
+  .look .mode-card{border-radius:4px}
+  .look .mode-card.active{border-color:var(--gold);background:#fffbf0}
+  .look .size-pills button{border-radius:4px}
+  .look .size-pills button.on{border-color:var(--gold);background:#fffbf0}
+  .pdp .swatches{gap:12px;padding:4px 2px}
+  .pdp .swatches button{width:42px;height:42px;position:relative;outline:none;border:3px solid #fff;box-shadow:0 0 0 1px #e0dcd2}
+  .pdp .swatches button.active{box-shadow:0 0 0 2px var(--gold)}
+  .pdp .swatches button.active::after{content:"";position:absolute;top:-6px;right:-6px;width:18px;height:18px;border-radius:99px;background:var(--gold) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23070f1c' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E") center/11px no-repeat;border:2px solid #fff}
+  .look-qty .qty{background:none;gap:10px;border-radius:0;overflow:visible}
+  .look-qty .qty button{width:42px;height:42px;border:1px solid #dcd8cf;border-radius:4px;font-size:18px;color:var(--ink);background:#fff}
+  .look-qty .qty input{width:34px;font-size:17px;font-weight:600}
+  .pdp .feat{padding:13px 0;gap:12px;font-size:14.5px;font-weight:500;color:#2c3140;line-height:1.5;border-top-color:#eff0f3}
+  .pdp .feat .ic{display:none}
+  .pdp .feat::before{content:"";flex:none;width:18px;height:18px;border-radius:99px;background:var(--gold-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a5821a' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 12.5 4 4 8-9'/%3E%3C/svg%3E") center/12px no-repeat}
+  .pdp .look+.feat{margin-top:14px;border-top:0}
+  .pdp .deliver{display:none}
+  .buy-actions{gap:12px;margin-top:22px}
+  .buy-actions .pill{height:54px;padding:0;border-radius:4px;font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .desc p{font-size:15px;line-height:1.8;color:#5c6170}
+  .desc-more{text-decoration:none;border-bottom:1.5px solid var(--ink);padding-bottom:1px}
+  .assure{border-radius:4px}
+}
+/* two columns: thumbnail rail beside the photo; the gallery stays while the column scrolls */
+@media(min-width:981px){
+  .pdp{gap:clamp(36px,4vw,72px)}
+  .gallery{position:sticky;top:88px;align-self:start}
+  .gallery.multi{display:grid;grid-template-columns:68px minmax(0,1fr);gap:14px;align-items:start}
+  .gallery.multi .thumbs{order:-1;flex-direction:column;margin:0;max-height:min(calc(100vh - 190px),880px);overflow-y:auto;scrollbar-width:none}
+  .gallery.multi .thumbs::-webkit-scrollbar{display:none}
+  .gallery .main{max-height:min(calc(100vh - 190px),880px)}
+}

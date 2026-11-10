@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/lib/cart";
 import { useMeasure } from "./measure";
@@ -11,7 +11,7 @@ import { openNeema } from "@/lib/ui-events";
 
 type Slide = { kind: "video" | "image"; src: string };
 
-export function Gallery({ images, video, kes, usd, name }: { images: string[]; video?: string; kes?: number; usd?: number; name?: string }) {
+export function Gallery({ images, video, name }: { images: string[]; video?: string; name?: string }) {
   // The clip leads the gallery when the product has one (as on jojosfashion.com):
   // it is the richest view of the piece, and the first still is its poster so
   // the frame never flashes black. Every still keeps its own thumbnail.
@@ -19,67 +19,142 @@ export function Gallery({ images, video, kes, usd, name }: { images: string[]; v
     ...(video ? [{ kind: "video" as const, src: video }] : []),
     ...images.map((src) => ({ kind: "image" as const, src })),
   ];
+  const N = slides.length;
+  const main = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
   const [paused, setPaused] = useState(false);
-  const step = (d: number) => setActive((a) => (a + d + slides.length) % slides.length);
-  const toggle = (e: React.MouseEvent<HTMLButtonElement>) => {
-    const v = e.currentTarget.parentElement?.querySelector("video");
+
+  // The frame takes the first photo's own shape (--r = width / height), so a
+  // portrait garment fills a phone screen and a square piece stays square.
+  // Photos (and the clip) close to that shape fill the frame edge to edge;
+  // one that differs a lot is shown whole over a soft wash of itself.
+  // All set straight on the elements: no re-render, and it also covers
+  // photos that finished loading before hydration.
+  const fit = useCallback(() => {
+    const box = main.current;
+    if (!box) return;
+    const first = box.querySelector<HTMLImageElement>("img.gfirst");
+    if (!first || !first.naturalWidth || first.src.endsWith("placeholder.svg")) return;
+    const r = Math.min(1.2, Math.max(0.62, first.naturalWidth / first.naturalHeight));
+    box.style.setProperty("--r", r.toFixed(3));
+    box.querySelectorAll<HTMLImageElement | HTMLVideoElement>(".gphoto, video").forEach((el) => {
+      const w = el instanceof HTMLVideoElement ? el.videoWidth : el.naturalWidth;
+      const h = el instanceof HTMLVideoElement ? el.videoHeight : el.naturalHeight;
+      if (!w || !h) return;
+      const close = Math.abs(w / h - r) / r <= 0.28;
+      if (close) el.dataset.fit = "fill"; else delete el.dataset.fit;
+    });
+  }, []);
+  useEffect(() => { fit(); }, [fit, active]);
+
+  const go = useCallback((n: number) => {
+    const el = track.current;
+    if (!el || !N) return;
+    const idx = ((n % N) + N) % N;
+    const smooth = !window.matchMedia("(prefers-reduced-motion:reduce)").matches;
+    el.scrollTo({ left: idx * el.clientWidth, behavior: smooth ? "smooth" : "auto" });
+  }, [N]);
+
+  const onScroll = () => {
+    const el = track.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollLeft / el.clientWidth);
+    if (idx !== active && idx >= 0 && idx < N) { setActive(idx); setPaused(false); }
+  };
+
+  const toggle = () => {
+    const v = track.current?.querySelector("video");
     if (!v) return;
     if (v.paused) { v.play().catch(() => {}); setPaused(false); } else { v.pause(); setPaused(true); }
   };
-  const cur = slides[Math.min(active, slides.length - 1)];
+
+  const onKey = (e: React.KeyboardEvent) => {
+    if (e.key === "ArrowRight") { e.preventDefault(); go(active + 1); }
+    else if (e.key === "ArrowLeft") { e.preventDefault(); go(active - 1); }
+  };
+
+  const firstStill = slides.findIndex((s) => s.kind === "image");
 
   return (
-    <div className="gallery">
-      <div className="main">
-        {cur.kind === "video" ? (
-          <video
-            key={cur.src}
-            src={cur.src}
-            poster={images[0]}
-            muted
-            autoPlay
-            loop
-            playsInline
-            preload="metadata"
-            aria-label={name ? `${name} — product video` : "Product video"}
-          />
-        ) : (
-          <img
-            src={cur.src}
-            alt={name || "Product view"}
-            onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
-          />
+    <div className={`gallery${N > 1 ? " multi" : ""}`}>
+      <div className="main" ref={main}>
+        {/* Swipe (or trackpad / arrow keys) through the photos — no arrows over the picture. */}
+        <div className="gtrack" ref={track} onScroll={onScroll} onKeyDown={onKey} tabIndex={0}
+          role="group" aria-roledescription="carousel" aria-label={name ? `${name} — photos` : "Product photos"}>
+          {slides.map((s, i) => {
+            const still = s.kind === "video" ? images[0] : s.src;
+            return (
+              <div className="gslide" key={`${s.kind}:${s.src}`} aria-hidden={i !== active}>
+                {/* a soft wash of the same photo fills whatever the photo's shape leaves */}
+                <img className="gwash" src={still} alt="" aria-hidden="true" loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+                {s.kind === "video" && i === active ? (
+                  <video
+                    src={s.src}
+                    poster={images[0]}
+                    muted
+                    autoPlay
+                    loop
+                    playsInline
+                    preload="metadata"
+                    onLoadedMetadata={fit}
+                    aria-label={name ? `${name} — product video` : "Product video"}
+                  />
+                ) : (
+                  <img
+                    className={`gphoto${i === firstStill ? " gfirst" : ""}`}
+                    src={still}
+                    alt={i === active ? name || "Product view" : ""}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    fetchPriority={i === 0 ? "high" : "auto"}
+                    decoding="async"
+                    draggable={false}
+                    onLoad={fit}
+                    onError={(e) => { const t = e.currentTarget; if (!t.src.endsWith("placeholder.svg")) t.src = "/brand/placeholder.svg"; }}
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {N > 1 && (
+          <>
+            {/* pointer devices: the picture's left and right halves step back and forward */}
+            <button type="button" className="gzone prev" aria-label="Previous photo" tabIndex={-1} onClick={() => go(active - 1)} />
+            <button type="button" className="gzone next" aria-label="Next photo" tabIndex={-1} onClick={() => go(active + 1)} />
+            <div className="gsegs" role="tablist" aria-label="Photos">
+              {slides.map((s, i) => (
+                <button key={`${s.kind}:${s.src}`} type="button" role="tab" aria-selected={i === active}
+                  aria-label={s.kind === "video" ? "Product video" : `Photo ${i + 1} of ${N}`}
+                  className={i === active ? "on" : ""} onClick={() => go(i)} />
+              ))}
+            </div>
+            <span className="gcount" aria-hidden="true">{active + 1} / {N}</span>
+          </>
         )}
-        {cur.kind === "video" && (
+        {slides[active]?.kind === "video" && (
           <button type="button" className="gplay" onClick={toggle} aria-label={paused ? "Play video" : "Pause video"}>
             {paused
               ? <svg viewBox="0 0 24 24"><path d="M8 5.5v13l11-6.5z" /></svg>
               : <svg viewBox="0 0 24 24"><path d="M8 5h3v14H8zM13 5h3v14h-3z" /></svg>}
           </button>
         )}
-        {slides.length > 1 && (
-          <>
-            <button className="gnav prev" aria-label="Previous image" onClick={() => step(-1)}>‹</button>
-            <button className="gnav next" aria-label="Next image" onClick={() => step(1)}>›</button>
-          </>
-        )}
-        {kes !== undefined && usd !== undefined && (
-          <span className="price-chip"><b><Money kes={kes} usd={usd} /></b></span>
-        )}
       </div>
-      <div className="thumbs">
-        {slides.map((s, i) => (
-          <button
-            key={`${s.kind}:${s.src}`}
-            className={`${i === active ? "active" : ""}${s.kind === "video" ? " vthumb" : ""}`}
-            aria-label={s.kind === "video" ? "Play product video" : undefined}
-            onClick={() => setActive(i)}
-          >
-            <img src={s.kind === "video" ? images[0] : s.src} alt="" loading="lazy" decoding="async" />
-          </button>
-        ))}
-      </div>
+      {N > 1 && (
+        <div className="thumbs">
+          {slides.map((s, i) => (
+            <button
+              key={`${s.kind}:${s.src}`}
+              className={`${i === active ? "active" : ""}${s.kind === "video" ? " vthumb" : ""}`}
+              aria-label={s.kind === "video" ? "Play product video" : `Show photo ${i + 1}`}
+              onClick={() => go(i)}
+            >
+              <img src={s.kind === "video" ? images[0] : s.src} alt="" loading="lazy" decoding="async" />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
