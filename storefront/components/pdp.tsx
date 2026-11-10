@@ -34,7 +34,9 @@ export function Gallery({ images, video, name }: { images: string[]; video?: str
   const fit = useCallback(() => {
     const box = main.current;
     if (!box) return;
-    const first = box.querySelector<HTMLImageElement>("img.gfirst");
+    // The first slide's wash is always the first still and loads eagerly, even
+    // when the slide itself shows the clip, so the shape never waits on a lazy photo.
+    const first = box.querySelector<HTMLImageElement>(".gslide:first-child .gwash");
     if (!first || !first.naturalWidth || first.src.endsWith("placeholder.svg")) return;
     const r = Math.min(1.2, Math.max(0.62, first.naturalWidth / first.naturalHeight));
     box.style.setProperty("--r", r.toFixed(3));
@@ -74,8 +76,6 @@ export function Gallery({ images, video, name }: { images: string[]; video?: str
     else if (e.key === "ArrowLeft") { e.preventDefault(); go(active - 1); }
   };
 
-  const firstStill = slides.findIndex((s) => s.kind === "image");
-
   return (
     <div className={`gallery${N > 1 ? " multi" : ""}`}>
       <div className="main" ref={main}>
@@ -87,7 +87,8 @@ export function Gallery({ images, video, name }: { images: string[]; video?: str
             return (
               <div className="gslide" key={`${s.kind}:${s.src}`} aria-hidden={i !== active}>
                 {/* a soft wash of the same photo fills whatever the photo's shape leaves */}
-                <img className="gwash" src={still} alt="" aria-hidden="true" loading={i === 0 ? "eager" : "lazy"} decoding="async" />
+                <img className="gwash" src={still} alt="" aria-hidden="true" loading={i === 0 ? "eager" : "lazy"} decoding="async"
+                  onLoad={i === 0 ? fit : undefined} />
                 {s.kind === "video" && i === active ? (
                   <video
                     src={s.src}
@@ -102,7 +103,7 @@ export function Gallery({ images, video, name }: { images: string[]; video?: str
                   />
                 ) : (
                   <img
-                    className={`gphoto${i === firstStill ? " gfirst" : ""}`}
+                    className="gphoto"
                     src={still}
                     alt={i === active ? name || "Product view" : ""}
                     loading={i === 0 ? "eager" : "lazy"}
