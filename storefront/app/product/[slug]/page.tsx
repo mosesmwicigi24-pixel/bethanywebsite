@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
 import FitTitle from "@/components/FitTitle";
-import { Gallery, StickyChrome, RateInput, Helpful, BuyButtons, ReadMore } from "@/components/pdp";
+import { Gallery, StickyChrome, RateInput, Helpful, BundleAdd, BuyButtons, ReadMore } from "@/components/pdp";
 import LookCard from "@/components/LookCard";
 import { MeasureProvider } from "@/components/measure";
 import Highlights from "@/components/Highlights";
@@ -13,7 +13,9 @@ import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
 import EditorialChapter from "@/components/EditorialChapter";
 import WhyBuy from "@/components/WhyBuy";
-import { Price, OldPrice } from "@/components/Money";
+import { Money, Price, OldPrice } from "@/components/Money";
+import Img from "@/components/Img";
+import { boughtWith } from "@/lib/pairings";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
@@ -146,6 +148,9 @@ export default async function ProductPage(
   const photographed = (q: { img: string }) => Boolean(q.img) && !q.img.includes("placeholder");
   const also = [...sameCat, ...others].sort((a, b) => Number(photographed(b)) - Number(photographed(a))).slice(0, 8);
   const isFlagship = parent.slug === "chalice-royale";
+  // "Frequently bought together": this product plus two real catalogue partners.
+  const partners = isVariable ? [] : boughtWith(parent, catalog);
+  const bundle = partners.length === 2 ? [parent, ...partners] : [];
   const isCurated = Boolean(curatedBySlug(parent.baseSlug ?? parent.slug));
   const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
 
@@ -276,6 +281,31 @@ export default async function ProductPage(
           </div>
         )}
 
+        {bundle.length === 3 && (
+          <section className="bundle" aria-label="Frequently bought together">
+            <span className="section-eyebrow">Complete the table</span>
+            <h2>Frequently bought together</h2>
+            <div className="row">
+              {bundle.map((b, i) => (
+                <div className="bcell" key={b.slug}>
+                  {i > 0 && <span className="plus-sign" aria-hidden="true">+</span>}
+                  <Link className="bitem" href={`/product/${b.slug}`}>
+                    <span className="im"><Img src={b.img} alt={b.name} /></span>
+                    <span className="btxt">
+                      <b>{b.name}</b>
+                      <span><Price p={b} />{i === 0 ? " · this item" : ""}</span>
+                    </span>
+                  </Link>
+                </div>
+              ))}
+              <div className="sum">
+                <small>All three together</small>
+                <div className="tot"><Money kes={bundle.reduce((t, b) => t + b.price, 0)} /></div>
+                <BundleAdd slugs={bundle.map((b) => b.slug)} />
+              </div>
+            </div>
+          </section>
+        )}
       </div>
 
       <ProductRail eyebrow="Complete the altar" title="You May Also Like" products={also} small tight className="pdp-related" />
