@@ -139,10 +139,9 @@ export const products: Product[] = [
     rating: 0,
     reviews: 0,
     badge: "best",
-    chips: [
-      { icon: "✦", text: "24K gold-plated brass" },
-      { icon: "✍", text: "Free engraving available" },
-    ],
+    // Owner, 2026-11-13: "24K gold-plated brass" and "Free engraving
+    // available" removed. The selling points come from the hub's Features.
+    chips: [],
     seller: "Communion Best Seller #1",
     category: "Communion Elements",
   },
