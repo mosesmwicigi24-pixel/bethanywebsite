@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
 import FitTitle from "@/components/FitTitle";
-import { Gallery, StickyChrome, RateInput, Helpful, BundleAdd, BuyButtons, ReadMore } from "@/components/pdp";
+import { Gallery, StickyChrome, RateInput, Helpful, BuyButtons, ReadMore } from "@/components/pdp";
 import LookCard from "@/components/LookCard";
 import { MeasureProvider } from "@/components/measure";
 import Highlights from "@/components/Highlights";
@@ -13,7 +13,7 @@ import CloserLook from "@/components/CloserLook";
 import PosterBanner from "@/components/PosterBanner";
 import EditorialChapter from "@/components/EditorialChapter";
 import WhyBuy from "@/components/WhyBuy";
-import { Money, Price, OldPrice } from "@/components/Money";
+import { Price, OldPrice } from "@/components/Money";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
@@ -276,7 +276,6 @@ export default async function ProductPage(
           </div>
         )}
 
-        {isFlagship && <BoughtTogether />}
       </div>
 
       <ProductRail eyebrow="Complete the altar" title="You May Also Like" products={also} small tight className="pdp-related" />
@@ -410,25 +409,9 @@ function FlagshipStory() {
         <p>The gold electroplate is sealed with an anti-tarnish coat, so weekly service — and weekly washing — keeps its lustre. A soft cloth is all it needs.</p>
       </div>
 
-      <div className="compare">
-        <table>
-          <tbody>
-            <tr><th></th><th className="hl">Chalice Royale</th><th>Chalice Classic</th></tr>
-            <tr className="imgrow"><td></td><td className="hl"><img src="/products/Chalice_Cup.jpg" alt="" /></td><td><img src="/products/Chalice_Cup21.jpg" alt="" /></td></tr>
-            <tr><td className="f">Finish</td><td className="hl">24K gold electroplate</td><td>Brushed gold tone</td></tr>
-            <tr><td className="f">Capacity</td><td className="hl">450ml</td><td>350ml</td></tr>
-            <tr><td className="f">Fitted paten lid</td><td className="hl ok">✓</td><td className="no">✕</td></tr>
-            <tr><td className="f">Jewelled stem</td><td className="hl ok">✓</td><td className="no">✕</td></tr>
-            <tr><td className="f">Free engraving</td><td className="hl ok">✓</td><td className="ok">✓</td></tr>
-            <tr><td className="f">Anti-tarnish seal</td><td className="hl ok">✓</td><td className="ok">✓</td></tr>
-            <tr><td className="f">Price</td><td className="hl">KES 18,500</td><td>KES 9,800</td></tr>
-          </tbody>
-        </table>
-      </div>
-
       <div className="inbox">
         <h4>What&apos;s in the Box?</h4>
-        <p>Chalice Royale gold chalice ×1<br />Fitted paten lid ×1<br />Velvet-lined presentation case ×1<br />Polishing cloth ×1<br />Care card ×1</p>
+        <p>Gold chalice ×1<br />Fitted paten lid ×1<br />Velvet-lined presentation case ×1<br />Polishing cloth ×1<br />Care card ×1</p>
       </div>
 
       <div className="faqs">
@@ -451,40 +434,5 @@ function FlagshipStory() {
         </details>
       </div>
     </div>
-  );
-}
-
-/** Frequently-bought-together bundle for the flagship. */
-function BoughtTogether() {
-  const items = ["chalice-royale", "altar-wine", "communion-hosts"]
-    .map(curatedBySlug)
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
-  const total = items.reduce((s, p) => s + p.price, 0);
-  const was = items.reduce((s, p) => s + (p.oldPrice ?? p.price), 0);
-  const totalUsd = items.reduce((s, p) => s + p.priceUsd, 0);
-  const wasUsd = items.reduce((s, p) => s + (p.oldPriceUsd ?? p.priceUsd), 0);
-
-  return (
-    <section className="bundle">
-      <h4>Frequently bought together</h4>
-      <div className="row">
-        {items.map((p, i) => (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }} key={p.slug}>
-            {i > 0 && <span className="plus-sign">+</span>}
-            <Link className="bitem" href={`/product/${p.slug}`}>
-              <span className="im"><img src={p.img} alt="" /></span>
-              <b>{p.short}</b>
-              <span><Price p={p} /></span>
-            </Link>
-          </div>
-        ))}
-        <div className="sum">
-          <small>The Lord&apos;s Table, complete</small>
-          <div className="tot"><Money kes={total} usd={totalUsd} /></div>
-          <div className="was"><Money kes={was} usd={wasUsd} /></div>
-          <BundleAdd slugs={items.map((p) => p.slug)} />
-        </div>
-      </div>
-    </section>
   );
 }

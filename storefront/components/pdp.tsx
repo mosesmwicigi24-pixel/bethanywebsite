@@ -186,23 +186,6 @@ const readQty = () => {
   return Math.max(1, Number(el?.value) || 1);
 };
 
-/** Add a whole bundle to the cart. */
-export function BundleAdd({ slugs }: { slugs: string[] }) {
-  const [added, setAdded] = useState(false);
-  const { add } = useCart();
-  const onAdd = () => {
-    if (added) return;
-    slugs.forEach((s) => add(s));
-    setAdded(true);
-    setTimeout(() => setAdded(false), 2200);
-  };
-  return (
-    <button className="pill pill-gold" onClick={onAdd} style={{ width: "100%" }}>
-      {added ? "✓ Added to cart" : `Add all ${slugs.length} to Cart`}
-    </button>
-  );
-}
-
 /** Add the product to the cart with the chosen quantity, size or
     measurements — refusing (and scrolling to the card) while a producible
     item's choice is incomplete. Shared by the inline buttons and the bar. */

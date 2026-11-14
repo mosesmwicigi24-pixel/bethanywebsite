@@ -46,7 +46,7 @@ export default async function Home() {
   const fromGown = gowns.length ? Math.min(...gowns.map((p) => p.price)) : undefined;
   const heroSlides: HeroSlide[] = [
     { key: "chalice", eyebrow: "Communion", title: live("chalice-royale")?.name ?? "The Golden Chalice",
-      line: "Hand-polished 24K gold with a fitted paten — the centre of the Lord's Table.",
+      line: "A gold chalice with its fitted paten — the centre of the Lord's Table.",
       from: live("chalice-royale")?.price, href: "/product/chalice-royale",
       collection: categoryHref("Communion Elements"), img: "/hero/chalice.jpg", thumb: "/hero/chalice-thumb.jpg",
       alt: "Golden chalice with paten on a grey studio set" },
@@ -133,8 +133,8 @@ export default async function Home() {
             <div className="txt">
               <span className="eyebrow">Holy Week Offer</span>
               <h3>The Lord&apos;s Table, complete.</h3>
-              <p>Chalice, altar wine and 1,000 hosts — bundled from KES 21,800.</p>
-              <Link className="pill pill-gold" href="/product/chalice-royale">Shop the bundle</Link>
+              <p>Chalice, altar wine and hosts — everything the altar calls for, in one order.</p>
+              <Link className="pill pill-gold" href={categoryHref("Communion Elements")}>Shop communion</Link>
             </div>
             <img src="/products/gold-wares.jpg" alt="" loading="lazy" decoding="async" />
           </div>
@@ -156,8 +156,8 @@ export default async function Home() {
           <div className="wrap"><h2>Explore the collection.</h2></div>
           <Rail>
             <LineupCard href="/product/chalice-royale" img="/products/Chalice_Cup.jpg"
-              dots={["#c9a227", "#cfd3da"]} title="Chalice Royale"
-              blurb="24K gold-plated chalice & paten. The centrepiece of the Lord's Table." />
+              dots={["#c9a227", "#cfd3da"]} title="Golden Chalice Cup"
+              blurb="Gold chalice with a fitted paten. The centrepiece of the Lord's Table." />
             <LineupCard href="/shop" img="/products/preaching_gown1.jpg"
               dots={["#111", "#6b3fa0", "#b0312f", "#fff"]} title="Preaching Gowns"
               blurb="Tailored in Nairobi. Made to measure for every pulpit." />
