@@ -24,6 +24,8 @@ const REVALIDATE = 300; // seconds — catalog refreshes without a rebuild
 export const CATALOG_TAG = "catalog";
 const USD_PER_KES = 1 / 100; // shop rate: USD = KES ÷ 100
 const PLACEHOLDER = "/brand/placeholder.svg";
+/** Upper bound on hub product pages read per refresh (100 products each). */
+const MAX_PAGES = 20;
 
 interface HubPrice { currency_code: string; regular_price: string; sale_price: string | null; product_variant_id: number | null }
 interface HubImage { image_url: string; is_primary?: boolean; sort_order?: number }
@@ -239,9 +241,21 @@ export async function getCatalog(): Promise<Product[]> {
   // in-process memo so a single render doesn't refetch per component
   if (_cache && Date.now() - _cache.at < REVALIDATE * 1000) return _cache.list;
 
-  const res = await hubGet<{ data: HubProduct[] }>("/products?per_page=200");
+  // The hub pages its product list (it caps per_page, whatever is asked for),
+  // so read every page: stopping at the first silently drops the rest of the
+  // catalogue from the storefront — product pages, search and cart alike.
+  type Page = { data: HubProduct[]; last_page?: number };
+  const first = await hubGet<Page>("/products?per_page=200");
+  const pages = Math.min(first?.last_page ?? 1, MAX_PAGES);
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(0, pages - 1) }, (_, i) => hubGet<Page>(`/products?per_page=200&page=${i + 2}`)),
+  );
+  // A later page failing must not replace a whole catalogue with a partial
+  // one: keep the last good list. (With none yet, serve what did load.)
+  if (rest.some((r) => !r) && _cache) return _cache.list;
+  const all = [first, ...rest].flatMap((r) => r?.data ?? []);
   // Never surface archived products (the hub API already excludes them; explicit for safety).
-  const hubProducts = (res?.data ?? []).filter((p) => p.status !== "archived");
+  const hubProducts = all.filter((p) => p.status !== "archived");
   if (!hubProducts.length) {
     // Hub unreachable — fall back to the curated set so the site still serves.
     return Object.values(curated) as Product[];
