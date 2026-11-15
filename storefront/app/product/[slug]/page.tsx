@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound, permanentRedirect } from "next/navigation";
 import { SLUG_REDIRECTS, resolveLegacySlug } from "@/lib/slug-redirects";
 import type { Metadata } from "next";
+import type { Product } from "@/lib/products";
 import Crumbs from "@/components/Crumbs";
 import ProductRail from "@/components/ProductRail";
 import FitTitle from "@/components/FitTitle";
@@ -16,6 +17,7 @@ import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
 import Img from "@/components/Img";
 import { boughtWith } from "@/lib/pairings";
+import { getInsights, hubSlug } from "@/lib/insights";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
@@ -146,11 +148,23 @@ export default async function ProductPage(
   const others = related.filter((x) => x.category !== parent.category);
   // Photographed products first — a placeholder tile reads as a gap in the shelf.
   const photographed = (q: { img: string }) => Boolean(q.img) && !q.img.includes("placeholder");
-  const also = [...sameCat, ...others].sort((a, b) => Number(photographed(b)) - Number(photographed(a))).slice(0, 8);
   const isFlagship = parent.slug === "chalice-royale";
-  // "Frequently bought together": this product plus two real catalogue partners.
-  const partners = isVariable ? [] : boughtWith(parent, catalog);
-  const bundle = partners.length === 2 ? [parent, ...partners] : [];
+  // What the receipts say sells with this product (empty when unknown).
+  const soldWith = (await getInsights()).together[hubSlug(parent)] ?? [];
+  // The bundle box: this product plus one or two real catalogue partners —
+  // from real orders when there are any, else the communion-table rule.
+  const { partners, fromSales } = boughtWith(parent, catalog, soldWith);
+  const bundle = partners.length ? [parent, ...partners] : [];
+  // The rail leads with what customers really bought alongside (minus what the
+  // bundle already shows), then the same-category shelf as before.
+  const shown = new Set(partners.map((x) => x.slug));
+  const paired = soldWith
+    .map((sl) => related.find((x) => x.slug === sl))
+    .filter((x): x is Product => Boolean(x) && !shown.has(x!.slug));
+  const rest = [...sameCat, ...others]
+    .filter((x) => !paired.includes(x))
+    .sort((a, b) => Number(photographed(b)) - Number(photographed(a)));
+  const also = [...paired, ...rest].slice(0, 8);
   const isCurated = Boolean(curatedBySlug(parent.baseSlug ?? parent.slug));
   const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
 
@@ -281,10 +295,10 @@ export default async function ProductPage(
           </div>
         )}
 
-        {bundle.length === 3 && (
-          <section className="bundle" aria-label="Frequently bought together">
-            <span className="section-eyebrow">Complete the table</span>
-            <h2>Frequently bought together</h2>
+        {bundle.length >= 2 && (
+          <section className="bundle" aria-label={fromSales ? "Frequently bought together" : "Complete the table"}>
+            <span className="section-eyebrow">{fromSales ? "From real orders" : "Bethany House suggests"}</span>
+            <h2>{fromSales ? "Frequently bought together" : "Complete the table"}</h2>
             <div className="row">
               {bundle.map((b, i) => (
                 <div className="bcell" key={b.slug}>
@@ -299,7 +313,7 @@ export default async function ProductPage(
                 </div>
               ))}
               <div className="sum">
-                <small>All three together</small>
+                <small>{bundle.length === 3 ? "All three together" : "Both together"}</small>
                 <div className="tot"><Money kes={bundle.reduce((t, b) => t + b.price, 0)} /></div>
                 <BundleAdd slugs={bundle.map((b) => b.slug)} />
               </div>

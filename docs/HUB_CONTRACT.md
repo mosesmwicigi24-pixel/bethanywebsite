@@ -370,3 +370,51 @@ Exactly what `submitReview()` sends (proxied through the storefront's `/api/neem
 ---
 
 *Contract v1. Matches `storefront/lib/hub.ts` as of this branch. Questions on the storefront side → see `docs/AI_INTEGRATION_ADVISORY.md` §4.*
+
+## 9. Buying patterns — "frequently bought together" and best sellers
+
+**Hub side:** `bethany-house` PR #571 (`StorefrontInsightsController`,
+`MetricEngine::storefrontAffinity()`). **Storefront side:** `storefront/lib/insights.ts`.
+
+### `GET /storefront/insights` — public, read-only, no key
+
+Consumed by `getInsights()` (server-side, ISR-cached ~5 min):
+
+```jsonc
+{
+  "data": {
+    // base product slug → slugs bought on the same receipts, strongest first (≤ 5)
+    "bought_together": { "altar-wine": ["communion-wafers", "communion-cups"] },
+    // base product slugs on the most receipts, most first (≤ 48)
+    "popular": ["study-bible", "altar-wine"]
+  },
+  "meta": { "window_days": 180, "generated_at": "2026-11-15T21:17:29+03:00" }
+}
+```
+
+- Mined by the Hub from **recognised sales on every channel** — till, web,
+  WhatsApp/chat and quotations that became orders — with the same thresholds as
+  the till's "usually bought with" suggestions. Unconverted quotations and
+  cancelled / voided / refunded orders never count.
+- **Slugs of published products only.** No customer, count, rate or amount ever
+  reaches the storefront.
+- An empty `bought_together` arrives as `[]` (PHP); the client reads `[]` and
+  `{}` alike as "no pairs". Slugs the catalogue doesn't hold are ignored.
+
+### Where the storefront uses it
+
+| Place | With sales data | Without (feed missing, empty, or no entry for the product) |
+|---|---|---|
+| Product page bundle box (`lib/pairings.ts`) | "Frequently bought together · From real orders" — the product + its 1–2 strongest addable companions | Communion pieces: "Complete the table · Bethany House suggests" (the wine + bread + cups rule). Others: no box. |
+| Product page "You May Also Like" | Real companions lead the rail | Same-category shelf |
+| Cart drawer | "Often bought with these" — up to 3 one-tap adds | Nothing shown |
+| `/shop?sort=hot` (Hot Now) | Best sellers first, in the Hub's order | Featured → clips → reviews |
+| Homepage "Best sellers" | Top sellers with a photo and a price | Curated flagships |
+
+The rule of the page: **"Frequently bought together" is only ever printed over
+partners that came from this feed.**
+
+### Acceptance
+
+- [ ] GET returns `data.bought_together` + `data.popular` as slugs only.
+- [ ] 404 / error / empty → every surface above shows its fallback, no error.
