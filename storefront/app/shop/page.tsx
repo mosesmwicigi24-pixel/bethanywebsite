@@ -29,6 +29,8 @@ const SORTS = {
 type Sort = keyof typeof SORTS;
 const time = (iso?: string) => (iso ? Date.parse(iso) || 0 : 0);
 
+const hasPhoto = (p: { img: string }) => Boolean(p.img) && !p.img.includes("placeholder");
+
 export default async function Shop({ searchParams }: { searchParams: Promise<{ category?: string; sort?: string }> }) {
   const { category, sort: sortParam } = await searchParams;
   const sort = sortParam && sortParam in SORTS ? (sortParam as Sort) : null;
@@ -55,7 +57,9 @@ export default async function Shop({ searchParams }: { searchParams: Promise<{ c
         Number(b.badge === "best") - Number(a.badge === "best")
         || Number(Boolean(b.video)) - Number(Boolean(a.video))
         || b.reviews - a.reviews), (await getInsights()).popular)
-      : filtered;
+      // Default view: products with a real photo first (stable — the hub's
+      // order is kept within each group), so the grid never opens on blanks.
+      : [...filtered].sort((a, b) => Number(hasPhoto(b)) - Number(hasPhoto(a)));
 
   return (
     <main className="wrap">

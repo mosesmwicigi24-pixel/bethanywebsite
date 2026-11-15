@@ -18,25 +18,35 @@ const BadgeTag = ({ p }: { p: Product }) =>
   ) : null;
 
 /** Catalog card: the photo fills the tile; under it only the name and the
-    price. Features, availability detail and the rest live on the product
-    page. The one exception rides on the photo: a "Sold out" tag, so nobody
-    opens a product they can't buy. */
+    price ("From" when the product has options at several prices). Features,
+    availability detail and the rest live on the product page. The one
+    exception rides on the photo: a "Sold out" tag, so nobody opens a product
+    they can't buy. */
 export function ProductCard({ p }: { p: Product }) {
   const href = `/product/${p.slug}`;
   const soldOut = !p.producible && p.inStock === false;
+  const hasOptions = Boolean(p.variants?.length);
+  // One tap can add it only when there is nothing left to choose.
+  const canAdd = !soldOut && !hasOptions && !p.producible && p.price > 0;
   return (
-    <article className="pcard">
+    <article className={`pcard${soldOut ? " is-sold" : ""}`}>
       <Link className="ph" href={href}>
         <HoverVideo src={p.img} video={p.video} alt={p.name} />
         {soldOut ? <span className="tag tag-sold">Sold out</span> : <BadgeTag p={p} />}
         {p.reviews > 0 && <span className="rating"><Stars p={p} /></span>}
       </Link>
-      <QuickActions slug={p.slug} />
+      <QuickActions slug={p.slug} canAdd={canAdd} />
       <h3><Link href={href}>{p.name}</Link></h3>
-      <div className="price">
-        <b><Price p={p} /></b>
-        <OldPrice p={p} />
-      </div>
+      {p.price > 0 ? (
+        <div className="price">
+          {hasOptions && <span className="from">From</span>}
+          <b><Price p={p} /></b>
+          <OldPrice p={p} />
+        </div>
+      ) : (
+        // No price set in the hub yet: say so, rather than print "KES 0".
+        <div className="price"><span className="from">Price on request</span></div>
+      )}
     </article>
   );
 }
