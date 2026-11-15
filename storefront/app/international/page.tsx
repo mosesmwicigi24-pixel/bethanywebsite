@@ -127,7 +127,7 @@ export default function InternationalPage() {
         </p>
         <p>
           <b>Gifts for a church back home.</b> Many diaspora customers pay by
-          card from abroad and have us deliver in Kenya — an engraved chalice
+          card from abroad and have us deliver in Kenya — a chalice
           for an ordination, trays for a parish anniversary. Delivery is free
           in Nairobi CBD for orders above KES 10,000, and trusted couriers
           reach the rest of Kenya and East Africa — Uganda, Tanzania, Rwanda,

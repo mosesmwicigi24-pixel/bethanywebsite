@@ -86,7 +86,7 @@ export default function CartPageClient() {
           <div className="co-line co-total"><span>Total</span><span><Money kes={subtotal} usd={subtotalUsd} /></span></div>
           <Link className="pill pill-gold" style={{ width: "100%", marginTop: 16 }} href="/checkout">Proceed to checkout</Link>
           <Link className="pill pill-ghost" style={{ width: "100%", marginTop: 10 }} href="/shop">Continue shopping</Link>
-          <p className="muted-cap" style={{ marginTop: 14 }}>M-Pesa, card &amp; cash on delivery · Free engraving on communion ware</p>
+          <p className="muted-cap" style={{ marginTop: 14 }}>M-Pesa, card &amp; cash on delivery</p>
         </aside>
       </div>
     </main>

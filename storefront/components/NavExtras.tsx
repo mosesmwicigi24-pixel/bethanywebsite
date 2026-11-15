@@ -29,7 +29,6 @@ const MESSAGES = [
   <>Free Nairobi CBD delivery on orders over <b>KES 10,000</b></>,
   <>Order before <b>2 PM</b> for same-day Nairobi delivery</>,
   <>Parish &amp; diocese accounts — <b>quotes in a day</b></>,
-  <>Free engraving on communion ware</>,
 ];
 const TOPBAR_KEY = "bh-topbar-closed";
 const TOPBAR_EVENT = "bh:topbar";

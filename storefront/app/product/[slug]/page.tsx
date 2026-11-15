@@ -348,7 +348,6 @@ export default async function ProductPage(
           <Highlights items={[
             { label: "24K Finish", title: "Hand-polished 24K gold.", text: "Electroplate over solid brass, sealed with an anti-tarnish coat — six hours of hand-polishing per piece.", img: "/products/Chalice_Cup.jpg" },
             { label: "450ml Cup", title: "A full communion cup.", text: "450ml capacity with a precisely fitted paten lid that keeps the elements covered until the moment of service.", img: "/products/Chalice_Cup21.jpg" },
-            { label: "Engraving", title: "Your parish, engraved free.", text: "Dedications, anniversaries, ordinations — etched beneath the base so the cup itself stays unmarked.", img: "/products/gold0_72.jpg" },
             { label: "The Set", title: "One finish, whole altar.", text: "Pair with the matching thurible and communion ware for a single finish across the sanctuary.", img: "/products/gold-wares.jpg" },
           ]} />
         </div>
@@ -416,7 +415,7 @@ function FlagshipStory() {
     <div id="description" className="story">
       <div className="story-lede">
         <h4>Product Notes</h4>
-        <p>Model: BH-CHL-01 · Cup capacity: 450ml · Material: brass, 24K gold electroplate · Includes fitted paten lid · Engraving: free, 3–5 working days · Hand-wash only</p>
+        <p>Model: BH-CHL-01 · Cup capacity: 450ml · Material: brass, 24K gold electroplate · Includes fitted paten lid · Hand-wash only</p>
       </div>
 
       <div className="banner dark">
@@ -436,7 +435,7 @@ function FlagshipStory() {
         <div className="cell"><h4>Jewelled node.</h4><p>Four hand-set stones mark the cross at the stem — a detail seen up close, at the rail.</p><img src="/products/Chalice_Cup21.jpg" alt="" /></div>
         <div className="cell"><h4>The full sanctuary set.</h4><p>Pair it with the matching thurible and communion ware — one finish across the whole altar.</p><img src="/products/gold-wares.jpg" alt="" /></div>
         <div className="cell wide">
-          <div><h4>From one cup to the whole congregation.</h4><p>Add the matching 40-cup communion tray — and have every piece engraved with your parish name, free, etched beneath the base.</p></div>
+          <div><h4>From one cup to the whole congregation.</h4><p>Add the matching 40-cup communion tray, so the whole table shares one finish.</p></div>
           <img src="/products/gold0_72.jpg" alt="" />
         </div>
       </div>
@@ -460,10 +459,6 @@ function FlagshipStory() {
 
       <div className="faqs">
         <h4>Questions, answered.</h4>
-        <details>
-          <summary>How does free engraving work?</summary>
-          <p>Add your parish name or dedication at checkout. Engraving is etched beneath the base — the cup itself stays unmarked — and adds 3–5 working days before dispatch.</p>
-        </details>
         <details>
           <summary>How should the chalice be cleaned?</summary>
           <p>Hand-wash with warm water and a soft cloth only. The anti-tarnish seal keeps the lustre through weekly service; avoid abrasives and dishwashers.</p>

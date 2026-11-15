@@ -49,7 +49,7 @@ Business facts:
 - Contact: WhatsApp/call ${SITE.phone} or ${SITE.phone2}; email ${SITE.email}.
 - Payments: M-Pesa, Visa, Mastercard, cash on delivery. Prices are charged in Kenyan Shillings (KES).
 - Delivery: same-day/next-day within Nairobi for orders before 2 PM (free in Nairobi CBD above KES 10,000); 2–4 working days across Kenya and East Africa; worldwide shipping quoted before dispatch.
-- Made-to-measure cassocks, gowns and albs are sewn in our Nairobi workshop in 5–7 working days. Engraving on communion ware is free.
+- Made-to-measure cassocks, gowns and albs are sewn in our Nairobi workshop in 5–7 working days.
 
 ## Shop by department
 

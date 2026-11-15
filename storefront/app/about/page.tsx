@@ -96,7 +96,7 @@ export default function AboutPage() {
           Most of what we do is repeat business: parishes and dioceses that
           restock every season and know exactly who to call. Churches that use
           wine and churches that use unfermented grape juice are equally
-          served, engraving on communion ware is free, and prices can be viewed
+          served, and prices can be viewed
           in KES, USD or ZMW.
         </p>
       </Reveal>
@@ -125,7 +125,7 @@ export default function AboutPage() {
         <div className="pillar">
           <div className="ico">✍</div>
           <h3>The milestones</h3>
-          <p>Ordinations, anniversaries and dedications — lasting gifts, with free engraving on communion ware.</p>
+          <p>Ordinations, anniversaries and dedications — lasting gifts for the church&apos;s great days.</p>
         </div>
       </Reveal>
 

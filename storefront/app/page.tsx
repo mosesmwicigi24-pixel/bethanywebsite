@@ -9,6 +9,7 @@ import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { getInsights } from "@/lib/insights";
+import { REVIEWS, GOOGLE_REVIEWS_URL } from "@/lib/reviews";
 import { getSiteContent } from "@/lib/theme";
 import { categoryHref } from "@/lib/categories";
 import { SITE } from "@/lib/site";
@@ -86,7 +87,7 @@ export default async function Home() {
           <span><i>✦</i> Free Nairobi CBD delivery over KES 10,000</span>
           <span><i>✦</i> Sonalux Building, Moi Avenue</span>
           <span><i>✦</i> Parish &amp; diocese accounts</span>
-          <span><i>✦</i> Free engraving on communion ware</span>
+          <span><i>✦</i> M-Pesa, card &amp; cash on delivery</span>
         </div>
       </div>
 
@@ -207,27 +208,36 @@ export default async function Home() {
         <ProductRail title="Fresh on the shelves." cta="Shop new arrivals" products={fresh} />
       </Reveal>
 
-      {/* ---- Testimonials ---- */}
+      {/* ---- What customers say: genuine, published reviews only (lib/reviews.ts).
+            With none on file, no quotes are shown — just the way to read them. ---- */}
       <section className="testis">
         <Reveal className="wrap">
-          <div className="section-head"><h2>Loved at the altar.</h2></div>
-          <div className="grid">
-            <article className="testi">
-              <div className="stars">★★★★★</div>
-              <q>The finish is far richer in person than in the photos. Delivered to Nakuru in two days, packed like treasure.</q>
-              <div className="who"><span className="av">M</span><span><b>Rev. Canon Mwangi</b><span>Cathedral parish, Nakuru</span></span></div>
-            </article>
-            <article className="testi">
-              <div className="stars">★★★★★</div>
-              <q>Our preaching gowns were measured on Tuesday and worn that Sunday. The tailoring is simply excellent.</q>
-              <div className="who"><span className="av">A</span><span><b>Pastor Achieng O.</b><span>Nairobi West</span></span></div>
-            </article>
-            <article className="testi">
-              <div className="stars">★★★★★</div>
-              <q>One supplier for hosts, wine and ware — with a parish account. Bethany House understands how churches buy.</q>
-              <div className="who"><span className="av">K</span><span><b>Fr. Kamau</b><span>Diocese procurement</span></span></div>
-            </article>
-          </div>
+          {REVIEWS.length > 0 ? (
+            <>
+              <div className="section-head">
+                <h2>What our customers say.</h2>
+                <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener">All reviews on Google →</a>
+              </div>
+              <div className="grid">
+                {REVIEWS.slice(0, 3).map((r) => (
+                  <article className="testi" key={`${r.author}-${r.text.slice(0, 24)}`}>
+                    <div className="stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating)}</div>
+                    <q>{r.text}</q>
+                    <div className="who">
+                      <span className="av">{r.author.trim().charAt(0).toUpperCase()}</span>
+                      <span><b>{r.author}</b><span>{r.source} review{r.when ? ` · ${r.when}` : ""}</span></span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="testis-cta">
+              <h2>See what churches say about us.</h2>
+              <p>Our customers review Bethany House on Google. Read their words there — and if we have served your church, we would be grateful for yours.</p>
+              <a className="pill pill-solid" href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener">Read our reviews on Google</a>
+            </div>
+          )}
         </Reveal>
       </section>
 
@@ -239,7 +249,7 @@ export default async function Home() {
             <article className="pillar"><div className="ico">✦</div><h3>Sanctuary-grade craft</h3><p>Communion ware in 24K electroplate, vestments embroidered by hand — chosen to be worthy of their use.</p></article>
             <article className="pillar"><div className="ico">✂</div><h3>Made to measure</h3><p>Cassocks, gowns and chasubles tailored in Nairobi to your measurements, in every liturgical colour.</p></article>
             <article className="pillar"><div className="ico">🚚</div><h3>Delivery you can plan on</h3><p>Same-day within Nairobi, days across East Africa — with delivery dates you can schedule services around.</p></article>
-            <article className="pillar"><div className="ico">🤝</div><h3>With you after the sale</h3><p>Engraving, repairs, replacements and parish accounts — a supplier relationship, not a transaction.</p></article>
+            <article className="pillar"><div className="ico">🤝</div><h3>With you after the sale</h3><p>Repairs, replacements and parish accounts — a supplier relationship, not a transaction.</p></article>
           </div>
         </Reveal>
       </section>
