@@ -4,6 +4,7 @@ import { Price, OldPrice } from "./Money";
 import CartButton from "./CartButton";
 import HoverVideo from "./HoverVideo";
 import QuickActions from "./QuickActions";
+import CardCta, { type CtaMode } from "./CardCta";
 
 const Stars = ({ p }: { p: Product }) => (
   <>
@@ -17,27 +18,40 @@ const BadgeTag = ({ p }: { p: Product }) =>
     <span className={`tag ${badgeLabel[p.badge].cls}`}>{badgeLabel[p.badge].text}</span>
   ) : null;
 
-/** Catalog card: the photo fills the tile; under it only the name and the
-    price ("From" when the product has options at several prices). Features,
-    availability detail and the rest live on the product page. The one
-    exception rides on the photo: a "Sold out" tag, so nobody opens a product
-    they can't buy. */
+/** Whole-percent saving of the sale price against the regular one. */
+const savingPct = (p: Product) =>
+  p.oldPrice && p.oldPrice > p.price && p.price > 0 ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+
+/**
+ * Catalog card, built to sell: the photo fills the tile; under it the name,
+ * the price, and one full-width button — each at the same height on every
+ * card, so a row lines up as names / prices / buttons.
+ *
+ * The button always does the next honest thing (see CardCta): add to cart,
+ * or go choose a size / option, or ask the price. Proof and urgency ride on
+ * the photo as small labels — best seller, a real saving, sold out — never
+ * invented. Everything else lives on the product page.
+ */
 export function ProductCard({ p }: { p: Product }) {
   const href = `/product/${p.slug}`;
   const soldOut = !p.producible && p.inStock === false;
   const hasOptions = Boolean(p.variants?.length);
-  // One tap can add it only when there is nothing left to choose.
-  const canAdd = !soldOut && !hasOptions && !p.producible && p.price > 0;
+  const priced = p.price > 0;
+  const off = savingPct(p);
+  const mode: CtaMode = soldOut ? "sold" : !priced ? "ask" : p.producible ? "size" : hasOptions ? "options" : "add";
   return (
     <article className={`pcard${soldOut ? " is-sold" : ""}`}>
       <Link className="ph" href={href}>
         <HoverVideo src={p.img} video={p.video} alt={p.name} />
-        {soldOut ? <span className="tag tag-sold">Sold out</span> : <BadgeTag p={p} />}
+        <span className="labels">
+          {soldOut ? <span className="tag tag-sold">Sold out</span> : <BadgeTag p={p} />}
+          {off >= 5 && !soldOut && <span className="tag tag-off">Save {off}%</span>}
+        </span>
         {p.reviews > 0 && <span className="rating"><Stars p={p} /></span>}
       </Link>
-      <QuickActions slug={p.slug} canAdd={canAdd} />
+      <QuickActions />
       <h3><Link href={href}>{p.name}</Link></h3>
-      {p.price > 0 ? (
+      {priced ? (
         <div className="price">
           {hasOptions && <span className="from">From</span>}
           <b><Price p={p} /></b>
@@ -47,6 +61,7 @@ export function ProductCard({ p }: { p: Product }) {
         // No price set in the hub yet: say so, rather than print "KES 0".
         <div className="price"><span className="from">Price on request</span></div>
       )}
+      <CardCta slug={p.slug} name={p.name} href={href} mode={mode} />
     </article>
   );
 }
