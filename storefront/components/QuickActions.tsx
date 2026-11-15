@@ -1,19 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { useCart } from "@/lib/cart";
-import { CartIcon } from "./icons";
 
-/** Hover quick-actions on product cards: wishlist + instant add-to-cart. */
-export default function QuickActions({ slug }: { slug: string }) {
+/** The wishlist heart on a product card's photo. (Adding to the cart is the
+    card's own full-width button — see CardCta.) */
+export default function QuickActions() {
   const [wished, setWished] = useState(false);
-  const { add } = useCart();
-
-  const addToCart = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    add(slug);
-  };
 
   const wish = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -23,12 +15,8 @@ export default function QuickActions({ slug }: { slug: string }) {
 
   return (
     <span className="quick">
-      <button aria-label="Add to wishlist" aria-pressed={wished} onClick={wish}
-        style={wished ? { background: "var(--gold)", color: "var(--navy-950)" } : undefined}>
-        {wished ? "♥" : "♡"}
-      </button>
-      <button aria-label="Quick add to cart" onClick={addToCart}>
-        <CartIcon />
+      <button type="button" aria-label="Add to wishlist" aria-pressed={wished} onClick={wish}>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.5s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.6a4.3 4.3 0 0 1 7.5 2.7c0 5.6-7.5 10.2-7.5 10.2z" /></svg>
       </button>
     </span>
   );

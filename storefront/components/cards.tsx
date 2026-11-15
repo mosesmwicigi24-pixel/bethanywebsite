@@ -4,6 +4,7 @@ import { Price, OldPrice } from "./Money";
 import CartButton from "./CartButton";
 import HoverVideo from "./HoverVideo";
 import QuickActions from "./QuickActions";
+import CardCta, { type CtaMode } from "./CardCta";
 
 const Stars = ({ p }: { p: Product }) => (
   <>
@@ -17,48 +18,50 @@ const BadgeTag = ({ p }: { p: Product }) =>
     <span className={`tag ${badgeLabel[p.badge].cls}`}>{badgeLabel[p.badge].text}</span>
   ) : null;
 
-/** Condense a feature line for a grid card (the product page shows it in full).
-    Most read "headline — explanation", so the headline alone is the scannable
-    label; otherwise trim at a word boundary rather than mid-word. */
-export function cardFeature(text: string, max = 46): string {
-  const head = text.split(/\s[—–]\s/)[0].trim();
-  if (head.length <= max) return head;
-  const cut = head.slice(0, max);
-  const at = cut.lastIndexOf(" ");
-  return (at > max * 0.6 ? cut.slice(0, at) : cut).replace(/[,;:]$/, "") + "…";
-}
+/** Whole-percent saving of the sale price against the regular one. */
+const savingPct = (p: Product) =>
+  p.oldPrice && p.oldPrice > p.price && p.price > 0 ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
 
-/** Full oraimo-style catalog card. */
+/**
+ * Catalog card, built to sell: the photo fills the tile; under it the name,
+ * the price, and one full-width button — each at the same height on every
+ * card, so a row lines up as names / prices / buttons.
+ *
+ * The button always does the next honest thing (see CardCta): add to cart,
+ * or go choose a size / option, or ask the price. Proof and urgency ride on
+ * the photo as small labels — best seller, a real saving, sold out — never
+ * invented. Everything else lives on the product page.
+ */
 export function ProductCard({ p }: { p: Product }) {
   const href = `/product/${p.slug}`;
+  const soldOut = !p.producible && p.inStock === false;
+  const hasOptions = Boolean(p.variants?.length);
+  const priced = p.price > 0;
+  const off = savingPct(p);
+  const mode: CtaMode = soldOut ? "sold" : !priced ? "ask" : p.producible ? "size" : hasOptions ? "options" : "add";
   return (
-    <article className="pcard">
+    <article className={`pcard${soldOut ? " is-sold" : ""}`}>
       <Link className="ph" href={href}>
-        <BadgeTag p={p} />
         <HoverVideo src={p.img} video={p.video} alt={p.name} />
+        <span className="labels">
+          {soldOut ? <span className="tag tag-sold">Sold out</span> : <BadgeTag p={p} />}
+          {off >= 5 && !soldOut && <span className="tag tag-off">Save {off}%</span>}
+        </span>
         {p.reviews > 0 && <span className="rating"><Stars p={p} /></span>}
       </Link>
-      <QuickActions slug={p.slug} />
-      <h3>{p.name}</h3>
-      <div className="chips">
-        {p.chips.slice(0, 2).map((c) => (
-          <div className="chip" key={c.text}><span className="ic">{c.icon}</span><span className="tx">{cardFeature(c.text)}</span></div>
-        ))}
-      </div>
-      <div className="price">
-        <b><Price p={p} /></b>
-        <OldPrice p={p} />
-      </div>
-      <div className={`avail ${p.producible && !p.sizes ? "mto" : ""}`}>
-        {p.producible
-          ? p.sizes ? "Ready-made & made to measure" : "Made to order · 5–7 days"
-          : p.inStock === false ? "Out of stock" : "In stock · ships today"}
-      </div>
-      {p.seller && (
-        <div className="seller">
-          <Link href={href}><span className="tag tag-top"></span> {p.seller} ›</Link>
+      <QuickActions />
+      <h3><Link href={href}>{p.name}</Link></h3>
+      {priced ? (
+        <div className="price">
+          {hasOptions && <span className="from">From</span>}
+          <b><Price p={p} /></b>
+          <OldPrice p={p} />
         </div>
+      ) : (
+        // No price set in the hub yet: say so, rather than print "KES 0".
+        <div className="price"><span className="from">Price on request</span></div>
       )}
+      <CardCta slug={p.slug} name={p.name} href={href} mode={mode} />
     </article>
   );
 }
