@@ -17,48 +17,26 @@ const BadgeTag = ({ p }: { p: Product }) =>
     <span className={`tag ${badgeLabel[p.badge].cls}`}>{badgeLabel[p.badge].text}</span>
   ) : null;
 
-/** Condense a feature line for a grid card (the product page shows it in full).
-    Most read "headline — explanation", so the headline alone is the scannable
-    label; otherwise trim at a word boundary rather than mid-word. */
-export function cardFeature(text: string, max = 46): string {
-  const head = text.split(/\s[—–]\s/)[0].trim();
-  if (head.length <= max) return head;
-  const cut = head.slice(0, max);
-  const at = cut.lastIndexOf(" ");
-  return (at > max * 0.6 ? cut.slice(0, at) : cut).replace(/[,;:]$/, "") + "…";
-}
-
-/** Full oraimo-style catalog card. */
+/** Catalog card: the photo fills the tile; under it only the name and the
+    price. Features, availability detail and the rest live on the product
+    page. The one exception rides on the photo: a "Sold out" tag, so nobody
+    opens a product they can't buy. */
 export function ProductCard({ p }: { p: Product }) {
   const href = `/product/${p.slug}`;
+  const soldOut = !p.producible && p.inStock === false;
   return (
     <article className="pcard">
       <Link className="ph" href={href}>
-        <BadgeTag p={p} />
         <HoverVideo src={p.img} video={p.video} alt={p.name} />
+        {soldOut ? <span className="tag tag-sold">Sold out</span> : <BadgeTag p={p} />}
         {p.reviews > 0 && <span className="rating"><Stars p={p} /></span>}
       </Link>
       <QuickActions slug={p.slug} />
-      <h3>{p.name}</h3>
-      <div className="chips">
-        {p.chips.slice(0, 2).map((c) => (
-          <div className="chip" key={c.text}><span className="ic">{c.icon}</span><span className="tx">{cardFeature(c.text)}</span></div>
-        ))}
-      </div>
+      <h3><Link href={href}>{p.name}</Link></h3>
       <div className="price">
         <b><Price p={p} /></b>
         <OldPrice p={p} />
       </div>
-      <div className={`avail ${p.producible && !p.sizes ? "mto" : ""}`}>
-        {p.producible
-          ? p.sizes ? "Ready-made & made to measure" : "Made to order · 5–7 days"
-          : p.inStock === false ? "Out of stock" : "In stock · ships today"}
-      </div>
-      {p.seller && (
-        <div className="seller">
-          <Link href={href}><span className="tag tag-top"></span> {p.seller} ›</Link>
-        </div>
-      )}
     </article>
   );
 }
