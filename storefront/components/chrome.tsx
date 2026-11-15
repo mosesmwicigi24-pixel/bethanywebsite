@@ -58,7 +58,7 @@ export function Nav() {
                   <div className="mega-grid">
                     <Link className="mega-feature" href="/product/chalice-royale">
                       <img src="/products/Chalice_Cup.jpg" alt="" loading="lazy" decoding="async" />
-                      Chalice Royale
+                      Golden Chalice Cup
                     </Link>
                     <Link className="mega-cell" href="/product/golden-communion-tray"><span className="tag tag-gold">Best Seller</span><img src="/products/gold-wares.jpg" alt="" loading="lazy" decoding="async" />Communion Cup Trays</Link>
                     <Link className="mega-cell" href="/product/altar-wine"><span className="tag tag-green">New Arrival</span><img src="/products/Altar_wine.jpg" alt="" loading="lazy" decoding="async" />Altar Wine</Link>

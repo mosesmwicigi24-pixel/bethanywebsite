@@ -186,7 +186,7 @@ const readQty = () => {
   return Math.max(1, Number(el?.value) || 1);
 };
 
-/** Add a whole bundle to the cart. */
+/** Add a whole "bought together" set to the cart. */
 export function BundleAdd({ slugs }: { slugs: string[] }) {
   const [added, setAdded] = useState(false);
   const { add } = useCart();
@@ -197,8 +197,8 @@ export function BundleAdd({ slugs }: { slugs: string[] }) {
     setTimeout(() => setAdded(false), 2200);
   };
   return (
-    <button className="pill pill-gold" onClick={onAdd} style={{ width: "100%" }}>
-      {added ? "✓ Added to cart" : `Add all ${slugs.length} to Cart`}
+    <button type="button" className="pill pill-gold bundle-add" onClick={onAdd}>
+      {added ? "✓ Added to cart" : `Add all ${slugs.length} to cart`}
     </button>
   );
 }

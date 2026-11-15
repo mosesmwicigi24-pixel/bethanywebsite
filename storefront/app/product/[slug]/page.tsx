@@ -14,6 +14,8 @@ import PosterBanner from "@/components/PosterBanner";
 import EditorialChapter from "@/components/EditorialChapter";
 import WhyBuy from "@/components/WhyBuy";
 import { Money, Price, OldPrice } from "@/components/Money";
+import Img from "@/components/Img";
+import { boughtWith } from "@/lib/pairings";
 import ProductStudio from "@/components/ProductStudio";
 import { getCatalog, getProductBySlug } from "@/lib/catalog";
 import { getSiteContent } from "@/lib/theme";
@@ -146,6 +148,9 @@ export default async function ProductPage(
   const photographed = (q: { img: string }) => Boolean(q.img) && !q.img.includes("placeholder");
   const also = [...sameCat, ...others].sort((a, b) => Number(photographed(b)) - Number(photographed(a))).slice(0, 8);
   const isFlagship = parent.slug === "chalice-royale";
+  // "Frequently bought together": this product plus two real catalogue partners.
+  const partners = isVariable ? [] : boughtWith(parent, catalog);
+  const bundle = partners.length === 2 ? [parent, ...partners] : [];
   const isCurated = Boolean(curatedBySlug(parent.baseSlug ?? parent.slug));
   const sku = `BH-${(parent.baseSlug ?? parent.slug).slice(0, 3).toUpperCase()}-01`;
 
@@ -276,7 +281,31 @@ export default async function ProductPage(
           </div>
         )}
 
-        {isFlagship && <BoughtTogether />}
+        {bundle.length === 3 && (
+          <section className="bundle" aria-label="Frequently bought together">
+            <span className="section-eyebrow">Complete the table</span>
+            <h2>Frequently bought together</h2>
+            <div className="row">
+              {bundle.map((b, i) => (
+                <div className="bcell" key={b.slug}>
+                  {i > 0 && <span className="plus-sign" aria-hidden="true">+</span>}
+                  <Link className="bitem" href={`/product/${b.slug}`}>
+                    <span className="im"><Img src={b.img} alt={b.name} /></span>
+                    <span className="btxt">
+                      <b>{b.name}</b>
+                      <span><Price p={b} />{i === 0 ? " · this item" : ""}</span>
+                    </span>
+                  </Link>
+                </div>
+              ))}
+              <div className="sum">
+                <small>All three together</small>
+                <div className="tot"><Money kes={bundle.reduce((t, b) => t + b.price, 0)} /></div>
+                <BundleAdd slugs={bundle.map((b) => b.slug)} />
+              </div>
+            </div>
+          </section>
+        )}
       </div>
 
       <ProductRail eyebrow="Complete the altar" title="You May Also Like" products={also} small tight className="pdp-related" />
@@ -410,25 +439,9 @@ function FlagshipStory() {
         <p>The gold electroplate is sealed with an anti-tarnish coat, so weekly service — and weekly washing — keeps its lustre. A soft cloth is all it needs.</p>
       </div>
 
-      <div className="compare">
-        <table>
-          <tbody>
-            <tr><th></th><th className="hl">Chalice Royale</th><th>Chalice Classic</th></tr>
-            <tr className="imgrow"><td></td><td className="hl"><img src="/products/Chalice_Cup.jpg" alt="" /></td><td><img src="/products/Chalice_Cup21.jpg" alt="" /></td></tr>
-            <tr><td className="f">Finish</td><td className="hl">24K gold electroplate</td><td>Brushed gold tone</td></tr>
-            <tr><td className="f">Capacity</td><td className="hl">450ml</td><td>350ml</td></tr>
-            <tr><td className="f">Fitted paten lid</td><td className="hl ok">✓</td><td className="no">✕</td></tr>
-            <tr><td className="f">Jewelled stem</td><td className="hl ok">✓</td><td className="no">✕</td></tr>
-            <tr><td className="f">Free engraving</td><td className="hl ok">✓</td><td className="ok">✓</td></tr>
-            <tr><td className="f">Anti-tarnish seal</td><td className="hl ok">✓</td><td className="ok">✓</td></tr>
-            <tr><td className="f">Price</td><td className="hl">KES 18,500</td><td>KES 9,800</td></tr>
-          </tbody>
-        </table>
-      </div>
-
       <div className="inbox">
         <h4>What&apos;s in the Box?</h4>
-        <p>Chalice Royale gold chalice ×1<br />Fitted paten lid ×1<br />Velvet-lined presentation case ×1<br />Polishing cloth ×1<br />Care card ×1</p>
+        <p>Gold chalice ×1<br />Fitted paten lid ×1<br />Velvet-lined presentation case ×1<br />Polishing cloth ×1<br />Care card ×1</p>
       </div>
 
       <div className="faqs">
@@ -451,40 +464,5 @@ function FlagshipStory() {
         </details>
       </div>
     </div>
-  );
-}
-
-/** Frequently-bought-together bundle for the flagship. */
-function BoughtTogether() {
-  const items = ["chalice-royale", "altar-wine", "communion-hosts"]
-    .map(curatedBySlug)
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
-  const total = items.reduce((s, p) => s + p.price, 0);
-  const was = items.reduce((s, p) => s + (p.oldPrice ?? p.price), 0);
-  const totalUsd = items.reduce((s, p) => s + p.priceUsd, 0);
-  const wasUsd = items.reduce((s, p) => s + (p.oldPriceUsd ?? p.priceUsd), 0);
-
-  return (
-    <section className="bundle">
-      <h4>Frequently bought together</h4>
-      <div className="row">
-        {items.map((p, i) => (
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }} key={p.slug}>
-            {i > 0 && <span className="plus-sign">+</span>}
-            <Link className="bitem" href={`/product/${p.slug}`}>
-              <span className="im"><img src={p.img} alt="" /></span>
-              <b>{p.short}</b>
-              <span><Price p={p} /></span>
-            </Link>
-          </div>
-        ))}
-        <div className="sum">
-          <small>The Lord&apos;s Table, complete</small>
-          <div className="tot"><Money kes={total} usd={totalUsd} /></div>
-          <div className="was"><Money kes={was} usd={wasUsd} /></div>
-          <BundleAdd slugs={items.map((p) => p.slug)} />
-        </div>
-      </div>
-    </section>
   );
 }
