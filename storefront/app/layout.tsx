@@ -7,6 +7,7 @@ import { CartProvider } from "@/lib/cart";
 import { CurrencyProvider } from "@/lib/currency";
 import { CatalogProvider } from "@/lib/catalogClient";
 import { getCatalog } from "@/lib/catalog";
+import { getInsights } from "@/lib/insights";
 import { getSiteTheme } from "@/lib/theme";
 import CartDrawer from "@/components/CartDrawer";
 import TabBar from "@/components/TabBar";
@@ -80,13 +81,13 @@ export const metadata: Metadata = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const [catalog, siteTheme] = await Promise.all([getCatalog(), getSiteTheme()]);
+  const [catalog, siteTheme, insights] = await Promise.all([getCatalog(), getSiteTheme(), getInsights()]);
   return (
     <html lang="en" className={`${jakarta.variable} ${fraunces.variable} ${manrope.variable}`}>
       <body>
         <JsonLd data={organizationJsonLd()} />
         <CurrencyProvider>
-        <CatalogProvider catalog={catalog}>
+        <CatalogProvider catalog={catalog} together={insights.together}>
         <CartProvider>
           <Suspense fallback={null}><SeasonRibbon site={siteTheme} /></Suspense>
           <UtilityBar />

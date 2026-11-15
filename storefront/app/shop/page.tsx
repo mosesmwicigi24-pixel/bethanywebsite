@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import Crumbs from "@/components/Crumbs";
 import { ProductCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
+import { byPopularity, getInsights } from "@/lib/insights";
 import { ROOT_CATEGORIES, rootCategory, type RootCategory } from "@/lib/categories";
 
 // Self-referencing canonical: /shop previously inherited the layout's "/"
@@ -48,10 +49,12 @@ export default async function Shop({ searchParams }: { searchParams: Promise<{ c
   const products = sort === "new"
     ? [...filtered].sort((a, b) => time(b.createdAt) - time(a.createdAt))
     : sort === "hot"
-      ? [...filtered].sort((a, b) =>
+      // What the receipts say sells most leads; products the hub has no
+      // ranking for follow in the old order (featured, clips, reviews).
+      ? byPopularity([...filtered].sort((a, b) =>
         Number(b.badge === "best") - Number(a.badge === "best")
         || Number(Boolean(b.video)) - Number(Boolean(a.video))
-        || b.reviews - a.reviews)
+        || b.reviews - a.reviews), (await getInsights()).popular)
       : filtered;
 
   return (

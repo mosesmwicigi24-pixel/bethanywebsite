@@ -6,14 +6,16 @@ import { usePathname } from "next/navigation";
 import { useCart, FREE_DELIVERY_AT } from "@/lib/cart";
 import { formatKES } from "@/lib/products";
 import { useCatalog } from "@/lib/catalogClient";
+import { hubSlug } from "@/lib/insights";
+import { cartCompanions } from "@/lib/pairings";
 import { useCurrency } from "@/lib/currency";
 import { Money } from "./Money";
 
 /** oraimo-style slide-in cart with free-delivery progress. */
 export default function CartDrawer() {
-  const { items, subtotal, subtotalUsd, open, setOpen, setQty, remove } = useCart();
+  const { items, subtotal, subtotalUsd, open, setOpen, setQty, remove, add } = useCart();
   const { currency } = useCurrency();
-  const { bySlug } = useCatalog();
+  const { bySlug, together } = useCatalog();
   const pathname = usePathname();
 
   useEffect(() => { setOpen(false); }, [pathname, setOpen]);
@@ -27,6 +29,10 @@ export default function CartDrawer() {
       window.removeEventListener("keydown", onKey);
     };
   }, [open, setOpen]);
+
+  // What customers really bought alongside the lines in this cart.
+  const inCart = items.map((i) => { const p = bySlug(i.slug); return p ? hubSlug(p) : i.slug; });
+  const suggestions = cartCompanions(inCart, together, bySlug);
 
   const toFree = Math.max(0, FREE_DELIVERY_AT - subtotal);
   const pct = Math.min(100, Math.round((subtotal / FREE_DELIVERY_AT) * 100));
@@ -86,6 +92,23 @@ export default function CartDrawer() {
               </div>
             );
           })}
+          {suggestions.length > 0 && (
+            <div className="cart-also">
+              <span className="cart-also-h">Often bought with these</span>
+              {suggestions.map((p) => (
+                <div className="cart-also-row" key={p.slug}>
+                  <Link className="im" href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
+                    <img src={p.img} alt="" loading="lazy" decoding="async" />
+                  </Link>
+                  <Link className="minw0" href={`/product/${p.slug}`} onClick={() => setOpen(false)}>
+                    <b>{p.name}</b>
+                    <span className="muted-cap"><Money kes={p.price} usd={p.priceUsd} /></span>
+                  </Link>
+                  <button type="button" onClick={() => add(p.slug)} aria-label={`Add ${p.name} to cart`}>Add</button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {items.length > 0 && (

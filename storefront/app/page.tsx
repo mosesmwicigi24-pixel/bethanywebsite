@@ -8,6 +8,7 @@ import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
+import { getInsights } from "@/lib/insights";
 import { getSiteContent } from "@/lib/theme";
 import { categoryHref } from "@/lib/categories";
 import { SITE } from "@/lib/site";
@@ -20,7 +21,7 @@ export const revalidate = 300;
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 export default async function Home() {
-  const [catalogRaw, content] = await Promise.all([getCatalog(), getSiteContent()]);
+  const [catalogRaw, content, insights] = await Promise.all([getCatalog(), getSiteContent(), getInsights()]);
   const catalog = catalogRaw.filter((p) => !p.variantId);
   const bySlug = (s: string) => catalog.find((p) => p.slug === s);
   const pick = (...slugs: string[]) =>
@@ -31,7 +32,12 @@ export default async function Home() {
     const have = new Set(seed.map((p) => p.slug));
     return [...seed, ...catalog.filter((p) => !have.has(p.slug))].slice(0, n);
   };
-  const bestSellers = topUp(pick("chalice-royale", "preaching-gown-843glv9rc", "altar-wine", "pectoral-cross"), 4);
+  // Best sellers: what the receipts say sells most (photographed, priced),
+  // then the curated flagships for any place the sales history can't fill.
+  const sold = pick(...insights.popular)
+    .filter((p) => p.price > 0 && Boolean(p.img) && !p.img.includes("placeholder"));
+  const bestSellers = topUp(
+    [...new Set([...sold, ...pick("chalice-royale", "preaching-gown-843glv9rc", "altar-wine", "pectoral-cross")])], 4);
   // ---- The opening reel: "All" plus a story ring per department.
   const shelves = buildReelShelves(
     catalog,

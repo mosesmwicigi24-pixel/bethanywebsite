@@ -1087,6 +1087,16 @@ body:has(.buybar.show) .chat-fab{bottom:calc(92px + env(safe-area-inset-bottom))
 .cart-right b{font-size:14px}
 .cart-right .rm{font-size:12px;color:var(--muted);text-decoration:underline}
 .cart-right .rm:hover{color:var(--danger)}
+/* "Often bought with these" — real co-purchases of the cart's lines */
+.cart-also{padding:18px 0 14px}
+.cart-also-h{display:block;font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.cart-also-row{display:flex;align-items:center;gap:12px;padding:8px 0}
+.cart-also-row .im{width:52px;height:52px;border-radius:10px;background:var(--tile);overflow:hidden;flex:none}
+.cart-also-row .im img{width:100%;height:100%;object-fit:cover}
+.cart-also-row .minw0{flex:1;min-width:0}
+.cart-also-row b{display:block;font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cart-also-row button{flex:none;height:34px;padding:0 16px;border:1px solid var(--ink);border-radius:99px;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase}
+.cart-also-row button:hover{background:var(--ink);color:#fff}
 .cart-foot{padding:16px 24px 22px;border-top:1px solid var(--line)}
 .cart-sub{display:flex;justify-content:space-between;font-weight:800;font-size:17px;margin-bottom:14px}
 .cart-empty{display:flex;flex-direction:column;align-items:center;gap:12px;padding:70px 0;color:var(--muted)}
