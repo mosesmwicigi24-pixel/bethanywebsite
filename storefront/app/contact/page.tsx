@@ -61,7 +61,7 @@ export default function ContactPage() {
             <a href={SITE.phoneHref}>{SITE.phone}</a>
             <a href={SITE.phoneHref2}>{SITE.phone2}</a>
           </div>
-          <p>{SITE.hours}. Parish accounts, quotations and engraving requests welcome.</p>
+          <p>{SITE.hours}. Parish accounts and quotations welcome.</p>
         </div>
         <div className="contact-card">
           <h2>Email</h2>
@@ -81,7 +81,7 @@ export default function ContactPage() {
         <h2>For parishes &amp; dioceses</h2>
         <p>
           We supply churches on recurring orders — communion elements restocked
-          each season, vestments for new ordinands, engraved ware for
+          each season, vestments for new ordinands, communion ware for
           anniversaries. Call or WhatsApp {SITE.phone} and ask for a parish
           account, and we will prepare a formal quotation for your committee.
         </p>

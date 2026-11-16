@@ -51,7 +51,7 @@ const GROUPS: { h: string; items: { q: string; a: string }[] }[] = [
     ],
   },
   {
-    h: "Made-to-measure & engraving",
+    h: "Made-to-measure & communion elements",
     items: [
       {
         q: "How long does a made-to-measure cassock or gown take?",
@@ -60,10 +60,6 @@ const GROUPS: { h: string; items: { q: string; a: string }[] }[] = [
       {
         q: "How do I send my measurements?",
         a: "Each vestment's product page has a measurement form — enter your numbers there, or pick a ready-made size instead. If you are unsure how to measure, WhatsApp us and we will guide you through it.",
-      },
-      {
-        q: "Do you engrave?",
-        a: "Yes — engraving on communion ware is free: parish names, dedications and anniversaries, etched beneath the base so the piece itself stays unmarked.",
       },
       {
         q: "Do you stock both communion wine and non-alcoholic grape juice?",
@@ -93,12 +89,12 @@ const GROUPS: { h: string; items: { q: string; a: string }[] }[] = [
 export const metadata: Metadata = {
   title: "FAQs",
   description:
-    "Answers about ordering, M-Pesa and card payment, Nairobi and Kenya-wide delivery, worldwide shipping, made-to-measure vestments, free engraving and returns at Bethany House.",
+    "Answers about ordering, M-Pesa and card payment, Nairobi and Kenya-wide delivery, worldwide shipping, made-to-measure vestments and returns at Bethany House.",
   alternates: { canonical: "/faq" },
   openGraph: {
     type: "website",
     title: `FAQs | ${SITE.name}`,
-    description: "Ordering, delivery, made-to-measure vestments, engraving and returns — answered.",
+    description: "Ordering, delivery, made-to-measure vestments and returns — answered.",
     url: `${SITE.url}/faq`,
   },
 };

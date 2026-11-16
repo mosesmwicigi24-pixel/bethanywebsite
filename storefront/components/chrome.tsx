@@ -72,7 +72,7 @@ export function Nav() {
                     <div className="perk"><div className="ico">📱</div>M-Pesa Till</div>
                     <div className="perk"><div className="ico">🚚</div>Same-day Nairobi</div>
                     <div className="perk"><div className="ico">🎁</div>Parish Accounts</div>
-                    <div className="perk"><div className="ico">✍️</div>Engraving</div>
+                    <div className="perk"><div className="ico">✂️</div>Made to Measure</div>
                   </div>
                   <div className="contact">
                     <span className="badge-pay">M-PESA</span><span className="badge-pay">VISA</span><span className="badge-pay">COD</span>
@@ -141,7 +141,6 @@ export function Footer() {
           <Link href="/international">International Orders</Link>
           <Link href="/policies/shipping">Delivery &amp; Returns</Link>
           <a href={SITE.phoneHref}>Parish Accounts</a>
-          <a href={SITE.phoneHref}>Engraving Services</a>
           <Link href="/about">About Us</Link>
           <Link href="/contact">Contact Us</Link>
         </div>

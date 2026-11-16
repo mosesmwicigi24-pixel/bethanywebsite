@@ -12,7 +12,7 @@ export interface Pillar {
 export default function WhyBuy({ pillars }: { pillars?: Pillar[] }) {
   const items: Pillar[] = pillars && pillars.length ? pillars : [
     { icon: "⛪", title: "Parish & diocese accounts", text: `Quantity quotes, consolidated delivery and invoicing for churches and institutions. Call ${SITE.phone} to open one.` },
-    { icon: "✍️", title: "Free engraving", text: "Parish names, dedications and anniversaries — engraved free on communion ware, etched beneath the base." },
+    { icon: "💳", title: "Pay the way your church prefers", text: `${SITE.payments.replace(/ · /g, ", ")} — the choice is yours at checkout.` },
     { icon: "🚚", title: "Delivery or pickup — your choice", text: `Same-day Nairobi delivery for orders before 2 PM, or collect from ${SITE.address}. ${SITE.hours}.` },
     { icon: "🪡", title: "With you after the sale", text: "Repairs, alterations and re-polishing — vestments and ware are maintained for the life of their service." },
   ];

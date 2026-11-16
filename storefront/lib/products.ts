@@ -127,7 +127,6 @@ export const products: Product[] = [
       { label: "24K gold finish", text: "Electroplated over solid brass and hand-polished for six hours per piece, then sealed with an anti-tarnish coat for weekly service.", img: "/products/Chalice_Cup.jpg" },
       { label: "Jewelled stem", text: "Four hand-set stones mark the cross at the node — a detail seen up close, at the rail.", img: "/products/Chalice_Cup21.jpg" },
       { label: "Fitted paten lid", text: "The paten seats precisely on the 450ml cup, keeping the elements covered until the moment of service.", img: "/products/Chalice_Cup.jpg" },
-      { label: "Free engraving", text: "Parish names, dedications and anniversaries — etched beneath the base so the cup itself stays unmarked.", img: "/products/gold0_72.jpg" },
       { label: "The matching set", text: "Pair with the thurible and communion ware for one finish across the whole altar.", img: "/products/gold-wares.jpg" },
     ],
     priceUsd: 650,
@@ -139,8 +138,9 @@ export const products: Product[] = [
     rating: 0,
     reviews: 0,
     badge: "best",
-    // Owner, 2026-11-13: "24K gold-plated brass" and "Free engraving
-    // available" removed. The selling points come from the hub's Features.
+    // Owner, 2026-11-13: "24K gold-plated brass" removed. Owner, 2026-11-15:
+    // every engraving claim removed, here and site-wide. The selling points
+    // come from the hub's Features.
     chips: [],
     seller: "Communion Best Seller #1",
     category: "Communion Elements",
@@ -153,7 +153,6 @@ export const products: Product[] = [
       { label: "Serves 500+", text: "Stacking communion trays, chalice and host box sized for congregations of five hundred and above.", img: "/products/live-iStock-139692028.jpg" },
       { label: "Stacking trays", text: "Interlocking golden trays carry the cups securely between the vestry and the rail.", img: "/products/live-iStock-1219476645.jpg" },
       { label: "One finish", text: "Every piece shares the same gold tone, so the table reads as one setting.", img: "/products/gold-wares.jpg" },
-      { label: "Engraving available", text: "The base of each piece can carry your parish name — free, on request.", img: "/products/gold0_72.jpg" },
     ],
     priceUsd: 269, oldPriceUsd: 319,
     name: "Communion Ware Deluxe Set",
@@ -394,7 +393,6 @@ export const products: Product[] = [
     closerLook: [
       { label: "Gold finish", text: "A polished gold finish over solid metal, with a matching chain in the box.", img: "/products/cross1.jpg" },
       { label: "Gift-boxed", text: "Presented in a lined gift box — ready for ordinations and consecrations.", img: "/products/live-cross2.jpg" },
-      { label: "Engraving", text: "Names and dates engraved on the reverse, free on request.", img: "/products/cross1.jpg" },
     ],
     priceUsd: 50, oldPriceUsd: 60,
     name: "Pectoral Cross — Gold Finish",
@@ -406,7 +404,6 @@ export const products: Product[] = [
     reviews: 0,
     chips: [
       { icon: "✦", text: "Gift-boxed with chain" },
-      { icon: "✍", text: "Engraving available" },
     ],
     seller: "Gifts Best Seller #3",
     category: "Gifts & Accessories",
