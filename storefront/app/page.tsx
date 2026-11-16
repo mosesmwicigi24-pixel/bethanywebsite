@@ -219,9 +219,11 @@ export default async function Home() {
                 <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener">All reviews on Google →</a>
               </div>
               <div className="grid">
-                {REVIEWS.slice(0, 3).map((r) => (
+                {REVIEWS.slice(0, 6).map((r) => (
                   <article className="testi" key={`${r.author}-${r.text.slice(0, 24)}`}>
-                    <div className="stars" aria-label={`${r.rating} out of 5 stars`}>{"★".repeat(r.rating)}</div>
+                    <div className="stars" role="img" aria-label={`${r.rating} out of 5 stars`}>
+                      {"★".repeat(r.rating)}<i>{"★".repeat(5 - r.rating)}</i>
+                    </div>
                     <q>{r.text}</q>
                     <div className="who">
                       <span className="av">{r.author.trim().charAt(0).toUpperCase()}</span>
