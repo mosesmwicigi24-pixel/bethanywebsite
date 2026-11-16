@@ -9,7 +9,7 @@ import ProductRail from "@/components/ProductRail";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { getInsights } from "@/lib/insights";
-import { REVIEWS, GOOGLE_REVIEWS_URL } from "@/lib/reviews";
+import { reviewsFrom, HOME_REVIEWS, GOOGLE_REVIEWS_URL } from "@/lib/reviews";
 import { getSiteContent } from "@/lib/theme";
 import { categoryHref } from "@/lib/categories";
 import { SITE } from "@/lib/site";
@@ -24,6 +24,7 @@ export const metadata: Metadata = { alternates: { canonical: "/" } };
 export default async function Home() {
   const [catalogRaw, content, insights] = await Promise.all([getCatalog(), getSiteContent(), getInsights()]);
   const catalog = catalogRaw.filter((p) => !p.variantId);
+  const reviews = reviewsFrom(content.home_testimonial).slice(0, HOME_REVIEWS);
   const bySlug = (s: string) => catalog.find((p) => p.slug === s);
   const pick = (...slugs: string[]) =>
     slugs.map(bySlug).filter((p): p is Product => Boolean(p));
@@ -208,26 +209,26 @@ export default async function Home() {
         <ProductRail title="Fresh on the shelves." cta="Shop new arrivals" products={fresh} />
       </Reveal>
 
-      {/* ---- What customers say: genuine, published reviews only (lib/reviews.ts).
-            With none on file, no quotes are shown — just the way to read them. ---- */}
+      {/* ---- What customers say: genuine reviews, kept in the hub (lib/reviews.ts).
+            With none there, no quotes are shown — just the way to read them. ---- */}
       <section className="testis">
         <Reveal className="wrap">
-          {REVIEWS.length > 0 ? (
+          {reviews.length > 0 ? (
             <>
               <div className="section-head">
                 <h2>What our customers say.</h2>
                 <a href={GOOGLE_REVIEWS_URL} target="_blank" rel="noopener">All reviews on Google →</a>
               </div>
               <div className="grid">
-                {REVIEWS.slice(0, 6).map((r) => (
-                  <article className="testi" key={`${r.author}-${r.text.slice(0, 24)}`}>
+                {reviews.map((r) => (
+                  <article className="testi" key={r.id}>
                     <div className="stars" role="img" aria-label={`${r.rating} out of 5 stars`}>
                       {"★".repeat(r.rating)}<i>{"★".repeat(5 - r.rating)}</i>
                     </div>
                     <q>{r.text}</q>
                     <div className="who">
-                      <span className="av">{r.author.trim().charAt(0).toUpperCase()}</span>
-                      <span><b>{r.author}</b><span>{r.source} review{r.when ? ` · ${r.when}` : ""}</span></span>
+                      <span className="av">{r.author.charAt(0).toUpperCase()}</span>
+                      <span><b>{r.author}</b>{r.source ? <span>{r.source}</span> : null}</span>
                     </div>
                   </article>
                 ))}

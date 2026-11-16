@@ -418,3 +418,25 @@ partners that came from this feed.**
 
 - [ ] GET returns `data.bought_together` + `data.popular` as slugs only.
 - [ ] 404 / error / empty → every surface above shows its fallback, no error.
+
+---
+
+## 10. Customer reviews on the homepage
+
+Reviews are **not** written in the storefront. They are content blocks in the
+Hub (`banners`, slot `home_testimonial`), edited in admin → Home Front
+Customization → Home Page → Customer Reviews, and arrive with the rest of the
+homepage content from the existing `GET /site/content?placement=homepage`:
+
+| Block field | Meaning |
+|---|---|
+| `title` | the reviewer's public name |
+| `subtitle` | the review, word for word (up to 2,000 characters) |
+| `styles.rating` | stars, integer 1–5 |
+| `styles.eyebrow` | where it was posted — "Google review" |
+
+Consumed by `reviewsFrom()` in `storefront/lib/reviews.ts`. A block missing a
+name, a text or a valid rating is ignored. The homepage shows the first six in
+`sort_order`; with none it shows no quotes, only a link to the Google listing.
+Genuine reviews only — never written or tidied for the site.
+
