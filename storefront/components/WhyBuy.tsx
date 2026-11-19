@@ -14,7 +14,7 @@ export default function WhyBuy({ pillars }: { pillars?: Pillar[] }) {
     { icon: "⛪", title: "Parish & diocese accounts", text: `Quantity quotes, consolidated delivery and invoicing for churches and institutions. Call ${SITE.phone} to open one.` },
     { icon: "💳", title: "Pay the way your church prefers", text: `${SITE.payments.replace(/ · /g, ", ")} — the choice is yours at checkout.` },
     { icon: "🚚", title: "Delivery or pickup — your choice", text: `Same-day Nairobi delivery for orders before 2 PM, or collect from ${SITE.address}. ${SITE.hours}.` },
-    { icon: "🪡", title: "With you after the sale", text: "Repairs, alterations and re-polishing — vestments and ware are maintained for the life of their service." },
+    { icon: "🪡", title: "With you after the sale", text: "Repairs or alterations on what you bought from us, within 14 days of receiving it and subject to assessment. Faulty items are replaced or refunded." },
   ];
 
   return (

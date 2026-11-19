@@ -230,7 +230,7 @@ export const products: Product[] = [
       { label: "Breathable fabric", text: "A wrinkle-free blend that holds its line through a full service and travels without ironing.", img: "/products/preaching_gown1.jpg" },
       { label: "Embroidery", text: "Sleeve and panel embroidery in gold or liturgical colours, stitched to your tradition.", img: "/products/live-ORDINATION6.jpg" },
       { label: "Every occasion", text: "Ordinations, Sunday service, conventions — styles for every moment at the pulpit.", img: "/products/live-preaching_gown_11.jpg" },
-      { label: "Alterations after", text: "We alter and repair what we sew — the gown is maintained for the life of its ministry.", img: "/products/live-gown-back.jpg" },
+      { label: "Fit adjusted", text: "If the fit needs adjusting, we alter the gown we made for you within 14 days of delivery, subject to assessment.", img: "/products/live-gown-back.jpg" },
     ],
     priceUsd: 96, oldPriceUsd: 115,
     producible: true,
