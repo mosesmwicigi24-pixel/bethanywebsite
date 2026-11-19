@@ -252,7 +252,7 @@ export default async function Home() {
             <article className="pillar"><div className="ico">✦</div><h3>Sanctuary-grade craft</h3><p>Communion ware in 24K electroplate, vestments embroidered by hand — chosen to be worthy of their use.</p></article>
             <article className="pillar"><div className="ico">✂</div><h3>Made to measure</h3><p>Cassocks, gowns and chasubles tailored in Nairobi to your measurements, in every liturgical colour.</p></article>
             <article className="pillar"><div className="ico">🚚</div><h3>Delivery you can plan on</h3><p>Same-day within Nairobi, days across East Africa — with delivery dates you can schedule services around.</p></article>
-            <article className="pillar"><div className="ico">🤝</div><h3>With you after the sale</h3><p>Repairs, replacements and parish accounts — a supplier relationship, not a transaction.</p></article>
+            <article className="pillar"><div className="ico">🤝</div><h3>With you after the sale</h3><p>Parish accounts, replacements for faulty items, and repairs or alterations on your order within 14 days of receiving it.</p></article>
           </div>
         </Reveal>
       </section>

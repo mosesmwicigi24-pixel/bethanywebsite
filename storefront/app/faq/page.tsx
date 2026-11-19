@@ -79,6 +79,10 @@ const GROUPS: { h: string; items: { q: string; a: string }[] }[] = [
         a: "Unused ready-made goods in their original condition and packaging may be returned within 7 days of delivery for an exchange or refund of the item price. If anything arrives damaged, faulty or incorrect, tell us within 48 hours with a photo and we will arrange a replacement, repair or full refund including return delivery.",
       },
       {
+        q: "Do you repair or alter items?",
+        a: "Only items bought from Bethany House, and only within 14 days of you receiving the item, subject to our assessment. After 14 days we do not accept repairs or alterations, and we do not repair or alter items bought or made elsewhere.",
+      },
+      {
         q: "How do I reach a real person?",
         a: "WhatsApp or call +254 727 891 989 or +254 785 490 805, email info@bethanyhouse.co.ke, or visit the store — Mon–Sat, 8:00 AM – 5:00 PM. Neema, the site's chat assistant, can also help any time.",
       },
