@@ -1,6 +1,8 @@
 /** Single source of truth for business facts used across pages.
     Change a phone number or the delivery promise HERE, nowhere else. */
 export const SITE = {
+  /** Google Analytics 4 measurement ID — the shop's existing property. */
+  gaId: "G-04CDCWMJET",
   name: "Bethany House",
   /** Canonical production origin — used for metadataBase, sitemap, robots,
       canonical links and absolute URLs in structured data. No trailing slash. */
