@@ -28,6 +28,7 @@ import { rootCategory, categoryHref } from "@/lib/categories";
 import { GUIDES_FOR_ROOT, guideBySlug } from "@/lib/guides";
 import { productJsonLd, breadcrumbJsonLd, videoJsonLd } from "@/lib/seo";
 import JsonLd from "@/components/JsonLd";
+import ViewItem from "@/components/ViewItem";
 
 export const revalidate = 300; // ISR — pages rebuild as the hub catalog changes
 
@@ -196,6 +197,7 @@ export default async function ProductPage(
       {!isVariable && (
         <StickyChrome name={parent.name} sku={sku} kes={parent.price} usd={parent.priceUsd} img={parent.img} slug={parent.slug} inStock={parent.inStock} />
       )}
+      <ViewItem slug={parent.slug} name={parent.name} price={parent.price} category={parent.category} />
 
       <div className="wrap">
         <Crumbs items={[

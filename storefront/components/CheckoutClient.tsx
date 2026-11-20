@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Crumbs from "./Crumbs";
 import { Money } from "./Money";
 import { useCart, FREE_DELIVERY_AT, DELIVERY_FEE } from "@/lib/cart";
@@ -14,6 +14,7 @@ import { saveOrder } from "@/lib/orders";
 import { cartToken, rotateCartToken, postInterest } from "@/lib/interest";
 import { useRouter } from "next/navigation";
 import { SITE } from "@/lib/site";
+import { track } from "@/lib/analytics";
 
 type Pay = "mpesa" | "card" | "cash_on_delivery";
 type Delivery = "delivery" | "pickup";
@@ -66,6 +67,18 @@ export default function CheckoutClient() {
   const total = sub + deliveryFee;
   const hasMto = items.some((i) => i.measurements);
 
+  // GA4 funnel: one begin_checkout per visit to a checkout that has items.
+  const begun = useRef(false);
+  useEffect(() => {
+    if (!hydrated || items.length === 0 || begun.current) return;
+    begun.current = true;
+    track("begin_checkout", {
+      currency,
+      value: total,
+      items: items.map((i) => ({ item_id: i.slug, quantity: i.qty, item_variant: i.size })),
+    });
+  }, [hydrated, items, currency, total]);
+
   const placeOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     const draft = buildOnlineOrder(items, {
@@ -77,6 +90,23 @@ export default function CheckoutClient() {
     });
     const live = await submitOnlineOrder(draft);
     const ref = live?.orderNumber ?? `ORD-${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
+    track("purchase", {
+      transaction_id: ref,
+      currency,
+      value: total,
+      shipping: deliveryFee,
+      payment_type: pay,
+      items: items.map((i) => {
+        const pr = bySlug(i.slug);
+        return {
+          item_id: i.slug,
+          item_name: pr?.name,
+          price: pr ? (currency === "KES" ? pr.price : pr.priceUsd) : undefined,
+          quantity: i.qty,
+          item_variant: i.size,
+        };
+      }),
+    });
     saveOrder({
       ref,
       placedAt: new Date().toISOString(),

@@ -13,6 +13,8 @@ import CartDrawer from "@/components/CartDrawer";
 import TabBar from "@/components/TabBar";
 import { NavScroll } from "@/components/NavExtras";
 import MediaGuard from "@/components/MediaGuard";
+import ContactClicks from "@/components/ContactClicks";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import JsonLd from "@/components/JsonLd";
 import { SITE } from "@/lib/site";
 import { organizationJsonLd } from "@/lib/seo";
@@ -99,10 +101,13 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <NavScroll />
           <CartDrawer />
           <MediaGuard />
+          <ContactClicks />
         </CartProvider>
         </CatalogProvider>
         </CurrencyProvider>
       </body>
+      {/* GA4 loads after hydration (never delays the page); events in lib/analytics.ts */}
+      <GoogleAnalytics gaId={SITE.gaId} />
     </html>
   );
 }

@@ -3,6 +3,7 @@
 import { ReactNode, createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useCatalog } from "./catalogClient";
 import { cartToken, postInterest, neemaSession } from "./interest";
+import { track } from "./analytics";
 
 export interface CartItem {
   /** unique line key — producible items with measurements get their own line */
@@ -60,7 +61,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (hydrated) localStorage.setItem(KEY, JSON.stringify(items));
   }, [items, hydrated]);
 
+  const { bySlug } = useCatalog();
+
   const add = useCallback((slug: string, qty = 1, measurements?: Record<string, string>, size?: string) => {
+    const p = bySlug(slug);
+    track("add_to_cart", {
+      currency: "KES",
+      value: (p?.price ?? 0) * qty,
+      items: [{ item_id: slug, item_name: p?.name, price: p?.price, quantity: qty, item_variant: size }],
+    });
     setItems((prev) => {
       if (measurements && Object.keys(measurements).length > 0) {
         // each measured item is its own production line
@@ -74,7 +83,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
         : [...prev, { key, slug, qty, size }];
     });
     setOpen(true);
-  }, []);
+  }, [bySlug]);
 
   const setQty = useCallback((key: string, qty: number) => {
     setItems((prev) =>
@@ -88,8 +97,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const clear = useCallback(() => setItems([]), []);
-
-  const { bySlug } = useCatalog();
   const { count, subtotal, subtotalUsd } = useMemo(() => {
     let count = 0, subtotal = 0, subtotalUsd = 0;
     for (const i of items) {
