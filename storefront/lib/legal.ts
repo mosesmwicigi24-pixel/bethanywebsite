@@ -214,11 +214,11 @@ export const LEGAL: Record<string, LegalDoc> = {
     updated: "November 2026",
     intro: `We want every parish to be glad of its order. This policy explains when and how you can return an item to ${SITE.name}.`,
     sections: [
-      { h: "1. Ready-made items", p: ["Unused ready-made goods in their original condition and packaging may be returned within 7 days of delivery for an exchange or refund of the item price. Please keep your order number."] },
+      { h: "1. Ready-made items", p: ["Unused ready-made goods in their original condition and packaging may be returned within 7 days of delivery for an exchange or a refund of the item price. The customer pays the return delivery, and there is no restocking fee. Please keep your order number."] },
       { h: "2. Made-to-order items", p: ["Vestments, gowns and other items tailored to your measurements cannot be returned for a change of mind, as they are made specifically for you. If a made-to-order item is faulty or not made to the measurements supplied, we will repair, remake or refund it."] },
       { h: "3. Faulty or incorrect items", p: ["If an item arrives damaged, faulty or not what you ordered, tell us within 48 hours with a photo and we will arrange a replacement, repair or full refund including return delivery."] },
       { h: "4. Repairs and alterations", p: [`${SITE.name} repairs or alters only items bought from ${SITE.name}, and only within 14 days of you receiving the item, subject to our assessment. After 14 days no repairs or alterations are accepted. We do not repair or alter items bought or made elsewhere.`] },
-      { h: "5. How to start a return", p: [`Contact us at ${SITE.email}${SITE.phone ? ` or ${SITE.phone}` : ""} with your order number and reason. We will confirm the return address and next steps.`] },
+      { h: "5. How to start a return", p: [`Returns are accepted in store at ${SITE.address}, ${SITE.city}, or by courier. Contact us first at ${SITE.email}${SITE.phone ? ` or ${SITE.phone}` : ""} with your order number and reason, and we will confirm the next steps.`] },
       { h: "6. Refunds", p: ["Approved refunds are made to your original payment method (M-Pesa or card) once we receive and inspect the item, normally within 7–14 days."] },
     ],
   },
