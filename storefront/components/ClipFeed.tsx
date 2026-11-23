@@ -53,6 +53,19 @@ export default function ClipFeed({ items }: { items: ClipItem[] }) {
     else router.push("/");
   }, [router]);
 
+  // Deep link: /clips#<slug> opens the feed on that product (the homepage
+  // strip and shared links land here). Jump before the observer below
+  // starts reporting, so there is no flash of the first clip.
+  useEffect(() => {
+    const slug = decodeURIComponent(window.location.hash.slice(1));
+    if (!slug) return;
+    const i = items.findIndex((it) => it.slug === slug);
+    if (i <= 0) return;
+    // The observer below reports the slide once it is in view and sets
+    // `current`; nothing else to do here.
+    slides.current[i]?.scrollIntoView({ behavior: "auto", block: "start" });
+  }, [items]);
+
   // Which screen is in view → the current clip.
   useEffect(() => {
     const els = slides.current.filter((el): el is HTMLElement => Boolean(el));

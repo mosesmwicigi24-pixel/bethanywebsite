@@ -6,6 +6,7 @@ import DeskHero, { type HeroSlide } from "@/components/DeskHero";
 import { buildReelShelves } from "@/lib/reel";
 import Reveal from "@/components/Reveal";
 import ProductRail from "@/components/ProductRail";
+import ClipStrip from "@/components/ClipStrip";
 import { ProductCard, LineupCard, EditorialCard } from "@/components/cards";
 import { getCatalog } from "@/lib/catalog";
 import { getInsights } from "@/lib/insights";
@@ -91,6 +92,9 @@ export default async function Home() {
           <span><i>✦</i> M-Pesa, card &amp; cash on delivery</span>
         </div>
       </div>
+
+      {/* ---- Clips: every product with a clip, opening the /clips feed ---- */}
+      <Reveal><ClipStrip products={catalog} /></Reveal>
 
       {/* ---- Shop by category: full-width tile grid ---- */}
       <Reveal as="section" className="section wrap">
